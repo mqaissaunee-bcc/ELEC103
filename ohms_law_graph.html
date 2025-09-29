@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Series XY Plotter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+   
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+   
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+   
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+   
+    h1 {
+      font-size: 2.5rem;
+      color: #1f2937;
+      font-weight: bold;
+    }
+   
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+   
+    .btn-clear-all {
+      background: #ef4444;
+      color: white;
+    }
+   
+    .btn-clear-all:hover {
+      background: #dc2626;
+    }
+   
+    .series-tables {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+   
+    .series-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+    }
+   
+    .series-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+   
+    .series-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+   
+    .color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+   
+    .btn-clear {
+      background: transparent;
+      color: #ef4444;
+      padding: 4px 8px;
+      font-size: 0.875rem;
+    }
+   
+    .btn-clear:hover {
+      color: #dc2626;
+    }
+   
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+   
+    .data-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+   
+    .data-input {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 0.875rem;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      outline: none;
+    }
+   
+    .data-input:focus {
+      border-color: #3b82f6;
+      ring: 1px solid #3b82f6;
+    }
+   
+    .chart-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+    }
+   
+    .chart-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 16px;
+    }
+   
+    .no-data {
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      text-align: center;
+    }
+   
+    .no-data-text {
+      font-size: 1.125rem;
+      margin-bottom: 8px;
+    }
+   
+    .no-data-subtext {
+      font-size: 0.875rem;
+    }
+   
+    #chartCanvas {
+      max-height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Multi-Series XY Plotter</h1>
+      <button class="btn btn-clear-all" onclick="clearAll()">
+        🔄 Clear All
+      </button>
+    </div>
+   
+    <div class="series-tables">
+      <!-- Series 1 -->
+      <div class="series-card">
+        <div class="series-header">
+          <div class="series-title">
+            <span class="color-dot" style="background: #3b82f6;"></span>
+            Series 1
+          </div>
+          <button class="btn btn-clear" onclick="clearSeries('series1')">
+            🗑️ Clear
+          </button>
+        </div>
+        <div class="data-grid" id="grid-series1"></div>
+      </div>
+     
+      <!-- Series 2 -->
+      <div class="series-card">
+        <div class="series-header">
+          <div class="series-title">
+            <span class="color-dot" style="background: #ef4444;"></span>
+            Series 2
+          </div>
+          <button class="btn btn-clear" onclick="clearSeries('series2')">
+            🗑️ Clear
+          </button>
+        </div>
+        <div class="data-grid" id="grid-series2"></div>
+      </div>
+     
+      <!-- Series 3 -->
+      <div class="series-card">
+        <div class="series-header">
+          <div class="series-title">
+            <span class="color-dot" style="background: #10b981;"></span>
+            Series 3
+          </div>
+          <button class="btn btn-clear" onclick="clearSeries('series3')">
+            🗑️ Clear
+          </button>
+        </div>
+        <div class="data-grid" id="grid-series3"></div>
+      </div>
+    </div>
+   
+    <!-- Chart -->
+    <div class="chart-card">
+      <div class="chart-title">Plot</div>
+      <div id="noData" class="no-data">
+        <div>
+          <div class="no-data-text">No data to display</div>
+          <div class="no-data-subtext">Enter X and Y values in the tables above to see the plot</div>
+        </div>
+      </div>
+      <canvas id="chartCanvas" style="display: none;"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const seriesColors = {
+      series1: '#3b82f6',
+      series2: '#ef4444',
+      series3: '#10b981'
+    };
+   
+    let dataSeries = {
+      series1: Array(5).fill(null).map(() => ({ x: '', y: '' })),
+      series2: Array(5).fill(null).map(() => ({ x: '', y: '' })),
+      series3: Array(5).fill(null).map(() => ({ x: '', y: '' }))
+    };
+   
+    let chart = null;
+   
+    function initGrids() {
+      ['series1', 'series2', 'series3'].forEach(series => {
+        const grid = document.getElementById(`grid-${series}`);
+        for (let i = 0; i < 5; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'data-cell';
+         
+          const xInput = document.createElement('input');
+          xInput.type = 'number';
+          xInput.className = 'data-input';
+          xInput.placeholder = 'X';
+          xInput.step = 'any';
+          xInput.dataset.series = series;
+          xInput.dataset.index = i;
+          xInput.dataset.field = 'x';
+          xInput.addEventListener('input', handleInput);
+         
+          const yInput = document.createElement('input');
+          yInput.type = 'number';
+          yInput.className = 'data-input';
+          yInput.placeholder = 'Y';
+          yInput.step = 'any';
+          yInput.dataset.series = series;
+          yInput.dataset.index = i;
+          yInput.dataset.field = 'y';
+          yInput.addEventListener('input', handleInput);
+         
+          cell.appendChild(xInput);
+          cell.appendChild(yInput);
+          grid.appendChild(cell);
+        }
+      });
+    }
+   
+    function handleInput(e) {
+      const { series, index, field } = e.target.dataset;
+      dataSeries[series][index][field] = e.target.value;
+      updateChart();
+    }
+   
+    function clearSeries(series) {
+      dataSeries[series] = Array(5).fill(null).map(() => ({ x: '', y: '' }));
+      const grid = document.getElementById(`grid-${series}`);
+      const inputs = grid.querySelectorAll('input');
+      inputs.forEach(input => input.value = '');
+      updateChart();
+    }
+   
+    function clearAll() {
+      ['series1', 'series2', 'series3'].forEach(series => clearSeries(series));
+    }
+   
+    function getPlotData(series) {
+      return dataSeries[series]
+        .filter(point => point.x !== '' && point.y !== '' && !isNaN(parseFloat(point.x)) && !isNaN(parseFloat(point.y)))
+        .map(point => ({ x: parseFloat(point.x), y: parseFloat(point.y) }))
+        .sort((a, b) => a.x - b.x);
+    }
+   
+    function updateChart() {
+      const series1Data = getPlotData('series1');
+      const series2Data = getPlotData('series2');
+      const series3Data = getPlotData('series3');
+      const hasData = series1Data.length > 0 || series2Data.length > 0 || series3Data.length > 0;
+     
+      const canvas = document.getElementById('chartCanvas');
+      const noData = document.getElementById('noData');
+     
+      if (!hasData) {
+        canvas.style.display = 'none';
+        noData.style.display = 'flex';
+        if (chart) {
+          chart.destroy();
+          chart = null;
+        }
+        return;
+      }
+     
+      canvas.style.display = 'block';
+      noData.style.display = 'none';
+     
+      const datasets = [];
+     
+      if (series1Data.length > 0) {
+        datasets.push({
+          label: 'Series 1',
+          data: series1Data,
+          borderColor: seriesColors.series1,
+          backgroundColor: seriesColors.series1,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0
+        });
+      }
+     
+      if (series2Data.length > 0) {
+        datasets.push({
+          label: 'Series 2',
+          data: series2Data,
+          borderColor: seriesColors.series2,
+          backgroundColor: seriesColors.series2,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0
+        });
+      }
+     
+      if (series3Data.length > 0) {
+        datasets.push({
+          label: 'Series 3',
+          data: series3Data,
+          borderColor: seriesColors.series3,
+          backgroundColor: seriesColors.series3,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0
+        });
+      }
+     
+      if (chart) {
+        chart.destroy();
+      }
+     
+      const ctx = canvas.getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'scatter',
+        data: { datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: (${context.parsed.x.toFixed(3)}, ${context.parsed.y.toFixed(3)})`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              title: {
+                display: true,
+                text: 'X'
+              }
+            },
+            y: {
+              type: 'linear',
+              title: {
+                display: true,
+                text: 'Y'
+              }
+            }
+          },
+          showLine: true
+        }
+      });
+    }
+   
+    initGrids();
+  </script>
+</body>
+</html>
