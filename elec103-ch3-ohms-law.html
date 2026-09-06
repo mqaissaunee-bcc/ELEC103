@@ -1,0 +1,4312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 3: Ohm's Law — ELEC 103</title>
+<meta name="description" content="Interactive Chapter 3 of ELEC 103: Ohm's law, the relationship between voltage, current, and resistance, with a live circuit explorer, graphing tools, and a troubleshooting simulator.">
+<style>
+:root {
+  /* Palette drawn from the resistor color code and the lab bench */
+  --paper: #F3F6F8;
+  --surface: #FFFFFF;
+  --bench: #17242F;
+  --bench-soft: #24384A;
+  --ink: #15212C;
+  --ink-soft: #4C5C6B;
+  --ink-faint: #5A6875;
+  --rule: #D3DCE3;
+  --rule-soft: #E7ECF0;
+
+  --gold: #B08421;        /* tolerance band — primary accent, fills and rules */
+  --gold-text: #8A6414;   /* darkened for small text: 4.9:1 on paper */
+  --gold-bright: #D9B23F;
+  --brown: #7B4A2D;
+  --red: #BE3A2B;
+  --orange: #D2691E;
+  --green: #2C7A57;
+  --blue: #2A5DA8;
+  --violet: #6B3FA0;
+
+  --lcd-bg: #101A16;
+  --lcd-ink: #7DE3A1;
+
+  --ok-bg: #E3F3EA;
+  --ok-ink: #1E6343;
+  --no-bg: #FBE7E4;
+  --no-ink: #96261A;
+
+  --font-read: "Iowan Old Style", "IBM Plex Serif", Charter, Georgia, "Times New Roman", serif;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --measure: 66ch;
+  --ui-scale: 1;
+  --r-sm: 3px;
+  --r-md: 6px;
+  --shadow: 0 1px 2px rgba(21,33,44,.08), 0 6px 20px rgba(21,33,44,.06);
+}
+
+/* Dark values live in one place, applied either by explicit choice or by system preference */
+:root[data-theme="dark"] {
+  --paper: #0E161D;
+  --surface: #16212C;
+  --bench: #0A1218;
+  --bench-soft: #1B2A36;
+  --ink: #E4ECF2;
+  --ink-soft: #A9BAC7;
+  --ink-faint: #8697A5;
+  --rule: #2B3C4A;
+  --rule-soft: #223140;
+
+  --gold: #E0BC57;
+  --gold-text: #E0BC57;
+  --gold-bright: #F2D07C;
+  --brown: #B77B54;
+  --red: #E8695A;
+  --orange: #E9924B;
+  --green: #5FBF8F;
+  --blue: #6FA3E8;
+  --violet: #A683DC;
+
+  --ok-bg: #14312A;
+  --ok-ink: #86E0B4;
+  --no-bg: #35201E;
+  --no-ink: #F0958A;
+
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --paper: #0E161D;
+    --surface: #16212C;
+    --bench: #0A1218;
+    --bench-soft: #1B2A36;
+    --ink: #E4ECF2;
+    --ink-soft: #A9BAC7;
+    --ink-faint: #8697A5;
+    --rule: #2B3C4A;
+    --rule-soft: #223140;
+
+    --gold: #E0BC57;
+    --gold-text: #E0BC57;
+    --gold-bright: #F2D07C;
+    --brown: #B77B54;
+    --red: #E8695A;
+    --orange: #E9924B;
+    --green: #5FBF8F;
+    --blue: #6FA3E8;
+    --violet: #A683DC;
+
+    --ok-bg: #14312A;
+    --ok-ink: #86E0B4;
+    --no-bg: #35201E;
+    --no-ink: #F0958A;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+
+html { font-size: calc(100% * var(--ui-scale)); }
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-read);
+  font-size: clamp(1rem, .96rem + .22vw, 1.12rem);
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--gold);
+  color: #15212C;
+  padding: .75rem 1rem;
+  font-family: var(--font-ui);
+  z-index: 100;
+}
+.skip-link:focus { left: 0; }
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.wrap {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.col {
+  max-width: var(--measure);
+}
+
+/* ---------- Masthead ---------- */
+
+.masthead {
+  background: var(--bench);
+  color: #E9F0F5;
+  padding: 1.6rem 0 1.4rem;
+  border-bottom: 3px solid var(--gold);
+}
+.masthead .wrap { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: baseline; justify-content: space-between; }
+.course-line {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  letter-spacing: .04em;
+  color: #9FB4C4;
+  margin: 0 0 .3rem;
+}
+.masthead h1 {
+  font-family: var(--font-read);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.6rem);
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -.01em;
+}
+.masthead h1 .ch {
+  display: block;
+  font-family: var(--font-num);
+  font-size: .8rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: var(--gold-bright);
+  margin-bottom: .5rem;
+}
+.masthead .lede {
+  font-size: .98rem;
+  color: #B9CAD7;
+  margin: .7rem 0 0;
+  max-width: 34ch;
+}
+
+/* ---------- Section nav ---------- */
+
+.chapter-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+}
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .1rem;
+  padding: .2rem 0;
+}
+.tablist .divider {
+  flex: 0 0 100%;
+  height: 1px;
+  background: var(--rule-soft);
+  margin: .15rem 0;
+}
+@media (max-width: 760px) {
+  .chapter-nav { position: static; }
+  .tablist button { font-size: .8rem; padding: .45rem .5rem; }
+}
+.tablist button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: .55rem .6rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: var(--font-ui);
+  font-size: .84rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.tablist button:hover { color: var(--ink); background: var(--rule-soft); }
+.tablist button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+  font-weight: 600;
+}
+.tablist .num {
+  font-family: var(--font-num);
+  font-size: .74rem;
+  color: var(--ink-faint);
+}
+.tablist button[aria-selected="true"] .num { color: var(--gold-text); }
+.tablist .done { color: var(--green); font-size: .8rem; }
+.tablist button.extra { color: var(--gold-text); }
+.tablist button.extra[aria-selected="true"] { color: var(--ink); }
+
+.progress-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+  padding: .5rem 0 .6rem;
+  font-family: var(--font-ui);
+  font-size: .78rem;
+  color: var(--ink-faint);
+}
+.bar {
+  flex: 1 1 8rem;
+  height: 5px;
+  background: var(--rule-soft);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--gold);
+  transition: width .3s ease;
+}
+
+/* ---------- Display preferences ---------- */
+
+.viewprefs { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.prefbtn, .sizer button {
+  min-height: 32px;
+  padding: .25rem .6rem;
+  font-family: var(--font-ui);
+  font-size: .76rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-soft);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.prefbtn:hover, .sizer button:hover { background: var(--rule-soft); color: var(--ink); }
+.sizer {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+.sizer button { border: none; background: none; min-width: 34px; justify-content: center; }
+.sizer button:disabled { opacity: .4; cursor: not-allowed; }
+.sizer #textSizeLabel {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  min-width: 3.1rem;
+  text-align: center;
+  border-left: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  padding: .25rem .2rem;
+}
+#themeIcon { font-size: .95rem; line-height: 1; }
+
+/* ---------- Panels ---------- */
+
+main { padding: 2rem 0 4rem; }
+.panel { scroll-margin-top: 5.5rem; }
+.panel[hidden] { display: none; }
+.panel { animation: none; }
+
+h2 {
+  font-family: var(--font-read);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.9rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  margin: 0 0 .2rem;
+}
+h2 .sec-no {
+  display: block;
+  font-family: var(--font-num);
+  font-size: .78rem;
+  color: var(--gold-text);
+  letter-spacing: .1em;
+  margin-bottom: .45rem;
+}
+h3 {
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 2rem 0 .5rem;
+  color: var(--ink);
+}
+p { margin: 0 0 1rem; }
+.panel > .col > p:first-of-type { margin-top: .8rem; }
+
+a { color: var(--blue); }
+
+ul, ol { max-width: var(--measure); padding-left: 1.2rem; }
+li { margin-bottom: .4rem; }
+
+.eq {
+  font-family: var(--font-num);
+  font-size: 1.05em;
+  background: var(--rule-soft);
+  padding: .08em .35em;
+  border-radius: var(--r-sm);
+}
+
+.callout {
+  border-left: 3px solid var(--gold);
+  background: var(--surface);
+  padding: .9rem 1.1rem;
+  margin: 1.5rem 0;
+  max-width: var(--measure);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+.callout h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  font-weight: 600;
+  margin: 0 0 .4rem;
+  color: var(--gold-text);
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout.caution { border-left-color: var(--red); }
+.callout.caution h4 { color: var(--red); }
+
+.worked {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  padding: 1.1rem 1.2rem;
+  margin: 1.5rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.worked h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--ink-faint);
+}
+.worked .steps {
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 2;
+  margin: .6rem 0 0;
+  color: var(--ink);
+}
+.worked .steps span { display: block; }
+.worked .steps .ans { color: var(--green); font-weight: 600; }
+
+/* ---------- Interactive shell ---------- */
+
+.tool {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  margin: 2rem 0;
+  overflow: hidden;
+}
+.tool-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--rule-soft);
+}
+.tool-head h3 {
+  margin: 0;
+  font-size: .92rem;
+}
+.tool-body { padding: 1rem; }
+
+.viewtoggle { display: flex; gap: .3rem; }
+.viewtoggle button {
+  min-height: 36px;
+  padding: .3rem .7rem;
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-soft);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.viewtoggle button[aria-pressed="true"] {
+  background: var(--bench);
+  border-color: var(--bench);
+  color: #EAF1F6;
+  font-weight: 600;
+}
+
+.stage {
+  background: var(--bench);
+  border-radius: var(--r-md);
+  padding: .5rem;
+}
+.stage svg { display: block; width: 100%; height: auto; }
+
+.controls {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (min-width: 700px) {
+  .controls { grid-template-columns: 1fr 1fr; }
+  .controls.three { grid-template-columns: repeat(3, 1fr); }
+}
+
+.ctrl label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  color: var(--ink-soft);
+  margin-bottom: .35rem;
+}
+.ctrl .val {
+  font-family: var(--font-num);
+  color: var(--ink);
+  font-weight: 600;
+}
+input[type="range"] {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: .6rem;
+  margin-top: 1rem;
+}
+.meter {
+  background: var(--lcd-bg);
+  border: 1px solid #2C4A3B;
+  border-radius: var(--r-sm);
+  padding: .6rem .7rem;
+}
+.meter .lbl {
+  font-family: var(--font-ui);
+  font-size: .72rem;
+  color: #6E9C83;
+  margin-bottom: .15rem;
+}
+.meter .num {
+  font-family: var(--font-num);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--lcd-ink);
+  letter-spacing: -.01em;
+}
+
+.btn {
+  min-height: 44px;
+  padding: .55rem 1rem;
+  font-family: var(--font-ui);
+  font-size: .88rem;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--bench);
+  background: var(--bench);
+  color: #EAF1F6;
+  cursor: pointer;
+}
+.btn:hover { background: var(--bench-soft); }
+.btn.ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--rule);
+}
+.btn.ghost:hover { background: var(--rule-soft); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+
+/* ---------- Formula triangle ---------- */
+
+.triangle-wrap {
+  display: grid;
+  gap: 1.2rem;
+  align-items: center;
+}
+@media (min-width: 700px) {
+  .triangle-wrap { grid-template-columns: minmax(0, 260px) 1fr; }
+}
+.tri-out {
+  font-family: var(--font-num);
+  font-size: 1.1rem;
+  background: var(--rule-soft);
+  border-radius: var(--r-md);
+  padding: 1rem;
+  min-height: 8rem;
+}
+.tri-out .big {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold-text);
+  display: block;
+  margin-bottom: .5rem;
+}
+.tri-out p {
+  font-family: var(--font-read);
+  font-size: .95rem;
+  margin: 0;
+  color: var(--ink-soft);
+}
+.tri-hot { cursor: pointer; }
+.tri-hot:focus-visible rect, .tri-hot:focus-visible circle { outline: 3px solid var(--gold); }
+
+.maprow {
+  display: flex; flex-wrap: wrap; gap: .4rem 1.4rem;
+  margin-top: .8rem;
+  font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft);
+}
+.maprow span { display: inline-flex; align-items: center; gap: .4rem; }
+.maprow span::before {
+  content: ""; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--gold); flex: 0 0 auto;
+}
+#mapWater span::before { background: #4EA3D6; }
+
+.legend { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin-top: .7rem; }
+.legend .chip {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-family: var(--font-num); font-size: .82rem; color: var(--ink-soft);
+}
+.legend .chip i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+/* ---------- Practice ---------- */
+
+.problem {
+  font-family: var(--font-read);
+  font-size: 1.08rem;
+  margin: 0 0 1rem;
+}
+.answer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+}
+input[type="text"], input[type="number"] {
+  min-height: 44px;
+  padding: .5rem .7rem;
+  font-family: var(--font-num);
+  font-size: 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  width: 9rem;
+}
+.unit-tag {
+  font-family: var(--font-num);
+  font-size: 1rem;
+  color: var(--ink-soft);
+}
+.feedback {
+  margin-top: 1rem;
+  padding: .75rem .9rem;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.feedback.ok { background: var(--ok-bg); color: var(--ok-ink); }
+.feedback.no { background: var(--no-bg); color: var(--no-ink); }
+.feedback:empty { display: none; }
+.streak {
+  font-family: var(--font-num);
+  font-size: .82rem;
+  color: var(--ink-faint);
+}
+
+/* ---------- Troubleshooting ---------- */
+
+.tp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: .5rem;
+  margin-top: 1rem;
+}
+.tp {
+  min-height: 44px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--r-sm);
+  padding: .5rem;
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  cursor: pointer;
+  text-align: left;
+}
+.tp:hover { border-color: var(--gold); }
+.tp .reading {
+  display: block;
+  font-family: var(--font-num);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold-text);
+  margin-top: .2rem;
+}
+.tp .reading:empty::before { content: "— — —"; color: var(--ink-faint); font-weight: 400; }
+
+.diagnosis {
+  display: grid;
+  gap: .5rem;
+  margin-top: 1.2rem;
+}
+@media (min-width: 700px) { .diagnosis { grid-template-columns: 1fr 1fr auto; align-items: end; } }
+select {
+  min-height: 44px;
+  width: 100%;
+  padding: .5rem;
+  font-family: var(--font-ui);
+  font-size: .9rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* ---------- Quiz ---------- */
+
+.q {
+  border-top: 1px solid var(--rule);
+  padding: 1.2rem 0;
+  max-width: var(--measure);
+}
+.q:first-of-type { border-top: none; }
+.q .stem {
+  font-weight: 600;
+  margin: 0 0 .7rem;
+  display: flex;
+  gap: .6rem;
+}
+.q .stem .qn { font-family: var(--font-num); color: var(--gold-text); font-size: .85rem; padding-top: .2rem; }
+.opts { display: grid; gap: .35rem; }
+.opt {
+  display: flex;
+  gap: .6rem;
+  align-items: flex-start;
+  padding: .55rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: .92rem;
+  background: var(--surface);
+}
+.opt:hover { border-color: var(--gold); }
+.opt input { margin-top: .25rem; accent-color: var(--gold); min-width: 18px; min-height: 18px; }
+.opt.correct { background: var(--ok-bg); border-color: var(--ok-ink); }
+.opt.wrong { background: var(--no-bg); border-color: var(--no-ink); }
+.rationale {
+  font-family: var(--font-ui);
+  font-size: .87rem;
+  color: var(--ink-soft);
+  margin: .6rem 0 0;
+  padding-left: .7rem;
+  border-left: 2px solid var(--rule);
+}
+.score {
+  font-family: var(--font-num);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.2rem;
+}
+
+/* ---------- Key terms ---------- */
+
+dl.terms { max-width: var(--measure); margin: 1rem 0; }
+dl.terms dt {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: .92rem;
+  margin-top: 1rem;
+}
+dl.terms dd { margin: .2rem 0 0; color: var(--ink-soft); }
+
+/* ---------- Worked example disclosure ---------- */
+
+.attempt {
+  display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+  margin-top: .8rem;
+}
+.attempt input[type="text"] { width: 7.5rem; }
+.attempt .unit-tag { font-size: .95rem; }
+.worked .steps.veiled { display: none; }
+.attempt-note {
+  font-family: var(--font-ui); font-size: .85rem;
+  margin: .7rem 0 0; padding: .5rem .7rem; border-radius: var(--r-sm);
+}
+.attempt-note.ok { background: var(--ok-bg); color: var(--ok-ink); }
+.attempt-note.no { background: var(--no-bg); color: var(--no-ink); }
+.attempt-note:empty { display: none; }
+
+/* ---------- Glossary terms ---------- */
+
+button.term {
+  font: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  border-bottom: 1.5px dotted var(--gold);
+  min-height: 0;
+}
+button.term:hover { border-bottom-style: solid; }
+button.term[aria-expanded="true"] { background: var(--rule-soft); }
+.termdef {
+  display: block;
+  margin: .6rem 0 1rem;
+  padding: .6rem .8rem;
+  border-left: 3px solid var(--gold);
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+  color: var(--ink-soft);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.termdef strong { color: var(--ink); }
+
+/* ---------- Glossary panel ---------- */
+
+.gloss { max-width: var(--measure); }
+.gloss-entry {
+  border-top: 1px solid var(--rule);
+  padding: .9rem 0;
+}
+.gloss-entry:first-child { border-top: none; }
+.gloss-entry h4 {
+  font-family: var(--font-ui);
+  font-size: .96rem;
+  margin: 0 0 .25rem;
+}
+.gloss-entry p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+.gloss-entry .where {
+  font-family: var(--font-num);
+  font-size: .76rem;
+  color: var(--ink-faint);
+  margin-top: .3rem;
+}
+.gloss-filter { margin-bottom: 1rem; }
+.gloss-filter input { width: 100%; max-width: 22rem; }
+
+/* ---------- Resources ---------- */
+
+.res-group { max-width: var(--measure); margin-bottom: 2rem; }
+.res {
+  display: block;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  padding: .8rem .9rem;
+  margin-bottom: .6rem;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+}
+a.res:hover { border-color: var(--gold); }
+.res .rt { font-family: var(--font-ui); font-weight: 600; font-size: .95rem; color: var(--blue); }
+.res .rd { font-size: .9rem; color: var(--ink-soft); margin-top: .2rem; }
+.res .rmeta {
+  font-family: var(--font-num); font-size: .74rem; color: var(--ink-faint);
+  margin-top: .35rem;
+}
+.res.internal .rt { color: var(--ink); }
+
+/* ---------- Homework ---------- */
+
+.hw-problem {
+  border-top: 1px solid var(--rule);
+  padding: .9rem 0;
+}
+.hw-problem:first-of-type { border-top: none; }
+.hw-problem .hq { display: flex; gap: .6rem; margin-bottom: .5rem; }
+.hw-problem .hn { font-family: var(--font-num); color: var(--gold-text); font-size: .85rem; padding-top: .15rem; }
+.hw-problem.right { border-left: 3px solid var(--ok-ink); padding-left: .7rem; }
+.hw-problem.wrong { border-left: 3px solid var(--no-ink); padding-left: .7rem; }
+.hw-mark { font-family: var(--font-ui); font-size: .85rem; margin-top: .4rem; }
+.hw-mark.ok { color: var(--ok-ink); }
+.hw-mark.no { color: var(--no-ink); }
+.code-out {
+  font-family: var(--font-num);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  background: var(--lcd-bg);
+  color: var(--lcd-ink);
+  padding: .8rem 1rem;
+  border-radius: var(--r-sm);
+  margin-top: 1rem;
+  word-break: break-all;
+}
+.est {
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  color: var(--ink-faint);
+  margin: 0 0 1rem;
+}
+
+
+/* ============================================================
+   STUDENT NOTES — global modal, ported from the ENGI 216 pattern
+   ============================================================ */
+
+.notes-fab {
+  position: fixed; right: 18px; bottom: 24px; z-index: 50;
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .75rem 1.1rem; min-height: 48px;
+  border-radius: 30px;
+  background: var(--bench); color: #EAF1F6;
+  border: 1px solid var(--bench);
+  cursor: pointer;
+  font-family: var(--font-ui); font-size: .84rem; font-weight: 600;
+  box-shadow: 0 4px 14px rgba(16,36,58,.28), 0 2px 4px rgba(16,36,58,.16);
+  transition: background .15s, transform .15s;
+}
+.notes-fab:hover, .notes-fab:focus-visible { background: var(--bench-soft); transform: translateY(-1px); }
+.notes-fab .icon { font-size: 1rem; line-height: 1; }
+.notes-fab .count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px;
+  background: var(--gold); color: #15212C;
+  font-family: var(--font-num); font-size: .74rem; font-weight: 700;
+}
+.notes-fab .count[hidden] { display: none; }
+@media (max-width: 560px) {
+  .notes-fab { right: 12px; bottom: 14px; padding: .6rem .8rem; }
+  .notes-fab .label-long { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notes-fab { transition: none; }
+  .notes-fab:hover { transform: none; }
+}
+
+.notes-chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-family: var(--font-ui); font-size: .78rem; color: var(--ink-faint);
+}
+.notes-chip button {
+  background: none; border: none; padding: 0;
+  font: inherit; font-weight: 600; color: var(--gold-text);
+  cursor: pointer; border-bottom: 1px dotted var(--gold);
+  min-height: 0;
+}
+.notes-chip #notesChipStatus { font-family: var(--font-num); font-size: .74rem; }
+
+.notes-modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(16,36,58,.55);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 4vh 16px 16px;
+  overflow-y: auto;
+}
+.notes-modal-backdrop[hidden] { display: none !important; }
+:root[data-theme="dark"] .notes-modal-backdrop { background: rgba(0,0,0,.72); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notes-modal-backdrop { background: rgba(0,0,0,.72); }
+}
+body.notes-modal-open { overflow: hidden; }
+
+.notes-modal {
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: var(--r-md);
+  box-shadow: 0 10px 40px rgba(0,0,0,.4);
+  width: 100%; max-width: 46rem;
+  display: flex; flex-direction: column;
+  max-height: 92vh;
+}
+.notes-modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 1rem; padding: .9rem 1.1rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--rule-soft);
+  border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.notes-modal-head h2 {
+  margin: 0; font-family: var(--font-read); font-size: 1.15rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.notes-modal-close {
+  background: none; border: 1px solid var(--rule); color: var(--ink-soft);
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  cursor: pointer; font-size: 1.2rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.notes-modal-close:hover, .notes-modal-close:focus-visible { color: var(--red); border-color: var(--red); }
+.notes-modal-body { padding: 1.1rem; overflow-y: auto; flex: 1; }
+
+.notes-section-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.notes-section-row label { font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft); white-space: nowrap; }
+.notes-section-row select { flex: 1; min-width: 12rem; }
+.notes-section-row .auto-tag {
+  font-family: var(--font-num); font-size: .7rem; color: var(--gold-text);
+  background: var(--rule-soft); padding: .2rem .5rem; border-radius: var(--r-sm);
+  border: 1px solid var(--rule);
+}
+.notes-section-row .auto-tag[hidden] { display: none; }
+
+.notes-modal textarea {
+  width: 100%; min-height: 11rem; resize: vertical;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  padding: .75rem .85rem;
+  font-family: var(--font-num); font-size: .95rem; line-height: 1.6;
+}
+.notes-meta-row {
+  display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  flex-wrap: wrap; margin-top: .45rem;
+  font-family: var(--font-num); font-size: .74rem; color: var(--ink-faint);
+}
+.notes-clear-section {
+  background: none; border: 1px solid var(--rule); color: var(--ink-soft);
+  padding: .3rem .6rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .74rem; cursor: pointer; min-height: 32px;
+}
+.notes-clear-section:hover, .notes-clear-section:focus-visible { color: var(--red); border-color: var(--red); }
+
+.notes-sub-head {
+  margin: 1.2rem 0 .5rem; padding-top: 1rem;
+  border-top: 1px dotted var(--rule);
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600; color: var(--ink-soft);
+}
+.notes-all-list { list-style: none; padding: 0; margin: 0; }
+.notes-all-list li {
+  display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  padding: .45rem .6rem; border: 1px solid var(--rule);
+  border-radius: var(--r-sm); margin-bottom: .4rem; background: var(--surface);
+}
+.notes-all-list li.active { border-color: var(--gold); background: var(--rule-soft); }
+.notes-all-list .title { flex: 1; font-family: var(--font-ui); font-size: .88rem; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notes-all-list .meta { font-family: var(--font-num); font-size: .72rem; color: var(--ink-faint); white-space: nowrap; }
+.notes-all-list .open-btn {
+  background: none; border: 1px solid var(--gold); color: var(--gold-text);
+  padding: .25rem .6rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .74rem; cursor: pointer; min-height: 32px;
+}
+.notes-all-list .open-btn:hover, .notes-all-list .open-btn:focus-visible { background: var(--gold); color: #15212C; }
+.notes-all-empty {
+  font-family: var(--font-ui); font-size: .84rem; color: var(--ink-soft);
+  padding: .7rem; background: var(--rule-soft); border-radius: var(--r-sm);
+  border: 1px dashed var(--rule); margin: 0;
+}
+
+.notes-name-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-top: 1.2rem; padding-top: 1rem; border-top: 1px dotted var(--rule); }
+.notes-name-row label { font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft); white-space: nowrap; }
+.notes-name-row input { flex: 1; min-width: 11rem; width: auto; }
+
+.notes-modal .save-warn {
+  background: #FFF8E1; color: #5A4400;
+  border: 1px solid #D8A700; border-radius: var(--r-sm);
+  padding: .7rem .8rem; margin-top: 1rem;
+  font-family: var(--font-ui); font-size: .85rem;
+}
+:root[data-theme="dark"] .notes-modal .save-warn { background: #352D12; color: #E6C869; border-color: #8A6D1A; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notes-modal .save-warn { background: #352D12; color: #E6C869; border-color: #8A6D1A; }
+}
+.notes-modal .save-warn .h { display: block; font-weight: 700; font-size: .76rem; margin-bottom: .2rem; }
+
+.notes-modal-foot {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  padding: .9rem 1.1rem;
+  border-top: 1px solid var(--rule); background: var(--rule-soft);
+  border-radius: 0 0 var(--r-md) var(--r-md);
+}
+.notes-modal-foot .spacer { flex: 1; }
+.notes-modal-foot button {
+  min-height: 44px; padding: .5rem .9rem;
+  font-family: var(--font-ui); font-size: .84rem; font-weight: 600;
+  border-radius: var(--r-sm); cursor: pointer;
+  border: 1px solid var(--bench); background: var(--bench); color: #EAF1F6;
+}
+.notes-modal-foot button:hover, .notes-modal-foot button:focus-visible { background: var(--bench-soft); }
+.notes-modal-foot button.secondary { background: var(--surface); color: var(--ink); border-color: var(--rule); }
+.notes-modal-foot button.secondary:hover { background: var(--paper); }
+.notes-modal-foot button.danger { background: none; color: var(--red); border-color: var(--red); }
+.notes-modal-foot button.danger:hover, .notes-modal-foot button.danger:focus-visible { background: var(--red); color: #fff; }
+
+/* Screenshot attachments */
+.notes-dropzone {
+  border: 1.5px dashed var(--rule); border-radius: var(--r-sm);
+  padding: .8rem; background: var(--surface);
+  display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+}
+.notes-dropzone.drag { border-color: var(--gold); background: var(--rule-soft); }
+.notes-dropzone .hint { font-family: var(--font-ui); font-size: .78rem; color: var(--ink-soft); }
+.notes-img-addbtn {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .8rem; font-weight: 600;
+  border-radius: var(--r-sm); cursor: pointer;
+  border: 1px solid var(--bench); background: var(--bench); color: #EAF1F6;
+}
+.notes-img-addbtn:hover, .notes-img-addbtn:focus-visible { background: var(--bench-soft); }
+.notes-img-disabled {
+  font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft);
+  border: 1px dashed var(--rule); border-radius: var(--r-sm); padding: .7rem; background: var(--rule-soft);
+}
+.notes-img-status { font-family: var(--font-num); font-size: .74rem; color: var(--ink-faint); margin: .5rem 0 0; min-height: 1em; }
+.notes-img-status.warn { color: var(--red); }
+.notes-img-grid {
+  list-style: none; padding: 0; margin: .6rem 0 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .7rem;
+}
+.notes-img-fig {
+  margin: 0; border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--surface); padding: .5rem; display: flex; flex-direction: column; gap: .4rem;
+}
+.notes-img-fig img { width: 100%; height: 7rem; object-fit: contain; background: var(--rule-soft); border-radius: var(--r-sm); }
+.notes-img-fig .alt-row { display: flex; flex-direction: column; gap: .2rem; }
+.notes-img-fig .alt-row label { font-family: var(--font-ui); font-size: .68rem; color: var(--ink-soft); }
+.notes-img-fig .alt-row input { width: 100%; min-height: 32px; font-size: .8rem; padding: .3rem .45rem; }
+.notes-img-fig .fig-foot { display: flex; justify-content: space-between; align-items: center; gap: .4rem; }
+.notes-img-fig .dims { font-family: var(--font-num); font-size: .68rem; color: var(--ink-faint); }
+.notes-img-remove {
+  background: none; border: 1px solid var(--rule); color: var(--ink-soft);
+  padding: .2rem .5rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .7rem; cursor: pointer; min-height: 30px;
+}
+.notes-img-remove:hover, .notes-img-remove:focus-visible { color: var(--red); border-color: var(--red); }
+
+/* dot on tabs that hold notes */
+.tab-note-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold); margin-left: .3rem; vertical-align: middle;
+}
+
+/* end-of-chapter reminder */
+.notes-reminder {
+  position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%);
+  z-index: 60; max-width: 28rem; width: calc(100% - 36px);
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--gold); border-left: 4px solid var(--gold);
+  border-radius: var(--r-md); box-shadow: 0 8px 28px rgba(16,36,58,.28);
+  padding: .9rem 1rem; display: flex; flex-direction: column; gap: .6rem;
+}
+.notes-reminder[hidden] { display: none !important; }
+.notes-reminder .nr-msg { font-family: var(--font-ui); font-size: .88rem; margin: 0; }
+.notes-reminder .nr-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.notes-reminder button {
+  min-height: 40px; padding: .4rem .8rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--bench); background: var(--bench); color: #EAF1F6;
+}
+.notes-reminder button.nr-dismiss { background: var(--surface); color: var(--ink-soft); border-color: var(--rule); }
+
+.notes-print-only { display: none; }
+
+@media print {
+  body.printing-notes .masthead,
+  body.printing-notes .chapter-nav,
+  body.printing-notes footer.page,
+  body.printing-notes main,
+  body.printing-notes .notes-fab,
+  body.printing-notes .notes-modal-backdrop,
+  body.printing-notes .notes-reminder { display: none !important; }
+  body.printing-notes { background: #fff !important; color: #000 !important; }
+  body.printing-notes .notes-print-only {
+    display: block !important; background: #fff !important; color: #000 !important;
+    max-width: none; padding: 0;
+  }
+  body.printing-notes .notes-print-only h1 { font-size: 17pt; margin: 0 0 5pt; border-bottom: 2px solid #000; padding-bottom: 4pt; }
+  body.printing-notes .notes-print-only h2 { font-size: 13pt; margin: 13pt 0 4pt; border-bottom: 1px solid #888; padding-bottom: 2pt; }
+  body.printing-notes .notes-print-only .meta { font-family: var(--font-num); font-size: 9pt; color: #444; margin-bottom: 11pt; }
+  body.printing-notes .notes-print-only .note-body { white-space: pre-wrap; font-size: 10.5pt; line-height: 1.5; margin: 5pt 0 9pt; }
+  body.printing-notes .notes-print-only figure.note-fig { margin: 5pt 0 11pt; padding: 0; break-inside: avoid; }
+  body.printing-notes .notes-print-only figure.note-fig img { max-width: 100%; max-height: 5in; height: auto; border: 1px solid #ccc; }
+  body.printing-notes .notes-print-only figure.note-fig figcaption { font-family: var(--font-num); font-size: 9pt; color: #444; margin-top: 3pt; }
+}
+
+/* ---------- Cheat sheet ---------- */
+
+.cheat {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  padding: 1.2rem 1.3rem 1rem;
+  margin: 1.5rem 0;
+  box-shadow: var(--shadow);
+}
+.cheat-title {
+  font-family: var(--font-read);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--gold);
+}
+.cheat-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) { .cheat-grid { grid-template-columns: 1fr 1fr; } }
+.cheat .card {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  padding: .8rem .9rem;
+  break-inside: avoid;
+}
+.cheat .card h4 {
+  font-family: var(--font-ui);
+  font-size: .84rem;
+  font-weight: 600;
+  margin: 0 0 .5rem;
+  color: var(--gold-text);
+}
+.cheat .card p { font-size: .9rem; margin: 0 0 .5rem; }
+.cheat .card p:last-child { margin-bottom: 0; }
+.cheat .fine { font-family: var(--font-num); font-size: .8rem; color: var(--ink-soft); }
+.cheat .fine-list { font-size: .88rem; margin: 0; padding-left: 1.1rem; }
+.cheat .fine-list li { margin-bottom: .3rem; }
+table.ct { width: 100%; border-collapse: collapse; font-size: .88rem; margin-bottom: .5rem; }
+table.ct th, table.ct td {
+  text-align: left;
+  vertical-align: top;
+  padding: .28rem .4rem .28rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-weight: 400;
+}
+table.ct th { color: var(--ink-soft); font-family: var(--font-ui); font-size: .84rem; padding-right: .8rem; }
+table.ct td { font-family: var(--font-num); color: var(--ink); }
+table.ct tr:last-child th, table.ct tr:last-child td { border-bottom: none; }
+.cheat-foot { font-family: var(--font-ui); font-size: .74rem; color: var(--ink-faint); margin: 1rem 0 0; }
+
+@media print {
+  .masthead, .chapter-nav, footer.page, .no-print, .skip-link { display: none !important; }
+  body { background: #fff; color: #000; font-size: 8.4pt; line-height: 1.35; }
+  main { padding: 0; }
+  .wrap { max-width: none; padding: 0; }
+  .cheat { border: none; box-shadow: none; margin: 0; padding: 0; }
+  .cheat-title { font-size: 12pt; margin-bottom: .5rem; padding-bottom: .3rem; border-bottom: 1.5pt solid #000; }
+  .cheat-grid { gap: .45rem; grid-template-columns: 1fr 1fr; }
+  .cheat .card { border: .75pt solid #888; padding: .4rem .5rem; }
+  .cheat .card h4 { color: #000; font-size: 8.6pt; margin-bottom: .3rem; }
+  .cheat .card p { font-size: 8.2pt; margin-bottom: .3rem; }
+  .cheat .fine, .cheat .fine-list { font-size: 7.8pt; }
+  .cheat .fine-list li { margin-bottom: .1rem; }
+  table.ct { font-size: 8.2pt; margin-bottom: .3rem; }
+  table.ct th, table.ct td { padding: .12rem .3rem .12rem 0; }
+  table.ct th { color: #333; font-size: 8pt; }
+  .cheat-foot { font-size: 7pt; margin-top: .5rem; }
+  .btn, .btnrow, .attempt, .tool-head .streak, .est { display: none !important; }
+  .tool { border: none; box-shadow: none; }
+  .tool-head { background: none; border-bottom: 1pt solid #000; padding-left: 0; }
+  .tool-body { padding: 0; }
+  input[type="text"] {
+    border: none; border-bottom: .75pt solid #000; border-radius: 0;
+    width: 6rem; background: none;
+  }
+  .hw-problem { break-inside: avoid; padding: .3rem 0; }
+  .hw-problem .hq { display: inline; margin-bottom: 0; }
+  .hw-problem .hn { padding-right: .45rem; }
+  .hw-problem .answer-row { display: inline-flex; margin-left: .8rem; gap: .3rem; vertical-align: baseline; }
+  #panel-9 > .col > p, #panel-9 .callout { display: none !important; }
+  .streak { display: none !important; }
+  .worked .attempt-note { display: none !important; }
+  .feedback, .code-out, .hw-mark { display: none !important; }
+  @page { margin: 11mm; }
+}
+
+/* ---------- Section footer nav ---------- */
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+}
+
+footer.page {
+  border-top: 1px solid var(--rule);
+  padding: 1.5rem 0 2.5rem;
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  color: var(--ink-faint);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* SVG helpers */
+.wire { stroke: #8FA6B6; stroke-width: 3; fill: none; stroke-linecap: round; }
+.wire-live { stroke: var(--gold-bright); }
+.comp { fill: var(--bench); stroke: #C8D6E0; stroke-width: 2.5; }
+.comp-fill { fill: var(--bench); }
+.label-svg { font-family: var(--font-num); font-size: 20px; fill: #C8D6E0; }
+.label-svg.dim { fill: #93A9B8; font-size: 17px; }
+.charge { fill: var(--gold-bright); }
+.water { fill: #4EA3D6; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div>
+      <p class="course-line">ELEC 103 · Electrical Skills and Techniques</p>
+      <h1><span class="ch">Chapter 3</span>Ohm's Law</h1>
+    </div>
+    <p class="lede">One equation ties voltage, current, and resistance together. Nearly everything you do at the bench comes back to it.</p>
+  </div>
+</header>
+
+<nav class="chapter-nav" aria-label="Chapter sections">
+  <div class="wrap">
+    <div class="tablist" role="tablist" aria-label="Chapter 3 sections" id="tablist"></div>
+    <div class="progress-row">
+      <span id="progressLabel">0 of 9 sections read</span>
+      <span class="bar"><i id="progressBar"></i></span>
+      <span class="notes-chip" id="notesChip" aria-live="polite">
+        <span aria-hidden="true">✎</span>
+        <button type="button" id="notesChipBtn">My notes</button>
+        <span id="notesChipStatus">empty</span>
+      </span>
+      <div class="viewprefs" role="group" aria-label="Display settings">
+        <div class="sizer" role="group" aria-label="Text size">
+          <button type="button" id="textSmaller" aria-label="Make text smaller">A<span aria-hidden="true">−</span></button>
+          <span id="textSizeLabel" aria-live="polite">100%</span>
+          <button type="button" id="textLarger" aria-label="Make text larger">A<span aria-hidden="true">+</span></button>
+        </div>
+        <button type="button" id="themeBtn" class="prefbtn" aria-pressed="false">
+          <span id="themeIcon" aria-hidden="true">◐</span><span id="themeLabel">System theme</span>
+        </button>
+        <button class="prefbtn" id="resetAll">Reset chapter</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+<div class="wrap">
+
+<!-- ============ 3.1 ============ -->
+<section class="panel" id="panel-0" role="tabpanel" aria-labelledby="tab-0" tabindex="-1">
+  <div class="col">
+    <h2><span class="sec-no">3.1</span>The relationship you will use every day</h2>
+    <p>Turn the two knobs below. The battery sets how hard the circuit is pushed. The resistor sets how much the circuit pushes back. Watch what happens to the charge moving through the wire, and to the meter reading.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Circuit explorer</h3>
+      <div class="viewtoggle" role="group" aria-label="Change the view">
+        <button type="button" id="viewCircuit" aria-pressed="true">Circuit</button>
+        <button type="button" id="viewWater" aria-pressed="false">Water analogy</button>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="stage">
+        <svg id="circuitSvg" viewBox="0 0 640 300" role="img" aria-labelledby="circuitTitle circuitDesc">
+          <title id="circuitTitle">Series circuit with a battery, a resistor, and a lamp</title>
+          <desc id="circuitDesc">Charge flows clockwise from the positive terminal of the battery, through a resistor, through a lamp, and back to the battery. The speed of the moving dots and the brightness of the lamp change with the current.</desc>
+          <path id="loopPath" class="wire" d="M 100 90 L 540 90 L 540 230 L 100 230 Z"></path>
+          <!-- battery -->
+          <rect x="82" y="130" width="36" height="60" class="comp-fill" stroke="none"></rect>
+          <line x1="80" y1="145" x2="120" y2="145" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="90" y1="160" x2="110" y2="160" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="80" y1="175" x2="120" y2="175" stroke="#C8D6E0" stroke-width="3"></line>
+          <text x="128" y="150" class="label-svg">+</text>
+          <text x="128" y="185" class="label-svg">−</text>
+          <text x="100" y="215" text-anchor="middle" class="label-svg" id="svgVLabel">12 V</text>
+          <!-- resistor -->
+          <rect x="268" y="72" width="104" height="36" class="comp-fill" stroke="none"></rect>
+          <polyline points="270,90 282,90 288,76 300,104 312,76 324,104 336,76 348,104 354,90 370,90"
+                    fill="none" stroke="#C8D6E0" stroke-width="3" stroke-linejoin="round"></polyline>
+          <text x="320" y="52" text-anchor="middle" class="label-svg" id="svgRLabel">1.0 kΩ</text>
+          <!-- lamp -->
+          <circle id="lampGlow" cx="540" cy="160" r="34" fill="#D9B23F" opacity="0"></circle>
+          <circle cx="540" cy="160" r="22" class="comp"></circle>
+          <line x1="525" y1="145" x2="555" y2="175" stroke="#C8D6E0" stroke-width="2.5"></line>
+          <line x1="555" y1="145" x2="525" y2="175" stroke="#C8D6E0" stroke-width="2.5"></line>
+          <g id="charges"></g>
+          <text x="320" y="276" text-anchor="middle" class="label-svg dim" id="flowNote">conventional current: + to −</text>
+        </svg>
+
+        <svg id="waterSvg" viewBox="0 0 640 300" role="img" aria-labelledby="waterTitle waterDesc" hidden>
+          <title id="waterTitle">Water analogy for a circuit</title>
+          <desc id="waterDesc">A tank of water feeds a horizontal pipe that has a narrow section partway along it. The depth of water in the tank stands for voltage, the narrowness of the pipe stands for resistance, and the rate at which droplets move through the pipe stands for current. A pump returns the water to the tank, the way a battery returns charge to the circuit.</desc>
+          <!-- tank walls, with an outlet gap on the right between y=165 and y=205 -->
+          <path class="wire" d="M 70 50 L 70 215 L 200 215"></path>
+          <path class="wire" d="M 200 175 L 200 50"></path>
+          <rect id="waterLevel" x="73" y="120" width="125" height="93" class="water" opacity=".8"></rect>
+          <!-- pipe walls; the middle section pinches as resistance rises -->
+          <path id="pipeTop" class="wire" d="M 200 175 L 300 175 L 340 185 L 400 185 L 440 175 L 570 175"></path>
+          <path id="pipeBot" class="wire" d="M 200 215 L 300 215 L 340 205 L 400 205 L 440 215 L 570 215"></path>
+          <path id="waterPath" d="M 205 195 L 565 195" fill="none" stroke="none"></path>
+          <g id="droplets"></g>
+          <!-- return loop -->
+          <path class="wire" d="M 570 195 L 600 195 L 600 30 L 135 30 L 135 96" stroke-dasharray="7 9"></path>
+          <path d="M 128 96 L 142 96 L 135 110 Z" fill="#8FA6B6"></path>
+          <text x="360" y="22" text-anchor="middle" class="label-svg dim">pump</text>
+          <text x="370" y="160" text-anchor="middle" class="label-svg dim">narrow section</text>
+        </svg>
+      </div>
+
+      <div class="maprow" id="mapCircuit">
+        <span>battery — the push (V)</span>
+        <span>resistor — the opposition (R)</span>
+        <span>moving charge — the flow (I)</span>
+      </div>
+      <div class="maprow" id="mapWater" hidden>
+        <span>depth of water — the push (V)</span>
+        <span>narrow section — the opposition (R)</span>
+        <span>droplets per second — the flow (I)</span>
+      </div>
+
+      <div class="controls">
+        <div class="ctrl">
+          <label for="vSlider">Source voltage <span class="val" id="vOut">12.0 V</span></label>
+          <input type="range" id="vSlider" min="0" max="24" step="0.5" value="12">
+        </div>
+        <div class="ctrl">
+          <label for="rSlider">Resistance <span class="val" id="rOut">1.00 kΩ</span></label>
+          <input type="range" id="rSlider" min="100" max="10000" step="10" value="1000">
+        </div>
+      </div>
+
+      <div class="readouts" aria-live="polite">
+        <div class="meter"><div class="lbl">Voltage (V)</div><div class="num" id="mV">12.0 V</div></div>
+        <div class="meter"><div class="lbl">Resistance (R)</div><div class="num" id="mR">1.00 kΩ</div></div>
+        <div class="meter"><div class="lbl">Current (I)</div><div class="num" id="mI">12.0 mA</div></div>
+      </div>
+      <p class="streak" id="explorerNote" style="margin-top:.8rem;"></p>
+    </div>
+  </div>
+
+  <div class="col">
+    <p>Two patterns should show up as you move the sliders. Raise the voltage and the current rises with it. Raise the resistance and the current falls. Georg Ohm published that relationship in 1827, and it holds for every resistive circuit you will build in this course.</p>
+
+    <div class="callout">
+      <h4>Where the water picture helps, and where it lies</h4>
+      <p>Pressure pushing water through a narrow pipe is a fair picture of voltage pushing charge through a resistor. It breaks down at a cut wire. Cut a water pipe and water sprays out. Cut a circuit and nothing spills — the current simply stops everywhere at once, including in the parts of the circuit far from the break. Charge needs a complete loop, and water does not.</p>
+    </div>
+
+    <h3>What this section asks of you</h3>
+    <p>By the end of the chapter you should be able to state Ohm's law in all three of its forms, calculate any one of the three quantities when you know the other two, read the two graphs that describe the relationship, and use it to find a fault in a circuit that is not behaving.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.2 ============ -->
+<section class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.2</span>The three quantities, briefly</h2>
+    <p>Chapter 2 introduced these separately. Ohm's law is where they meet, so it is worth pinning down what each one actually measures before combining them.</p>
+
+    <h3>Voltage is the push</h3>
+    <p><button class="term" data-term="voltage">Voltage</button> is energy per unit of charge, measured in volts. A 12 V battery gives every coulomb of charge 12 joules of energy to spend on its way around the circuit. Voltage is always measured <em>between two points</em> — this is why you place a voltmeter across a component rather than in line with it. A single point does not have a voltage any more than a single step has a height difference.</p>
+
+    <h3>Current is the flow</h3>
+    <p><button class="term" data-term="current">Current</button> is charge per unit of time, measured in amperes. One ampere is one coulomb passing a point each second. Current is measured <em>through</em> a component, which is why an ammeter has to be inserted into the path, with the circuit broken open to receive it.</p>
+
+    <h3>Resistance is the opposition</h3>
+    <p><button class="term" data-term="resistance">Resistance</button> is the opposition to current, measured in ohms. In this course resistance mostly comes from resistors you choose deliberately, but every wire, every switch contact, and every meter lead has some of it too.</p>
+
+    <div class="callout">
+      <h4>A habit worth forming now</h4>
+      <p>Before you calculate anything, say out loud which quantity you are after and which two you already know. Most wrong answers in this chapter are not arithmetic errors. They are cases of dividing the wrong pair of numbers.</p>
+    </div>
+
+    <h3>Direction of current</h3>
+    <p>Your textbook uses <button class="term" data-term="conventional-current">conventional current</button>, which treats current as flowing from the positive terminal of the source, around the circuit, to the negative terminal. Electrons in a metal actually drift the other way. Both conventions give identical answers for everything in this course, so use the one the book and your instructor use, and be aware the other exists when you read outside sources.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.3 ============ -->
+<section class="panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.3</span>Ohm's law and its three forms</h2>
+    <p><button class="term" data-term="ohms-law">Ohm's law</button> states that current is <button class="term" data-term="directly-proportional">directly proportional</button> to voltage and <button class="term" data-term="inversely-proportional">inversely proportional</button> to resistance. In symbols:</p>
+    <p style="text-align:center;font-family:var(--font-num);font-size:1.5rem;margin:1.5rem 0;"><em>I</em> = <em>V</em> / <em>R</em></p>
+    <p>Directly proportional means that doubling the voltage doubles the current, as long as resistance stays put. Inversely proportional means that doubling the resistance halves the current, as long as voltage stays put. Those two sentences are the entire law. The other two forms are the same equation solved for a different letter.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head"><h3>Cover the quantity you want</h3></div>
+    <div class="tool-body">
+      <div class="triangle-wrap">
+        <svg viewBox="0 0 240 210" role="group" aria-label="Ohm's law triangle. Select a quantity to see the formula that finds it.">
+          <path d="M 120 12 L 232 198 L 8 198 Z" fill="none" stroke="var(--rule)" stroke-width="2"></path>
+          <line x1="52" y1="128" x2="188" y2="128" stroke="var(--rule)" stroke-width="2"></line>
+          <line x1="120" y1="128" x2="120" y2="198" stroke="var(--rule)" stroke-width="2"></line>
+          <g class="tri-hot" id="triV" tabindex="0" role="button" aria-label="Solve for voltage">
+            <rect x="76" y="46" width="88" height="74" fill="transparent"></rect>
+            <text x="120" y="98" text-anchor="middle" font-family="var(--font-num)" font-size="42" font-weight="600" fill="var(--ink)">V</text>
+          </g>
+          <g class="tri-hot" id="triI" tabindex="0" role="button" aria-label="Solve for current">
+            <rect x="20" y="134" width="94" height="58" fill="transparent"></rect>
+            <text x="66" y="176" text-anchor="middle" font-family="var(--font-num)" font-size="38" font-weight="600" fill="var(--ink)">I</text>
+          </g>
+          <g class="tri-hot" id="triR" tabindex="0" role="button" aria-label="Solve for resistance">
+            <rect x="126" y="134" width="94" height="58" fill="transparent"></rect>
+            <text x="174" y="176" text-anchor="middle" font-family="var(--font-num)" font-size="38" font-weight="600" fill="var(--ink)">R</text>
+          </g>
+        </svg>
+        <div class="tri-out" id="triOut" aria-live="polite">
+          <span class="big">Pick a letter</span>
+          <p>Cover the quantity you are solving for. What is left in the triangle is the formula: side by side means multiply, one over the other means divide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="callout caution">
+      <h4>The triangle is a crutch, not an explanation</h4>
+      <p>It is a fine memory aid for your first few weeks, and useless the moment a problem has more than three quantities in it. Practice rearranging <span class="eq">I = V/R</span> algebraically as well, because chapters 5 through 7 will stack several of these relationships together and no triangle covers that.</p>
+    </div>
+
+    <h3>Units must match the formula</h3>
+    <p>Ohm's law is written in base units: volts, amperes, ohms. If you feed it kilohms without converting, the answer comes out in milliamperes rather than amperes, which is convenient once you know it and a trap until then. Section 3.6 works through this in detail.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.4 ============ -->
+<section class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.4</span>Calculating current</h2>
+    <p>Current is the quantity you will calculate most often, because it is the one that is most awkward to measure. Measuring voltage means touching two probes to a live circuit. Measuring current means breaking the circuit open and inserting the meter into the path. Given the choice, a technician measures voltage and calculates current.</p>
+
+    <div class="worked" data-answer="120" data-unit="mA" data-tol="0.01">
+      <h4>Worked example 1</h4>
+      <p>A 100 Ω resistor is connected across a 12 V source. How much current is in the circuit?</p>
+      <div class="steps">
+        <span>I = V / R</span>
+        <span>I = 12 V / 100 Ω</span>
+        <span class="ans">I = 0.12 A = 120 mA</span>
+      </div>
+    </div>
+
+    <div class="worked" data-answer="5.4545" data-unit="mA" data-tol="0.01">
+      <h4>Worked example 2</h4>
+      <p>The same 12 V source is connected across a 2.2 kΩ resistor instead. Find the current.</p>
+      <div class="steps">
+        <span>I = V / R</span>
+        <span>I = 12 V / 2 200 Ω</span>
+        <span class="ans">I = 0.005 45 A = 5.45 mA</span>
+      </div>
+      <p style="margin:.8rem 0 0;font-size:.95rem;color:var(--ink-soft);">Twenty-two times the resistance, one twenty-second of the current. Inverse proportion in action.</p>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Practice</h3>
+      <span class="streak" id="practiceStreak">Streak 0 · Best 0</span>
+    </div>
+    <div class="tool-body">
+      <p class="problem" id="practiceProblem">Loading a problem…</p>
+      <div class="answer-row">
+        <label for="practiceInput" class="visually-hidden">Your answer</label>
+        <input type="text" id="practiceInput" inputmode="decimal" autocomplete="off">
+        <span class="unit-tag" id="practiceUnit">mA</span>
+        <button class="btn" id="practiceCheck" type="button">Check answer</button>
+        <button class="btn ghost" id="practiceNew" type="button">New problem</button>
+      </div>
+      <div class="feedback" id="practiceFeedback" role="status" aria-live="polite"></div>
+      <p class="streak" style="margin-top:.9rem;">Answers within 1% are accepted. Round to three significant figures.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.5 ============ -->
+<section class="panel" id="panel-4" role="tabpanel" aria-labelledby="tab-4" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.5</span>Calculating voltage and resistance</h2>
+
+    <h3>Finding voltage: V = IR</h3>
+    <p>This form answers the question every series circuit will eventually ask you: how much voltage is dropped across this particular resistor? Multiply the current through it by its resistance.</p>
+
+    <div class="worked" data-answer="11.75" data-unit="V" data-tol="0.01">
+      <h4>Worked example 3</h4>
+      <p>A current of 2.5 mA is in a 4.7 kΩ resistor. What is the voltage across it?</p>
+      <div class="steps">
+        <span>V = I × R</span>
+        <span>V = 0.0025 A × 4 700 Ω</span>
+        <span class="ans">V = 11.75 V ≈ 11.8 V</span>
+      </div>
+      <p style="margin:.8rem 0 0;font-size:.95rem;color:var(--ink-soft);">Shortcut worth memorizing: milliamperes times kilohms gives volts directly. 2.5 mA × 4.7 kΩ = 11.75 V, with no conversion needed.</p>
+    </div>
+
+    <h3>Finding resistance: R = V/I</h3>
+    <p>You will use this one less often for design and more often for diagnosis. If a component is drawing more current than it should at a known voltage, its resistance has dropped, and that usually means something inside it has failed.</p>
+
+    <div class="worked" data-answer="7.2289" data-unit="Ω" data-tol="0.01">
+      <h4>Worked example 4</h4>
+      <p>A lamp draws 830 mA from a 6.0 V supply. What is its resistance while lit?</p>
+      <div class="steps">
+        <span>R = V / I</span>
+        <span>R = 6.0 V / 0.830 A</span>
+        <span class="ans">R = 7.23 Ω</span>
+      </div>
+    </div>
+
+    <div class="callout caution">
+      <h4>A lamp is not a resistor</h4>
+      <p>Measure that same lamp cold with an ohmmeter and you will get a much smaller number, often under one ohm. The tungsten filament's resistance climbs steeply as it heats. Ohm's law still holds at every instant, but the resistance is not a constant, so the lamp is a <em>non-linear</em> device. Section 3.6 shows what that does to the graph.</p>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Mixed practice</h3>
+      <span class="streak" id="mixStreak">Streak 0 · Best 0</span>
+    </div>
+    <div class="tool-body">
+      <p class="problem" id="mixProblem">Loading a problem…</p>
+      <div class="answer-row">
+        <label for="mixInput" class="visually-hidden">Your answer</label>
+        <input type="text" id="mixInput" inputmode="decimal" autocomplete="off">
+        <span class="unit-tag" id="mixUnit">V</span>
+        <button class="btn" id="mixCheck" type="button">Check answer</button>
+        <button class="btn ghost" id="mixNew" type="button">New problem</button>
+      </div>
+      <div class="feedback" id="mixFeedback" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.6 ============ -->
+<section class="panel" id="panel-5" role="tabpanel" aria-labelledby="tab-5" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.6</span>Seeing the law as a graph</h2>
+    <p>Two graphs describe Ohm's law, and they look nothing alike. Which one you get depends on which quantity you hold constant.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Graph explorer</h3>
+      <div class="viewtoggle" role="group" aria-label="Choose a graph">
+        <button type="button" id="graphIV" aria-pressed="true">Current vs voltage</button>
+        <button type="button" id="graphIR" aria-pressed="false">Current vs resistance</button>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="stage">
+        <svg id="plotSvg" viewBox="0 0 640 380" role="img" aria-labelledby="plotTitle" aria-describedby="plotSummary">
+          <title id="plotTitle">Plot of the Ohm's law relationship</title>
+          <g id="plotGrid"></g>
+          <g id="plotCurves"></g>
+          <g id="plotAxes"></g>
+        </svg>
+      </div>
+      <div class="legend" id="plotLegend"></div>
+      <p id="plotSummary" class="streak" style="margin-top:.7rem;"></p>
+
+      <div class="controls">
+        <div class="ctrl" id="gvCtrl">
+          <label for="gSlider"><span id="gLabel">Resistance</span> <span class="val" id="gOut">1.00 kΩ</span></label>
+          <input type="range" id="gSlider" min="100" max="5000" step="10" value="1000">
+        </div>
+        <div class="ctrl" style="align-self:end;">
+          <div class="btnrow" style="margin-top:0;">
+            <button class="btn ghost" id="pinCurve" type="button">Keep this curve</button>
+            <button class="btn ghost" id="clearCurves" type="button">Clear kept curves</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>Current versus voltage is a straight line</h3>
+    <p>Hold the resistance fixed, sweep the voltage, and plot the current. You get a straight line through the origin. A relationship that graphs as a straight line is called <em>linear</em>, and this is exactly what people mean when they call a resistor a linear component.</p>
+    <p>The <button class="term" data-term="slope">slope</button> carries information. Keep several curves on the plot at once and you will see it: the smaller the resistance, the steeper the line. Slope is <span class="eq">I/V</span>, which is <span class="eq">1/R</span>. A steep line is a small resistor letting a lot of current through for each additional volt.</p>
+    <p>The line also passes through the origin, and that matters. Zero volts gives zero current. There is no threshold to overcome and no offset, which is another way of saying a resistor does not care which direction you push it.</p>
+
+    <h3>Current versus resistance is a curve</h3>
+    <p>Now hold the voltage fixed and sweep the resistance instead. The plot drops steeply at first, then flattens into a long tail that approaches but never reaches zero. This shape is a hyperbola, and it is the signature of an inverse relationship.</p>
+    <p>The practical lesson is in the shape's asymmetry. Going from 100 Ω to 200 Ω costs you a lot of current. Going from 9 kΩ to 10 kΩ barely changes anything. When you are choosing a resistor to set a current, small values need far more precision than large ones.</p>
+
+    <div class="callout">
+      <h4>What a non-linear device looks like</h4>
+      <p>Plot current against voltage for the lamp from section 3.5 and you will not get a straight line. It bends over as the voltage climbs, because the filament heats up and its resistance rises. Diodes, transistors, and thermistors all bend in their own characteristic ways. Reading the shape of an I–V curve is how you identify a device you cannot see.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.7 ============ -->
+<section class="panel" id="panel-6" role="tabpanel" aria-labelledby="tab-6" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.7</span>At the bench</h2>
+    <p>Everything so far has been calculation. The lab that goes with this chapter asks you to build the circuit and prove the numbers with a meter. This section is what to expect before you get there.</p>
+
+    <h3>What you will build</h3>
+    <p>A single resistor across a DC supply, on a breadboard, with the supply set to a voltage your instructor specifies. You will measure the voltage across the resistor and the current through it, calculate the third quantity, and compare all three against the resistor's marked value.</p>
+
+    <h3>How each measurement connects</h3>
+    <p>This is the part that costs people fuses and lab time, so learn it before you sit down.</p>
+    <ul>
+      <li><strong>Voltage.</strong> Probes touch two points, one on each side of the component. The circuit stays whole. The meter has very high internal resistance, so almost no current diverts into it.</li>
+      <li><strong>Current.</strong> The circuit must be broken and the meter inserted so that all the current passes through it. The meter has very low internal resistance. Placing an ammeter across a supply the way you would a voltmeter is a short circuit, and that is how meter fuses die.</li>
+      <li><strong>Resistance.</strong> Power off, and the component lifted out of the circuit at one end. An ohmmeter supplies its own small current, so any other path in the circuit corrupts the reading.</li>
+    </ul>
+
+    <div class="callout caution">
+      <h4>Before you power anything up</h4>
+      <p>Check the meter's function switch and which jacks the leads are in. Most fuse failures happen because the leads were still in the current jacks from the last measurement while the dial had been turned to volts.</p>
+    </div>
+
+    <h3>Readings that will not match exactly</h3>
+    <p>Your measured current will be a little off from your calculated current, and that is not a mistake on your part. Three reasons, all worth naming in your lab report:</p>
+    <ul>
+      <li>The resistor's <button class="term" data-term="tolerance">tolerance</button> band. A 5% 1.0 kΩ resistor is legitimately anything from 950 Ω to 1 050 Ω.</li>
+      <li>The supply is not exactly at its dial setting. Measure it rather than assuming it.</li>
+      <li>The ammeter's own resistance adds a small amount to the circuit, which lowers the current slightly.</li>
+    </ul>
+    <p>A good lab report states the calculated value, the measured value, the percent difference, and which of these accounts for it. A report claiming the numbers matched exactly when they did not is worth less than one that explains a 3% discrepancy correctly.</p>
+
+    <h3>Percent difference</h3>
+    <p><button class="term" data-term="percent-difference">Percent difference</button> uses the calculated value as the reference:</p>
+    <p style="text-align:center;font-family:var(--font-num);font-size:1.1rem;margin:1.2rem 0;">% difference = |measured − calculated| ÷ calculated × 100</p>
+    <p>If your resistor is 5% tolerance and your meter is rated at 1%, a result within about 6% is consistent with the theory. Much beyond that and something is wired wrong, or the supply is not where you think it is.</p>
+
+    <div class="callout">
+      <h4>Carry this into the report</h4>
+      <p>The lab report outcome for this course asks you to interpret data, not just record it. The interpretation for this lab is one sentence: does the measured current agree with Ohm's law within the tolerance of the parts you used? Answer that explicitly and the rest of the report writes itself.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.8 ============ -->
+<section class="panel" id="panel-7" role="tabpanel" aria-labelledby="tab-7" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.8</span>Troubleshooting with Ohm's law</h2>
+    <p>A circuit that misbehaves is telling you something. Ohm's law is how you translate it. If you know what the voltages and currents should be, then every reading that disagrees narrows down where the fault is.</p>
+
+    <h3>Analysis, planning, measurement</h3>
+    <p>Floyd calls this the <button class="term" data-term="apm">APM approach</button>, and it is worth following in that order rather than reaching for the meter first.</p>
+    <ol>
+      <li><strong>Analysis.</strong> Think about what the circuit should do. Calculate the expected readings before you touch anything, so you have something to compare against.</li>
+      <li><strong>Planning.</strong> Decide where you will measure and in what order. A plan that halves the possibilities with each measurement beats one that walks through components left to right.</li>
+      <li><strong>Measurement.</strong> Take the readings, compare them to your expectations, and revise.</li>
+    </ol>
+
+    <h3>Half-splitting</h3>
+    <p><button class="term" data-term="half-splitting">Half-splitting</button>: if a series string has eight components and one has failed, measuring at the midpoint tells you which half the fault is in. Repeat and you have found it in three measurements instead of eight. The technique costs nothing but a moment of planning.</p>
+
+    <h3>The two failures you will see most</h3>
+    <p>An <button class="term" data-term="open"><strong>open</strong></button> is a break in the path. Current stops everywhere in a series circuit, so every good component drops zero volts, and the entire source voltage appears across the break. That last part surprises people: the failed component shows the highest reading on the meter, not the lowest.</p>
+    <p>A <button class="term" data-term="short"><strong>short</strong></button> is an unintended low-resistance path. The shorted component drops zero volts, total resistance falls, current rises, and every other component drops more voltage than it should.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Fault finder</h3>
+      <span class="streak" id="tsScore">Solved 0</span>
+    </div>
+    <div class="tool-body">
+      <p style="font-family:var(--font-ui);font-size:.92rem;color:var(--ink-soft);margin-bottom:1rem;">A 12 V source feeds three resistors in series: R1 = 1.0 kΩ, R2 = 2.2 kΩ, R3 = 3.3 kΩ. Something is wrong. Take voltage readings, then name the fault.</p>
+      <div class="stage">
+        <svg viewBox="0 0 640 200" role="img" aria-label="Series circuit with a 12 volt source and three resistors labeled R1, R2 and R3.">
+          <path class="wire" d="M 60 60 L 580 60 L 580 140 L 60 140 Z"></path>
+          <rect x="46" y="80" width="28" height="42" class="comp-fill" stroke="none"></rect>
+          <line x1="44" y1="90" x2="76" y2="90" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="52" y1="102" x2="68" y2="102" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="44" y1="114" x2="76" y2="114" stroke="#C8D6E0" stroke-width="3"></line>
+          <text x="60" y="172" text-anchor="middle" class="label-svg">12 V</text>
+          <rect x="140" y="44" width="90" height="32" class="comp-fill" stroke="none"></rect>
+          <polyline points="142,60 152,60 158,48 168,72 178,48 188,72 198,48 208,72 214,60 228,60" fill="none" stroke="#C8D6E0" stroke-width="3"></polyline>
+          <text x="164" y="36" class="label-svg">R1</text>
+          <rect x="275" y="44" width="90" height="32" class="comp-fill" stroke="none"></rect>
+          <polyline points="277,60 287,60 293,48 303,72 313,48 323,72 333,48 343,72 349,60 363,60" fill="none" stroke="#C8D6E0" stroke-width="3"></polyline>
+          <text x="299" y="36" class="label-svg">R2</text>
+          <rect x="410" y="44" width="90" height="32" class="comp-fill" stroke="none"></rect>
+          <polyline points="412,60 422,60 428,48 438,72 448,48 458,72 468,48 478,72 484,60 498,60" fill="none" stroke="#C8D6E0" stroke-width="3"></polyline>
+          <text x="434" y="36" class="label-svg">R3</text>
+          <text x="360" y="180" text-anchor="middle" class="label-svg dim">measure across each resistor, or across the source</text>
+        </svg>
+      </div>
+
+      <div class="tp-grid">
+        <button class="tp" type="button" data-tp="R1">Across R1 <span class="reading" id="tpR1"></span></button>
+        <button class="tp" type="button" data-tp="R2">Across R2 <span class="reading" id="tpR2"></span></button>
+        <button class="tp" type="button" data-tp="R3">Across R3 <span class="reading" id="tpR3"></span></button>
+        <button class="tp" type="button" data-tp="SRC">Across source <span class="reading" id="tpSRC"></span></button>
+      </div>
+
+      <div class="diagnosis">
+        <div>
+          <label for="faultComp" style="display:block;font-family:var(--font-ui);font-size:.82rem;color:var(--ink-soft);margin-bottom:.35rem;">Which component?</label>
+          <select id="faultComp">
+            <option value="">Choose one</option>
+            <option value="R1">R1</option>
+            <option value="R2">R2</option>
+            <option value="R3">R3</option>
+            <option value="NONE">Nothing is wrong</option>
+          </select>
+        </div>
+        <div>
+          <label for="faultType" style="display:block;font-family:var(--font-ui);font-size:.82rem;color:var(--ink-soft);margin-bottom:.35rem;">What kind of fault?</label>
+          <select id="faultType">
+            <option value="">Choose one</option>
+            <option value="open">Open</option>
+            <option value="short">Short</option>
+            <option value="none">No fault</option>
+          </select>
+        </div>
+        <button class="btn" id="tsSubmit" type="button">Submit diagnosis</button>
+      </div>
+      <div class="feedback" id="tsFeedback" role="status" aria-live="polite"></div>
+      <div class="btnrow">
+        <button class="btn ghost" id="tsNew" type="button">New faulty circuit</button>
+        <span class="streak" id="tsCount" style="align-self:center;">Measurements taken: 0</span>
+      </div>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 3.9 ============ -->
+<section class="panel" id="panel-8" role="tabpanel" aria-labelledby="tab-8" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">3.9</span>Check yourself</h2>
+    <p>Ten questions, scored but not recorded. Nothing here goes to Canvas. Take it as many times as you like — the questions and the answer choices are reshuffled each time.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Self-check</h3>
+      <span class="streak" id="quizBest"></span>
+    </div>
+    <div class="tool-body">
+      <div id="quizBody"></div>
+      <div class="btnrow">
+        <button class="btn" id="quizGrade" type="button">Score my answers</button>
+        <button class="btn ghost" id="quizReset" type="button">Start over with new questions</button>
+      </div>
+      <div class="score" id="quizScore" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>Key terms</h3>
+    <dl class="terms">
+      <dt>Ohm's law</dt>
+      <dd>The relationship stating that current is directly proportional to voltage and inversely proportional to resistance.</dd>
+      <dt>Linear</dt>
+      <dd>Characterized by a straight-line relationship. In a linear resistor, a change in current is proportional to the change in voltage.</dd>
+      <dt>Directly proportional</dt>
+      <dd>Two quantities that rise and fall together by the same factor. Current and voltage, at fixed resistance.</dd>
+      <dt>Inversely proportional</dt>
+      <dd>Two quantities where one rises as the other falls by the same factor. Current and resistance, at fixed voltage.</dd>
+      <dt>Troubleshooting</dt>
+      <dd>The systematic process of identifying and locating a fault in a circuit or system.</dd>
+      <dt>Half-splitting</dt>
+      <dd>A troubleshooting method that eliminates half of the remaining possibilities with each measurement.</dd>
+      <dt>Open</dt>
+      <dd>A break in the current path. Current stops; the full source voltage appears across the break.</dd>
+      <dt>Short</dt>
+      <dd>An unintended low-resistance path. The shorted element drops no voltage and total current rises.</dd>
+    </dl>
+
+    <h3>Before the next chapter</h3>
+    <p>Chapter 4 takes the same three quantities and asks what they cost in energy. If you can move confidently between the three forms of Ohm's law, the power formulas will feel like more of the same rather than a new set of things to memorize.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Homework ============ -->
+<section class="panel" id="panel-9" role="tabpanel" aria-labelledby="tab-9" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">Graded</span>Homework set</h2>
+    <p>Ten problems drawn from the whole chapter. Enter your student ID and the set builds itself from it, so your numbers are yours alone and stay the same every time you come back. Work them on paper, enter your answers, and submit the code it gives you.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Problem set</h3>
+      <span class="streak" id="hwStatus">Not started</span>
+    </div>
+    <div class="tool-body">
+      <div class="answer-row">
+        <label for="hwId" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Student ID</label>
+        <input type="text" id="hwId" inputmode="numeric" autocomplete="off" placeholder="e.g. 0912345" style="width:11rem;">
+        <button class="btn" id="hwBuild" type="button">Build my set</button>
+      </div>
+      <p class="streak" style="margin-top:.7rem;">Use the same ID every time. A different ID gives a different set of problems.</p>
+
+      <div id="hwBody" style="margin-top:1.2rem;"></div>
+
+      <div class="btnrow" id="hwActions" hidden>
+        <button class="btn" id="hwGrade" type="button">Check my work</button>
+        <button class="btn ghost" id="hwPrint" type="button">Print the problems</button>
+      </div>
+      <div class="feedback" id="hwFeedback" role="status" aria-live="polite"></div>
+      <div id="hwCodeWrap" hidden>
+        <p style="font-family:var(--font-ui);font-size:.88rem;margin:1.2rem 0 0;">Paste this code into the Canvas assignment:</p>
+        <div class="code-out" id="hwCode"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="callout">
+      <h4>How this is graded</h4>
+      <p>The code carries your ID, your score, and a check value. Your instructor can confirm it came from your problem set rather than someone else's. You can retry as many times as you like before you submit — the code always reflects your most recent attempt.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Glossary ============ -->
+<section class="panel" id="panel-10" role="tabpanel" aria-labelledby="tab-10" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">Reference</span>Glossary</h2>
+    <p>Every term this chapter defines, plus the ones carried forward from chapters 1 and 2 that it depends on. The dotted terms in the reading link here.</p>
+    <div class="gloss-filter">
+      <label for="glossSearch" class="visually-hidden">Filter terms</label>
+      <input type="text" id="glossSearch" placeholder="Filter terms…" autocomplete="off">
+    </div>
+    <div class="gloss" id="glossBody"></div>
+    <p class="est" id="glossCount"></p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Resources ============ -->
+<section class="panel" id="panel-11" role="tabpanel" aria-labelledby="tab-11" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">Reference</span>Related resources</h2>
+    <p>Places to go when this chapter has not clicked yet, and places to go when it has and you want more. External links open in a new tab.</p>
+
+    <h3>In this course</h3>
+    <div class="res-group">
+      <div class="res internal">
+        <div class="rt">Floyd, <em>Principles of Electric Circuits</em>, 10th edition, Chapter 3</div>
+        <div class="rd">The source this module is built from. Its end-of-chapter problems go well beyond what is here, and its worked examples are set out differently, which helps if a step here did not land.</div>
+        <div class="rmeta">textbook · assigned</div>
+      </div>
+      <div class="res internal">
+        <div class="rt">Your lab manual, Ohm's law experiment</div>
+        <div class="rd">Read the procedure before lab, not during it. Section 3.7 of this module covers what to expect.</div>
+        <div class="rmeta">lab · required</div>
+      </div>
+      <div class="res internal">
+        <div class="rt">Brookdale tutoring, STEM Institute</div>
+        <div class="rd">Free tutoring for this course. Bring a specific problem you are stuck on rather than a whole chapter — you will get much further in the same hour.</div>
+        <div class="rmeta">support · free</div>
+      </div>
+    </div>
+
+    <h3>Practice and simulation</h3>
+    <div class="res-group">
+      <a class="res" href="https://phet.colorado.edu/en/simulations/ohms-law" target="_blank" rel="noopener noreferrer">
+        <div class="rt">PhET — Ohm's Law</div>
+        <div class="rd">University of Colorado Boulder. Two sliders and a formula that resizes as you change them. Covers the same ground as section 3.1 with a different visual metaphor, which is worth seeing if the circuit view did not land.</div>
+        <div class="rmeta">free · runs in a browser · opens in a new tab</div>
+      </a>
+      <a class="res" href="https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc" target="_blank" rel="noopener noreferrer">
+        <div class="rt">PhET — Circuit Construction Kit: DC</div>
+        <div class="rd">Build circuits by dragging parts, then place voltmeters and ammeters on them. The safest possible place to learn that an ammeter goes in line and a voltmeter goes across, since nothing here blows a fuse.</div>
+        <div class="rmeta">free · runs in a browser · opens in a new tab</div>
+      </a>
+      <a class="res" href="https://www.falstad.com/circuit/" target="_blank" rel="noopener noreferrer">
+        <div class="rt">Falstad Circuit Simulator</div>
+        <div class="rd">Animates current as moving dots, much like section 3.1, but on circuits you draw yourself. Heavier than PhET and worth learning now, because it will still be useful in the third course.</div>
+        <div class="rmeta">free · runs in a browser · opens in a new tab</div>
+      </a>
+      <a class="res" href="https://www.tinkercad.com/circuits" target="_blank" rel="noopener noreferrer">
+        <div class="rt">Tinkercad Circuits</div>
+        <div class="rd">Breadboard simulation with a working multimeter. Useful for rehearsing a lab wiring layout before you build it for real.</div>
+        <div class="rmeta">free account required · opens in a new tab</div>
+      </a>
+    </div>
+
+    <h3>Another explanation</h3>
+    <div class="res-group">
+      <a class="res" href="https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_2.html" target="_blank" rel="noopener noreferrer">
+        <div class="rt">Lessons in Electric Circuits, Volume I — Chapter 2, Ohm's Law</div>
+        <div class="rd">Tony Kuphaldt's open textbook, Creative Commons licensed. Section 2.2 gives a different analogy from the water one used here, and section 2.6 on non-linear conduction goes further into why a lamp is not a resistor.</div>
+        <div class="rmeta">free · open textbook · opens in a new tab</div>
+      </a>
+      <a class="res" href="https://www.khanacademy.org/science/electrical-engineering/ee-circuit-analysis-topic/ee-resistor-circuits/a/ee-ohms-law" target="_blank" rel="noopener noreferrer">
+        <div class="rt">Khan Academy — Ohm's law</div>
+        <div class="rd">Short written lesson with video. Pitched slightly above this course mathematically, but the graphical treatment lines up well with section 3.6.</div>
+        <div class="rmeta">free · video and text · opens in a new tab</div>
+      </a>
+      <a class="res" href="https://www.nist.gov/pml/owm/metric-si-prefixes" target="_blank" rel="noopener noreferrer">
+        <div class="rt">NIST — SI prefixes</div>
+        <div class="rd">The authoritative prefix table. Worth bookmarking for the whole course, not just this chapter, since prefix slips cause more lost points than any concept.</div>
+        <div class="rmeta">reference · opens in a new tab</div>
+      </a>
+    </div>
+
+    <div class="callout">
+      <h4>A note on searching for help</h4>
+      <p>Most electronics content online uses electron flow rather than the conventional current this course uses. The arrows will point the other way. Every number and every answer is identical, so do not let it throw you.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Cheat sheet ============ -->
+<section class="panel" id="panel-12" role="tabpanel" aria-labelledby="tab-12" tabindex="-1" hidden>
+  <div class="col no-print">
+    <h2><span class="sec-no">Chapter 3</span>Cheat sheet</h2>
+    <p>Everything from this chapter on one page. Print it, or keep it open on your phone at the bench.</p>
+    <div class="btnrow">
+      <button class="btn" id="printCheat" type="button">Print this page</button>
+    </div>
+  </div>
+
+  <div class="cheat" id="cheatSheet">
+    <h3 class="cheat-title">Ohm's Law — ELEC 103 Chapter 3</h3>
+
+    <div class="cheat-grid">
+      <div class="card">
+        <h4>The three forms</h4>
+        <table class="ct">
+          <tr><th scope="row">To find current</th><td>I = V / R</td></tr>
+          <tr><th scope="row">To find voltage</th><td>V = I × R</td></tr>
+          <tr><th scope="row">To find resistance</th><td>R = V / I</td></tr>
+        </table>
+        <p class="fine">Written in base units: volts, amperes, ohms.</p>
+      </div>
+
+      <div class="card">
+        <h4>Prefix shortcuts that skip the conversion</h4>
+        <table class="ct">
+          <tr><th scope="row">volts ÷ kilohms</th><td>= milliamperes</td></tr>
+          <tr><th scope="row">milliamperes × kilohms</th><td>= volts</td></tr>
+          <tr><th scope="row">volts ÷ milliamperes</th><td>= kilohms</td></tr>
+          <tr><th scope="row">volts ÷ ohms</th><td>= amperes</td></tr>
+        </table>
+        <p class="fine">12 V ÷ 4.7 kΩ = 2.55 mA, with nothing to convert.</p>
+      </div>
+
+      <div class="card">
+        <h4>Prefixes you will meet in this chapter</h4>
+        <table class="ct">
+          <tr><th scope="row">k (kilo)</th><td>× 1 000</td></tr>
+          <tr><th scope="row">m (milli)</th><td>÷ 1 000</td></tr>
+          <tr><th scope="row">µ (micro)</th><td>÷ 1 000 000</td></tr>
+        </table>
+        <p class="fine">1 kΩ = 1 000 Ω · 1 mA = 0.001 A · 1 000 µA = 1 mA</p>
+      </div>
+
+      <div class="card">
+        <h4>What the graphs look like</h4>
+        <p><strong>I against V, fixed R.</strong> A straight line through the origin. Slope = 1/R. Smaller resistor, steeper line.</p>
+        <p><strong>I against R, fixed V.</strong> A curve that drops steeply then flattens. Never reaches zero.</p>
+        <p class="fine">Straight line = linear component. A lamp bends, because its filament heats up.</p>
+      </div>
+
+      <div class="card">
+        <h4>Reading a faulty series circuit</h4>
+        <table class="ct">
+          <tr><th scope="row">One resistor reads the full source voltage, all others read 0 V</th><td>that one is <strong>open</strong></td></tr>
+          <tr><th scope="row">One resistor reads 0 V, all others read higher than calculated</th><td>that one is <strong>shorted</strong></td></tr>
+          <tr><th scope="row">Readings match your calculations and sum to the source</th><td>no fault</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h4>Troubleshooting order</h4>
+        <p><strong>Analysis.</strong> Calculate what every reading should be, before touching the meter.</p>
+        <p><strong>Planning.</strong> Choose measurements that cut the possibilities in half — not left to right.</p>
+        <p><strong>Measurement.</strong> Read, compare to your expectation, revise.</p>
+      </div>
+
+      <div class="card">
+        <h4>How to connect the meter</h4>
+        <table class="ct">
+          <tr><th scope="row">Voltage</th><td>across the component, circuit left intact</td></tr>
+          <tr><th scope="row">Current</th><td>in line with it, circuit broken open</td></tr>
+          <tr><th scope="row">Resistance</th><td>component out of circuit, power off</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h4>Mistakes that cost the most points</h4>
+        <ul class="fine-list">
+          <li>Dividing the wrong pair. Name the quantity you want first.</li>
+          <li>Feeding kilohms into the formula without converting.</li>
+          <li>Answer off by exactly 1 000 — that is always a prefix slip.</li>
+          <li>Treating a lamp as a fixed resistance.</li>
+          <li>Reporting more significant figures than the given values support.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="cheat-foot">ELEC 103 · Brookdale Community College · Floyd, <em>Principles of Electric Circuits</em>, 10e, Ch. 3</p>
+  </div>
+  <div class="pager no-print"></div>
+</section>
+
+</div>
+</main>
+
+<footer class="page">
+  <div class="wrap">
+    <p>ELEC 103 · Electrical Skills and Techniques · Brookdale Community College · 2026<br>
+    Companion module to Floyd, <em>Principles of Electric Circuits: Conventional Current</em>, 10th edition, Chapter 3. Your progress is stored in this browser only.</p>
+  </div>
+</footer>
+
+<!-- ============ NOTES: floating button, modal, print target ============ -->
+<button type="button" class="notes-fab" id="notesFab" aria-label="Open my notes" title="Open my notes (keyboard shortcut: N)">
+  <span class="icon" aria-hidden="true">&#9998;</span>
+  <span class="label-long">My notes</span>
+  <span class="count" id="notesFabCount" hidden>0</span>
+</button>
+
+<div class="notes-modal-backdrop" id="notesBackdrop" hidden role="presentation">
+  <div class="notes-modal" role="dialog" aria-modal="true" aria-labelledby="notesModalTitle">
+    <div class="notes-modal-head">
+      <h2 id="notesModalTitle"><span aria-hidden="true">&#9998;</span> My notes</h2>
+      <button type="button" class="notes-modal-close" id="notesCloseBtn" aria-label="Close notes (Esc)">&times;</button>
+    </div>
+
+    <div class="notes-modal-body">
+      <div class="notes-section-row">
+        <label for="notesSectionPicker">Section</label>
+        <select id="notesSectionPicker" aria-describedby="notesAutoTag"></select>
+        <span class="auto-tag" id="notesAutoTag" hidden>auto-selected</span>
+      </div>
+
+      <label class="visually-hidden" for="notesTextarea">Your notes for the selected section</label>
+      <textarea id="notesTextarea" placeholder="Type your notes here…" spellcheck="true"></textarea>
+
+      <div class="notes-meta-row">
+        <span id="notesMetaCount">0 characters</span>
+        <span id="notesMetaStatus">—</span>
+        <button type="button" class="notes-clear-section" id="notesClearSection">Clear this section</button>
+      </div>
+
+      <div id="notesImgWrap">
+        <h3 class="notes-sub-head">Screenshots for this section</h3>
+        <div class="notes-dropzone" id="notesDropzone">
+          <button type="button" class="notes-img-addbtn" id="notesImgAddBtn">Add image</button>
+          <span class="hint">…or paste a screenshot (Ctrl/&#8984;+V), or drag an image file here.</span>
+          <input type="file" id="notesImgInput" accept="image/*" multiple hidden>
+        </div>
+        <p class="notes-img-status" id="notesImgStatus" aria-live="polite"></p>
+        <ul class="notes-img-grid" id="notesImgGrid"></ul>
+      </div>
+
+      <h3 class="notes-sub-head">All my notes for this chapter</h3>
+      <ul class="notes-all-list" id="notesAllList"></ul>
+      <p class="notes-all-empty" id="notesAllEmpty" hidden>No notes yet. Start typing above to add notes for the section you are reading.</p>
+
+      <div class="notes-name-row">
+        <label for="notesNameField">Your name (optional)</label>
+        <input type="text" id="notesNameField" placeholder="e.g. Sam Rivera" autocomplete="name" maxlength="80">
+      </div>
+
+      <div class="save-warn" role="note">
+        <span class="h">Browser storage is temporary</span>
+        Your notes and screenshots live in this browser only. Export a PDF, Word file, or Markdown copy before you switch devices or clear browser data.
+      </div>
+    </div>
+
+    <div class="notes-modal-foot">
+      <button type="button" class="secondary" id="notesPrint">Print / Save as PDF</button>
+      <button type="button" class="secondary" id="notesMd">Markdown</button>
+      <button type="button" class="secondary" id="notesDoc">Word</button>
+      <span class="spacer"></span>
+      <button type="button" class="danger" id="notesClearAll">Clear all</button>
+    </div>
+  </div>
+</div>
+
+<div class="notes-print-only" id="notesPrintBlock"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'elec103-ch3-v1';
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveState(s) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+    catch (e) { /* private mode: run without persistence */ }
+  }
+  var state = loadState();
+  if (!state || typeof state !== 'object') state = {};
+  if (!Array.isArray(state.visited)) state.visited = [];
+  if (!state.best || typeof state.best !== 'object') state.best = {};
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fmtOhms(r) {
+    if (r >= 1000) return (r / 1000).toFixed(2) + ' kΩ';
+    return r.toFixed(0) + ' Ω';
+  }
+  function fmtAmps(a) {
+    if (a === 0) return '0 mA';
+    if (a < 0.001) return (a * 1e6).toFixed(1) + ' µA';
+    if (a < 1) return (a * 1000).toFixed(2) + ' mA';
+    return a.toFixed(3) + ' A';
+  }
+  function sig3(n) {
+    if (n === 0) return '0';
+    var d = Math.ceil(Math.log10(Math.abs(n)));
+    var p = Math.max(0, 3 - d);
+    return Number(n.toFixed(p)).toString();
+  }
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  /* ---------------- Section navigation ---------------- */
+
+  var SECTIONS = [
+    { n: '3.1', label: 'The idea', min: 8 },
+    { n: '3.2', label: 'V, I, and R', min: 6 },
+    { n: '3.3', label: 'Three forms', min: 7 },
+    { n: '3.4', label: 'Finding I', min: 12 },
+    { n: '3.5', label: 'Finding V and R', min: 14 },
+    { n: '3.6', label: 'Graphs', min: 12 },
+    { n: '3.7', label: 'At the bench', min: 9 },
+    { n: '3.8', label: 'Troubleshooting', min: 15 },
+    { n: '3.9', label: 'Check yourself', min: 10 },
+    { n: '', label: 'Homework', extra: true, min: 45 },
+    { n: '', label: 'Glossary', extra: true },
+    { n: '', label: 'Resources', extra: true },
+    { n: '', label: 'Cheat sheet', extra: true }
+  ];
+
+  var COUNTED = SECTIONS.filter(function (s) { return !s.extra; }).length;
+
+  // Progress saved by an earlier build can name sections this build no longer
+  // has. Drop anything out of range before it reaches the tab code.
+  function validIndex(i) { return typeof i === 'number' && i >= 0 && i < SECTIONS.length; }
+  state.visited = (state.visited || []).filter(function (i) { return validIndex(i) && !SECTIONS[i].extra; });
+  if (!validIndex(state.last)) state.last = 0;
+  if (!validIndex(state.lastRead) || SECTIONS[state.lastRead].extra) state.lastRead = 0;
+  saveState(state);
+
+  var tablist = document.getElementById('tablist');
+  var dividerDone = false;
+  var panels = [];
+  var tabs = [];
+
+  SECTIONS.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.id = 'tab-' + i;
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-controls', 'panel-' + i);
+    b.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    b.tabIndex = i === 0 ? 0 : -1;
+    if (s.extra && !dividerDone) {
+      var div = document.createElement('span');
+      div.className = 'divider';
+      div.setAttribute('aria-hidden', 'true');
+      tablist.appendChild(div);
+      dividerDone = true;
+    }
+    if (s.extra) b.className = 'extra';
+    b.innerHTML = (s.n ? '<span class="num">' + s.n + '</span>' : '') + s.label +
+                  (s.extra ? '' : '<span class="done" aria-hidden="true"></span>');
+    tablist.appendChild(b);
+    tabs.push(b);
+    panels.push(document.getElementById('panel-' + i));
+  });
+
+  function markVisited(i) {
+    if (!SECTIONS[i] || SECTIONS[i].extra) return;
+    if (state.visited.indexOf(i) === -1) {
+      state.visited.push(i);
+      saveState(state);
+    }
+    refreshProgress();
+  }
+
+  function refreshProgress() {
+    var done = state.visited.length;
+    var left = 0;
+    SECTIONS.forEach(function (sec, i) {
+      if (!sec.extra && sec.min && state.visited.indexOf(i) === -1) left += sec.min;
+    });
+    document.getElementById('progressLabel').textContent =
+      done + ' of ' + COUNTED + ' sections read' + (left ? ' · about ' + left + ' min left' : '');
+    document.getElementById('progressBar').style.width = (done / COUNTED * 100) + '%';
+    tabs.forEach(function (t, i) {
+      var mark = t.querySelector('.done');
+      if (mark) mark.textContent = state.visited.indexOf(i) !== -1 ? '✓' : '';
+    });
+  }
+
+  function selectTab(i, focusPanel) {
+    if (!validIndex(i)) i = 0;
+    tabs.forEach(function (t, j) {
+      var on = i === j;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      panels[j].hidden = !on;
+    });
+    markVisited(i);
+    state.last = i;
+    if (SECTIONS[i] && !SECTIONS[i].extra) state.lastRead = i;
+    saveState(state);
+    if (focusPanel) {
+      panels[i].focus();
+      panels[i].scrollIntoView({ block: 'start' });
+    }
+  }
+
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { selectTab(i, false); });
+    t.addEventListener('keydown', function (e) {
+      var next = null;
+      if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = tabs.length - 1;
+      if (next !== null) {
+        e.preventDefault();
+        selectTab(next, false);
+        tabs[next].focus();
+      }
+    });
+  });
+
+  // Time estimate under each section heading
+  panels.forEach(function (p, i) {
+    if (!SECTIONS[i] || !SECTIONS[i].min || SECTIONS[i].extra) return;
+    var h = p.querySelector('h2');
+    if (!h) return;
+    var est = document.createElement('p');
+    est.className = 'est';
+    est.textContent = 'About ' + SECTIONS[i].min + ' minutes';
+    h.parentNode.insertBefore(est, h.nextSibling);
+  });
+
+  // Prev / next pagers
+  panels.forEach(function (p, i) {
+    var pager = p.querySelector('.pager');
+    if (i > 0) {
+      var prev = document.createElement('button');
+      prev.type = 'button';
+      prev.className = 'btn ghost';
+      prev.textContent = ('← ' + SECTIONS[i - 1].n + ' ' + SECTIONS[i - 1].label).replace('←  ', '← ');
+      prev.addEventListener('click', function () { selectTab(i - 1, true); });
+      pager.appendChild(prev);
+    } else {
+      pager.appendChild(document.createElement('span'));
+    }
+    if (i < SECTIONS.length - 1) {
+      var nxt = document.createElement('button');
+      nxt.type = 'button';
+      nxt.className = 'btn';
+      nxt.textContent = (SECTIONS[i + 1].n + ' ' + SECTIONS[i + 1].label + ' →').replace(/^ /, '');
+      nxt.addEventListener('click', function () { selectTab(i + 1, true); });
+      pager.appendChild(nxt);
+    }
+  });
+
+  document.getElementById('printCheat').addEventListener('click', function () {
+    window.print();
+  });
+
+  document.getElementById('resetAll').addEventListener('click', function () {
+    state = { visited: [], best: {}, theme: state.theme, scale: state.scale, hwId: state.hwId };
+    saveState(state);
+    refreshProgress();
+    buildQuiz();
+    document.getElementById('quizScore').textContent = '';
+    updateStreakLabels();
+    selectTab(0, true);
+  });
+
+  /* ---------------- 3.1 Circuit explorer ---------------- */
+
+  var vSlider = document.getElementById('vSlider');
+  var rSlider = document.getElementById('rSlider');
+  var loopPath = document.getElementById('loopPath');
+  var waterPath = document.getElementById('waterPath');
+  var chargeGroup = document.getElementById('charges');
+  var dropGroup = document.getElementById('droplets');
+  var circuitSvg = document.getElementById('circuitSvg');
+  var waterSvg = document.getElementById('waterSvg');
+
+  var DOTS = 16;
+  var dots = [];
+  var drops = [];
+  for (var d = 0; d < DOTS; d++) {
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('r', '5');
+    c.setAttribute('class', 'charge');
+    chargeGroup.appendChild(c);
+    dots.push(c);
+
+    var w = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    w.setAttribute('r', '4');
+    w.setAttribute('class', 'water');
+    dropGroup.appendChild(w);
+    drops.push(w);
+  }
+
+  var explorer = { v: 12, r: 1000, i: 0.012, phase: 0, water: false };
+
+  function updateExplorer() {
+    explorer.v = parseFloat(vSlider.value);
+    explorer.r = parseFloat(rSlider.value);
+    explorer.i = explorer.v / explorer.r;
+
+    document.getElementById('vOut').textContent = explorer.v.toFixed(1) + ' V';
+    document.getElementById('rOut').textContent = fmtOhms(explorer.r);
+    document.getElementById('mV').textContent = explorer.v.toFixed(1) + ' V';
+    document.getElementById('mR').textContent = fmtOhms(explorer.r);
+    document.getElementById('mI').textContent = fmtAmps(explorer.i);
+    document.getElementById('svgVLabel').textContent = explorer.v.toFixed(1) + ' V';
+    document.getElementById('svgRLabel').textContent = fmtOhms(explorer.r);
+
+    // lamp brightness, scaled against a 24 V / 100 Ω maximum
+    var bright = Math.min(1, Math.sqrt(explorer.i / 0.05));
+    document.getElementById('lampGlow').setAttribute('opacity', (bright * 0.8).toFixed(3));
+
+    // water view: level tracks voltage, constriction tracks resistance
+    var lvlH = 6 + (explorer.v / 24) * 151;
+    var lvl = document.getElementById('waterLevel');
+    lvl.setAttribute('y', (213 - lvlH).toFixed(1));
+    lvl.setAttribute('height', lvlH.toFixed(1));
+    // half-width of the pinched section: 20 px wide open at 100 Ω, 3 px at 10 kΩ
+    var g = 20 - (explorer.r / 10000) * 17;
+    document.getElementById('pipeTop').setAttribute('d',
+      'M 200 175 L 300 175 L 340 ' + (195 - g).toFixed(1) + ' L 400 ' + (195 - g).toFixed(1) + ' L 440 175 L 570 175');
+    document.getElementById('pipeBot').setAttribute('d',
+      'M 200 215 L 300 215 L 340 ' + (195 + g).toFixed(1) + ' L 400 ' + (195 + g).toFixed(1) + ' L 440 215 L 570 215');
+
+    var note = document.getElementById('explorerNote');
+    if (explorer.v === 0) {
+      note.textContent = 'No voltage, no current. Resistance alone does nothing.';
+    } else {
+      note.textContent = 'I = ' + explorer.v.toFixed(1) + ' V ÷ ' + explorer.r.toFixed(0) + ' Ω = ' + fmtAmps(explorer.i);
+    }
+    if (reduceMotion) placeDots(0);
+  }
+
+  function placeDots(phase) {
+    var pathEl = explorer.water ? waterPath : loopPath;
+    var set = explorer.water ? drops : dots;
+    var len = pathEl.getTotalLength();
+    for (var k = 0; k < set.length; k++) {
+      var t = ((k / set.length) + phase) % 1;
+      var pt = pathEl.getPointAtLength(t * len);
+      set[k].setAttribute('cx', pt.x.toFixed(1));
+      set[k].setAttribute('cy', pt.y.toFixed(1));
+      set[k].setAttribute('opacity', explorer.i > 0 ? '1' : '0.25');
+    }
+  }
+
+  var lastT = 0;
+  function animate(ts) {
+    if (!lastT) lastT = ts;
+    var dt = Math.min(64, ts - lastT);
+    lastT = ts;
+    // speed capped so the fastest case stays readable
+    var speed = Math.min(0.55, explorer.i * 6);
+    explorer.phase = (explorer.phase + speed * dt / 1000) % 1;
+    placeDots(explorer.phase);
+    window.requestAnimationFrame(animate);
+  }
+
+  vSlider.addEventListener('input', updateExplorer);
+  rSlider.addEventListener('input', updateExplorer);
+
+  document.getElementById('viewCircuit').addEventListener('click', function () {
+    explorer.water = false;
+    circuitSvg.removeAttribute('hidden');
+    waterSvg.setAttribute('hidden', '');
+    document.getElementById('mapCircuit').hidden = false;
+    document.getElementById('mapWater').hidden = true;
+    this.setAttribute('aria-pressed', 'true');
+    document.getElementById('viewWater').setAttribute('aria-pressed', 'false');
+    placeDots(explorer.phase);
+  });
+  document.getElementById('viewWater').addEventListener('click', function () {
+    explorer.water = true;
+    circuitSvg.setAttribute('hidden', '');
+    waterSvg.removeAttribute('hidden');
+    document.getElementById('mapCircuit').hidden = true;
+    document.getElementById('mapWater').hidden = false;
+    this.setAttribute('aria-pressed', 'true');
+    document.getElementById('viewCircuit').setAttribute('aria-pressed', 'false');
+    placeDots(explorer.phase);
+  });
+
+  updateExplorer();
+  placeDots(0);
+  if (!reduceMotion) window.requestAnimationFrame(animate);
+
+  /* ---------------- 3.3 Formula triangle ---------------- */
+
+  var TRI = {
+    triV: { big: 'V = I × R', text: 'Cover V and you are left with I next to R. Side by side means multiply. Multiply the current through a component by its resistance to get the voltage across it.' },
+    triI: { big: 'I = V / R', text: 'Cover I and V sits above R. One over the other means divide. Divide the voltage across a component by its resistance to get the current through it.' },
+    triR: { big: 'R = V / I', text: 'Cover R and V sits above I. Divide the voltage across a component by the current through it to get its resistance.' }
+  };
+  var triOut = document.getElementById('triOut');
+  Object.keys(TRI).forEach(function (id) {
+    var el = document.getElementById(id);
+    function show() {
+      triOut.innerHTML = '<span class="big">' + TRI[id].big + '</span><p>' + TRI[id].text + '</p>';
+      Object.keys(TRI).forEach(function (other) {
+        var t = document.getElementById(other).querySelector('text');
+        t.setAttribute('opacity', other === id ? '0.16' : '1');
+      });
+    }
+    el.addEventListener('click', show);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(); }
+    });
+  });
+
+  /* ---------------- Practice generators ---------------- */
+
+  var R_VALUES = [100, 220, 330, 470, 680, 1000, 1500, 2200, 3300, 4700, 6800, 10000];
+  var V_VALUES = [1.5, 3, 4.5, 5, 6, 9, 12, 15, 18, 24];
+
+  function makeCurrentProblem() {
+    var r = pick(R_VALUES);
+    var v = pick(V_VALUES);
+    var i = v / r;
+    var unit = i < 0.001 ? 'µA' : 'mA';
+    var ans = unit === 'µA' ? i * 1e6 : i * 1000;
+    return {
+      text: 'A ' + fmtOhms(r) + ' resistor is connected across a ' + v + ' V source. How much current is in the circuit?',
+      unit: unit,
+      answer: ans,
+      work: 'I = V / R = ' + v + ' V ÷ ' + r + ' Ω = ' + sig3(ans) + ' ' + unit
+    };
+  }
+
+  function makeMixedProblem() {
+    var kind = pick(['V', 'R']);
+    var r = pick(R_VALUES);
+    if (kind === 'V') {
+      var mA = pick([0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 8, 10]);
+      var v = (mA / 1000) * r;
+      return {
+        text: 'A current of ' + mA + ' mA is in a ' + fmtOhms(r) + ' resistor. What is the voltage across it?',
+        unit: 'V',
+        answer: v,
+        work: 'V = I × R = ' + mA + ' mA × ' + fmtOhms(r) + ' = ' + sig3(v) + ' V'
+      };
+    }
+    var vv = pick(V_VALUES);
+    var ii = vv / r;
+    var mAshown = Number((ii * 1000).toPrecision(3));
+    var rAns = vv / (mAshown / 1000);
+    return {
+      text: 'A component draws ' + mAshown + ' mA from a ' + vv + ' V source. What is its resistance?',
+      unit: 'Ω',
+      answer: rAns,
+      work: 'R = V / I = ' + vv + ' V ÷ ' + mAshown + ' mA = ' + sig3(rAns) + ' Ω'
+    };
+  }
+
+  function wireDrill(cfg) {
+    var current = null;
+    var streak = 0;
+    var bestKey = cfg.key;
+    var probEl = document.getElementById(cfg.problem);
+    var unitEl = document.getElementById(cfg.unit);
+    var inEl = document.getElementById(cfg.input);
+    var fbEl = document.getElementById(cfg.feedback);
+    var stEl = document.getElementById(cfg.streak);
+
+    function label() {
+      stEl.textContent = 'Streak ' + streak + ' · Best ' + (state.best[bestKey] || 0);
+    }
+    function next() {
+      current = cfg.make();
+      probEl.textContent = current.text;
+      unitEl.textContent = current.unit;
+      inEl.value = '';
+      fbEl.textContent = '';
+      fbEl.className = 'feedback';
+      inEl.focus();
+    }
+    function check() {
+      if (!current) return;
+      var given = parseFloat(inEl.value.replace(/,/g, '').trim());
+      if (isNaN(given)) {
+        fbEl.className = 'feedback no';
+        fbEl.textContent = 'Enter a number. The unit is already set to ' + current.unit + '.';
+        return;
+      }
+      var err = Math.abs(given - current.answer) / current.answer;
+      if (err <= 0.01) {
+        streak++;
+        if (!state.best[bestKey] || streak > state.best[bestKey]) {
+          state.best[bestKey] = streak;
+          saveState(state);
+        }
+        fbEl.className = 'feedback ok';
+        fbEl.textContent = 'Correct. ' + current.work;
+      } else {
+        streak = 0;
+        fbEl.className = 'feedback no';
+        var hint = '';
+        if (Math.abs(given - current.answer * 1000) / (current.answer * 1000) <= 0.01 ||
+            Math.abs(given - current.answer / 1000) / (current.answer / 1000) <= 0.01) {
+          hint = ' The digits are right but the size is off by a factor of 1000 — check your prefix conversion.';
+        }
+        fbEl.textContent = 'Not yet. ' + current.work + '.' + hint;
+      }
+      label();
+    }
+
+    document.getElementById(cfg.check).addEventListener('click', check);
+    document.getElementById(cfg.newBtn).addEventListener('click', next);
+    inEl.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+    label();
+    next();
+    return { label: label };
+  }
+
+  var drillA = wireDrill({
+    key: 'currentDrill', make: makeCurrentProblem,
+    problem: 'practiceProblem', unit: 'practiceUnit', input: 'practiceInput',
+    feedback: 'practiceFeedback', streak: 'practiceStreak',
+    check: 'practiceCheck', newBtn: 'practiceNew'
+  });
+  var drillB = wireDrill({
+    key: 'mixedDrill', make: makeMixedProblem,
+    problem: 'mixProblem', unit: 'mixUnit', input: 'mixInput',
+    feedback: 'mixFeedback', streak: 'mixStreak',
+    check: 'mixCheck', newBtn: 'mixNew'
+  });
+
+  function updateStreakLabels() { drillA.label(); drillB.label(); }
+
+  /* ---------------- 3.6 Graphs ---------------- */
+
+  var plotMode = 'IV';
+  var kept = [];
+  var gSlider = document.getElementById('gSlider');
+  var CURVE_COLORS = ['var(--blue)', 'var(--green)', 'var(--violet)', 'var(--brown)'];
+
+  var PAD = { l: 78, r: 40, t: 24, b: 58 };
+
+  // round an axis maximum up to a value that divides into readable ticks
+  function niceMax(v, divs) {
+    if (!(v > 0)) return divs;
+    var raw = v / divs;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var norm = raw / mag;
+    var step = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10;
+    return step * mag * divs;
+  }
+  var W = 640, H = 380;
+
+  function svgEl(name, attrs) {
+    var e = document.createElementNS('http://www.w3.org/2000/svg', name);
+    Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    return e;
+  }
+
+  function drawPlot() {
+    var grid = document.getElementById('plotGrid');
+    var curves = document.getElementById('plotCurves');
+    var axes = document.getElementById('plotAxes');
+    grid.textContent = '';
+    curves.textContent = '';
+    axes.textContent = '';
+
+    var live = parseFloat(gSlider.value);
+    var series = kept.concat([{ val: live, live: true }]);
+
+    var xMax, yMax, xLabel, yLabel, xDiv;
+    yLabel = 'Current (mA)';
+    yMax = 0;
+    if (plotMode === 'IV') {
+      xMax = 24; xDiv = 6;
+      xLabel = 'Voltage (V)';
+      series.forEach(function (s) { yMax = Math.max(yMax, (xMax / s.val) * 1000); });
+    } else {
+      xMax = 5000; xDiv = 5;
+      xLabel = 'Resistance (Ω)';
+      series.forEach(function (s) { yMax = Math.max(yMax, (s.val / 100) * 1000); });
+    }
+    yMax = niceMax(yMax, 5);
+
+    function px(x) { return PAD.l + (x / xMax) * (W - PAD.l - PAD.r); }
+    function py(y) { return H - PAD.b - (y / yMax) * (H - PAD.t - PAD.b); }
+
+    // graticule
+    var i, gx, gy;
+    for (i = 0; i <= xDiv; i++) {
+      gx = px(xMax * i / xDiv);
+      grid.appendChild(svgEl('line', { x1: gx, y1: PAD.t, x2: gx, y2: H - PAD.b, stroke: '#33485A', 'stroke-width': 1 }));
+      var xl = svgEl('text', { x: gx, y: H - PAD.b + 21, 'text-anchor': 'middle', class: 'label-svg dim' });
+      xl.textContent = (xMax * i / xDiv).toFixed(0);
+      grid.appendChild(xl);
+    }
+    for (i = 0; i <= 5; i++) {
+      gy = py(yMax * i / 5);
+      grid.appendChild(svgEl('line', { x1: PAD.l, y1: gy, x2: W - PAD.r, y2: gy, stroke: '#33485A', 'stroke-width': 1 }));
+      var yl = svgEl('text', { x: PAD.l - 10, y: gy + 6, 'text-anchor': 'end', class: 'label-svg dim' });
+      var yv = yMax * i / 5;
+      yl.textContent = yv % 1 ? yv.toFixed(1) : yv.toFixed(0);
+      grid.appendChild(yl);
+    }
+
+    // curves
+    var legend = [];
+    series.forEach(function (s, idx) {
+      var pts = [];
+      var steps = 120;
+      for (var k = 0; k <= steps; k++) {
+        var x, y;
+        if (plotMode === 'IV') {
+          x = xMax * k / steps;
+          y = (x / s.val) * 1000;
+        } else {
+          x = 100 + (xMax - 100) * k / steps;
+          y = (s.val / x) * 1000;
+        }
+        pts.push(px(x).toFixed(1) + ',' + py(Math.min(y, yMax)).toFixed(1));
+      }
+      var color = s.live ? 'var(--gold-bright)' : CURVE_COLORS[idx % CURVE_COLORS.length];
+      curves.appendChild(svgEl('polyline', {
+        points: pts.join(' '), fill: 'none', stroke: color,
+        'stroke-width': s.live ? 3.5 : 2, 'stroke-linecap': 'round'
+      }));
+      legend.push({ color: color, live: s.live,
+        text: plotMode === 'IV' ? fmtOhms(s.val) : s.val.toFixed(1) + ' V' });
+    });
+
+    var lg = document.getElementById('plotLegend');
+    lg.textContent = '';
+    legend.forEach(function (item) {
+      var chip = document.createElement('span');
+      chip.className = 'chip';
+      var sw = document.createElement('i');
+      sw.style.background = item.color;
+      chip.appendChild(sw);
+      chip.appendChild(document.createTextNode(item.text + (item.live ? ' (live)' : '')));
+      lg.appendChild(chip);
+    });
+
+    // axes
+    axes.appendChild(svgEl('line', { x1: PAD.l, y1: PAD.t, x2: PAD.l, y2: H - PAD.b, stroke: '#8FA6B6', 'stroke-width': 2.5 }));
+    axes.appendChild(svgEl('line', { x1: PAD.l, y1: H - PAD.b, x2: W - PAD.r, y2: H - PAD.b, stroke: '#8FA6B6', 'stroke-width': 2.5 }));
+    var xt = svgEl('text', { x: (PAD.l + W - PAD.r) / 2, y: H - 12, 'text-anchor': 'middle', class: 'label-svg' });
+    xt.textContent = xLabel;
+    axes.appendChild(xt);
+    var yt = svgEl('text', { x: 18, y: (PAD.t + H - PAD.b) / 2, 'text-anchor': 'middle', class: 'label-svg', transform: 'rotate(-90 18 ' + ((PAD.t + H - PAD.b) / 2) + ')' });
+    yt.textContent = yLabel;
+    axes.appendChild(yt);
+
+    // control label + summary
+    if (plotMode === 'IV') {
+      document.getElementById('gLabel').textContent = 'Resistance';
+      document.getElementById('gOut').textContent = fmtOhms(live);
+      document.getElementById('plotSummary').textContent =
+        'Fixed resistance of ' + fmtOhms(live) + '. The line is straight and passes through the origin; its slope is 1/R, so at 24 V the current reaches ' + fmtAmps(24 / live) + '.';
+    } else {
+      document.getElementById('gLabel').textContent = 'Source voltage';
+      document.getElementById('gOut').textContent = live.toFixed(1) + ' V';
+      document.getElementById('plotSummary').textContent =
+        'Fixed voltage of ' + live.toFixed(1) + ' V. The curve falls steeply then flattens: at 500 Ω the current is ' + fmtAmps(live / 500) + ', but at 5 kΩ it is only ' + fmtAmps(live / 5000) + '.';
+    }
+  }
+
+  function setPlotMode(mode) {
+    plotMode = mode;
+    kept = [];
+    document.getElementById('graphIV').setAttribute('aria-pressed', mode === 'IV' ? 'true' : 'false');
+    document.getElementById('graphIR').setAttribute('aria-pressed', mode === 'IR' ? 'true' : 'false');
+    if (mode === 'IV') {
+      gSlider.min = 100; gSlider.max = 5000; gSlider.step = 10; gSlider.value = 1000;
+    } else {
+      gSlider.min = 1; gSlider.max = 24; gSlider.step = 0.5; gSlider.value = 12;
+    }
+    drawPlot();
+  }
+
+  gSlider.addEventListener('input', drawPlot);
+  document.getElementById('graphIV').addEventListener('click', function () { setPlotMode('IV'); });
+  document.getElementById('graphIR').addEventListener('click', function () { setPlotMode('IR'); });
+  document.getElementById('pinCurve').addEventListener('click', function () {
+    if (kept.length >= 3) kept.shift();
+    kept.push({ val: parseFloat(gSlider.value), live: false });
+    drawPlot();
+  });
+  document.getElementById('clearCurves').addEventListener('click', function () {
+    kept = [];
+    drawPlot();
+  });
+  drawPlot();
+
+  /* ---------------- 3.7 Fault finder ---------------- */
+
+  var TS_R = { R1: 1000, R2: 2200, R3: 3300 };
+  var TS_V = 12;
+  var tsFault = null;
+  var tsMeasured = 0;
+  var tsSolved = state.best.tsSolved || 0;
+
+  function tsReadings(fault) {
+    var r = { R1: TS_R.R1, R2: TS_R.R2, R3: TS_R.R3 };
+    if (fault.type === 'short') r[fault.comp] = 0;
+    if (fault.type === 'open') {
+      var out = { R1: 0, R2: 0, R3: 0, SRC: TS_V };
+      out[fault.comp] = TS_V;
+      return out;
+    }
+    var rt = r.R1 + r.R2 + r.R3;
+    var i = TS_V / rt;
+    return { R1: i * r.R1, R2: i * r.R2, R3: i * r.R3, SRC: TS_V };
+  }
+
+  function newFault() {
+    var options = [
+      { comp: 'R1', type: 'open' }, { comp: 'R2', type: 'open' }, { comp: 'R3', type: 'open' },
+      { comp: 'R1', type: 'short' }, { comp: 'R2', type: 'short' }, { comp: 'R3', type: 'short' },
+      { comp: 'NONE', type: 'none' }
+    ];
+    tsFault = pick(options);
+    tsMeasured = 0;
+    ['R1', 'R2', 'R3', 'SRC'].forEach(function (k) {
+      document.getElementById('tp' + k).textContent = '';
+    });
+    document.getElementById('faultComp').value = '';
+    document.getElementById('faultType').value = '';
+    var fb = document.getElementById('tsFeedback');
+    fb.textContent = '';
+    fb.className = 'feedback';
+    document.getElementById('tsCount').textContent = 'Measurements taken: 0';
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.tp'), function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-tp');
+      var readings = tsReadings(tsFault);
+      document.getElementById('tp' + key).textContent = readings[key].toFixed(2) + ' V';
+      tsMeasured++;
+      document.getElementById('tsCount').textContent = 'Measurements taken: ' + tsMeasured;
+    });
+  });
+
+  document.getElementById('tsSubmit').addEventListener('click', function () {
+    var comp = document.getElementById('faultComp').value;
+    var type = document.getElementById('faultType').value;
+    var fb = document.getElementById('tsFeedback');
+    if (!comp || !type) {
+      fb.className = 'feedback no';
+      fb.textContent = 'Choose both a component and a fault type before submitting.';
+      return;
+    }
+    var right = (comp === tsFault.comp && type === tsFault.type) ||
+                (tsFault.comp === 'NONE' && comp === 'NONE' && type === 'none');
+    if (right) {
+      tsSolved++;
+      state.best.tsSolved = tsSolved;
+      saveState(state);
+      document.getElementById('tsScore').textContent = 'Solved ' + tsSolved;
+      fb.className = 'feedback ok';
+      fb.textContent = 'Correct, in ' + tsMeasured + ' measurement' + (tsMeasured === 1 ? '' : 's') + '. ' + explainFault(tsFault);
+    } else {
+      fb.className = 'feedback no';
+      fb.textContent = 'Not that one. ' + hintFault(tsFault) + ' Take another reading and try again.';
+    }
+  });
+
+  function explainFault(f) {
+    if (f.type === 'none') return 'Every reading matched the calculated values: 1.85 V, 4.06 V, and 6.09 V, summing to the 12 V source.';
+    if (f.type === 'open') return f.comp + ' is open, so current stopped everywhere. The two good resistors dropped 0 V and the whole 12 V appeared across the break.';
+    return f.comp + ' is shorted, so it dropped 0 V. Total resistance fell, current rose, and the remaining resistors dropped more than they should.';
+  }
+  function hintFault(f) {
+    if (f.type === 'none') return 'Do the readings actually disagree with your calculated values? Add them up.';
+    if (f.type === 'open') return 'Look for a resistor reading much more than expected while the others read zero.';
+    return 'Look for a resistor reading zero while the others read more than expected.';
+  }
+
+  document.getElementById('tsNew').addEventListener('click', newFault);
+  document.getElementById('tsScore').textContent = 'Solved ' + tsSolved;
+  newFault();
+
+  /* ---------------- 3.8 Self-check ---------------- */
+
+  var QUESTIONS = [
+    {
+      stem: 'Ohm\u2019s law states that current is',
+      opts: [
+        { t: 'directly proportional to voltage and inversely proportional to resistance', c: true },
+        { t: 'inversely proportional to voltage and directly proportional to resistance', c: false },
+        { t: 'directly proportional to both voltage and resistance', c: false },
+        { t: 'independent of resistance when voltage is fixed', c: false }
+      ],
+      why: 'More push gives more current; more opposition gives less.'
+    },
+    {
+      stem: 'A 470 Ω resistor is across a 9 V source. The current is closest to',
+      opts: [
+        { t: '19.1 mA', c: true }, { t: '1.91 mA', c: false },
+        { t: '52.2 mA', c: false }, { t: '4.23 A', c: false }
+      ],
+      why: '9 V ÷ 470 Ω = 0.01915 A, or 19.1 mA.'
+    },
+    {
+      stem: 'If the voltage across a fixed resistor is tripled, the current',
+      opts: [
+        { t: 'is tripled', c: true }, { t: 'is one third as large', c: false },
+        { t: 'stays the same', c: false }, { t: 'is nine times as large', c: false }
+      ],
+      why: 'Current and voltage are directly proportional when R is held constant.'
+    },
+    {
+      stem: 'A current of 3.0 mA is in a 6.8 kΩ resistor. The voltage across it is',
+      opts: [
+        { t: '20.4 V', c: true }, { t: '2.04 V', c: false },
+        { t: '2.27 V', c: false }, { t: '204 V', c: false }
+      ],
+      why: 'Milliamperes times kilohms gives volts: 3.0 × 6.8 = 20.4 V.'
+    },
+    {
+      stem: 'A device draws 250 mA from a 5.0 V supply. Its resistance is',
+      opts: [
+        { t: '20 Ω', c: true }, { t: '50 Ω', c: false },
+        { t: '1.25 kΩ', c: false }, { t: '0.05 Ω', c: false }
+      ],
+      why: 'R = V/I = 5.0 V ÷ 0.250 A = 20 Ω.'
+    },
+    {
+      stem: 'On a graph of current versus voltage for a fixed resistor, the slope of the line is',
+      opts: [
+        { t: 'equal to 1/R', c: true }, { t: 'equal to R', c: false },
+        { t: 'equal to V × R', c: false }, { t: 'always 1, regardless of R', c: false }
+      ],
+      why: 'Slope is the rise over the run, I/V, and I/V = 1/R.'
+    },
+    {
+      stem: 'A graph of current versus resistance at a fixed voltage is',
+      opts: [
+        { t: 'a curve that falls steeply then flattens', c: true },
+        { t: 'a straight line through the origin', c: false },
+        { t: 'a straight line with a negative slope', c: false },
+        { t: 'a horizontal line', c: false }
+      ],
+      why: 'Inverse proportion graphs as a hyperbola, not a line.'
+    },
+    {
+      stem: 'In a series circuit, a resistor that has gone open will measure',
+      opts: [
+        { t: 'the full source voltage across it', c: true },
+        { t: 'zero volts across it', c: false },
+        { t: 'the same voltage it dropped before the fault', c: false },
+        { t: 'a voltage that depends on the other resistors', c: false }
+      ],
+      why: 'With no current, the good resistors drop nothing, so all of the source voltage appears across the break.'
+    },
+    {
+      stem: 'When one resistor in a series string becomes shorted, the total current',
+      opts: [
+        { t: 'increases', c: true }, { t: 'decreases', c: false },
+        { t: 'drops to zero', c: false }, { t: 'is unchanged', c: false }
+      ],
+      why: 'A short lowers total resistance, and lower resistance at the same voltage means more current.'
+    },
+    {
+      stem: 'The troubleshooting technique that eliminates half the remaining possibilities with each measurement is called',
+      opts: [
+        { t: 'half-splitting', c: true }, { t: 'signal tracing', c: false },
+        { t: 'substitution', c: false }, { t: 'the APM approach', c: false }
+      ],
+      why: 'Half-splitting is a planning tactic; APM is the broader three-step process it fits inside.'
+    }
+  ];
+
+  var quizOrder = [];
+
+  function buildQuiz() {
+    var body = document.getElementById('quizBody');
+    body.textContent = '';
+    quizOrder = shuffle(QUESTIONS.map(function (q, i) { return i; }));
+    quizOrder.forEach(function (qi, pos) {
+      var q = QUESTIONS[qi];
+      var wrap = document.createElement('div');
+      wrap.className = 'q';
+      wrap.setAttribute('data-q', qi);
+
+      var stem = document.createElement('p');
+      stem.className = 'stem';
+      stem.innerHTML = '<span class="qn">' + (pos + 1) + '</span><span>' + q.stem + '</span>';
+      wrap.appendChild(stem);
+
+      var opts = document.createElement('div');
+      opts.className = 'opts';
+      opts.setAttribute('role', 'group');
+      opts.setAttribute('aria-label', 'Question ' + (pos + 1) + ' choices');
+      shuffle(q.opts).forEach(function (o, oi) {
+        var lab = document.createElement('label');
+        lab.className = 'opt';
+        var input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'q' + qi;
+        input.value = o.c ? '1' : '0';
+        var span = document.createElement('span');
+        span.textContent = o.t;
+        lab.appendChild(input);
+        lab.appendChild(span);
+        opts.appendChild(lab);
+      });
+      wrap.appendChild(opts);
+
+      var why = document.createElement('p');
+      why.className = 'rationale';
+      why.hidden = true;
+      why.textContent = q.why;
+      wrap.appendChild(why);
+
+      body.appendChild(wrap);
+    });
+    document.getElementById('quizScore').textContent = '';
+    var b = state.best.quiz;
+    document.getElementById('quizBest').textContent = b ? 'Best so far ' + b + ' of 10' : '';
+  }
+
+  document.getElementById('quizGrade').addEventListener('click', function () {
+    var score = 0, unanswered = 0;
+    Array.prototype.forEach.call(document.querySelectorAll('.q'), function (wrap) {
+      var chosen = wrap.querySelector('input:checked');
+      Array.prototype.forEach.call(wrap.querySelectorAll('.opt'), function (opt) {
+        opt.classList.remove('correct', 'wrong');
+        var inp = opt.querySelector('input');
+        if (inp.value === '1') opt.classList.add('correct');
+        if (inp.checked && inp.value === '0') opt.classList.add('wrong');
+      });
+      wrap.querySelector('.rationale').hidden = false;
+      if (!chosen) unanswered++;
+      else if (chosen.value === '1') score++;
+    });
+    var msg = 'You scored ' + score + ' out of 10.';
+    if (unanswered) msg += ' (' + unanswered + ' left blank.)';
+    if (score === 10) msg += ' Move on to chapter 4.';
+    else if (score >= 7) msg += ' Reread the sections behind the ones you missed, then try again.';
+    else msg += ' Work back through 3.3 through 3.5 before retaking this.';
+    document.getElementById('quizScore').textContent = msg;
+    if (!state.best.quiz || score > state.best.quiz) {
+      state.best.quiz = score;
+      saveState(state);
+    }
+    document.getElementById('quizBest').textContent = 'Best so far ' + state.best.quiz + ' of 10';
+  });
+
+  document.getElementById('quizReset').addEventListener('click', buildQuiz);
+  buildQuiz();
+
+
+  /* ---------------- Worked examples: attempt before reveal ---------------- */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.worked[data-answer]'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit');
+    var tol = parseFloat(box.getAttribute('data-tol'));
+    var steps = box.querySelector('.steps');
+    steps.classList.add('veiled');
+
+    var row = document.createElement('div');
+    row.className = 'attempt';
+    var id = 'attempt-' + idx;
+    row.innerHTML =
+      '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      '<span class="unit-tag">' + unit + '</span>';
+    var check = document.createElement('button');
+    check.type = 'button';
+    check.className = 'btn';
+    check.textContent = 'Check and show the work';
+    var skip = document.createElement('button');
+    skip.type = 'button';
+    skip.className = 'btn ghost';
+    skip.textContent = 'Just show the work';
+    row.appendChild(check);
+    row.appendChild(skip);
+
+    var note = document.createElement('p');
+    note.className = 'attempt-note';
+
+    box.insertBefore(row, steps);
+    box.appendChild(note);
+
+    function reveal(msg, ok) {
+      steps.classList.remove('veiled');
+      row.querySelector('input').disabled = true;
+      check.disabled = true;
+      skip.disabled = true;
+      if (msg) {
+        note.textContent = msg;
+        note.className = 'attempt-note ' + (ok ? 'ok' : 'no');
+      }
+    }
+    check.addEventListener('click', function () {
+      var given = parseFloat(row.querySelector('input').value.replace(/,/g, '').trim());
+      if (isNaN(given)) {
+        note.textContent = 'Enter a number first, or choose "Just show the work".';
+        note.className = 'attempt-note no';
+        return;
+      }
+      var err = Math.abs(given - answer) / answer;
+      if (err <= tol) reveal('That is right. Compare your steps to the ones below.', true);
+      else if (Math.abs(given * 1000 - answer) / answer <= tol || Math.abs(given / 1000 - answer) / answer <= tol)
+        reveal('The digits are right but the size is off by a factor of 1000 — a prefix slip. The steps are below.', false);
+      else reveal('Not this time. Work through the steps below and see where yours diverged.', false);
+    });
+    skip.addEventListener('click', function () { reveal('', true); });
+  });
+
+  /* ---------------- Glossary ---------------- */
+
+  var GLOSSARY = [
+    { key: 'ohms-law', term: "Ohm's law", where: '3.3',
+      def: 'The relationship stating that current is directly proportional to voltage and inversely proportional to resistance. Written I = V/R, V = IR, or R = V/I.' },
+    { key: 'voltage', term: 'Voltage', where: '3.2',
+      def: 'Energy per unit of charge, measured in volts. Always a difference between two points, which is why a voltmeter connects across a component.' },
+    { key: 'current', term: 'Current', where: '3.2',
+      def: 'The rate of flow of charge, measured in amperes. One ampere is one coulomb passing a point each second. Measured through a component, so the circuit must be opened for an ammeter.' },
+    { key: 'resistance', term: 'Resistance', where: '3.2',
+      def: 'The opposition to current, measured in ohms. Present in every wire and contact, not only in resistors.' },
+    { key: 'conventional-current', term: 'Conventional current', where: '3.2',
+      def: 'The convention that treats current as flowing from the positive terminal of the source to the negative. Electrons in a metal drift the other way. Every calculated answer is the same either way.' },
+    { key: 'linear', term: 'Linear', where: '3.6',
+      def: 'Characterized by a straight-line relationship. In a linear component, a change in current is proportional to the change in voltage. Resistors are linear; lamps and diodes are not.' },
+    { key: 'directly-proportional', term: 'Directly proportional', where: '3.3',
+      def: 'Two quantities that rise and fall together by the same factor. Current and voltage, when resistance is held constant.' },
+    { key: 'inversely-proportional', term: 'Inversely proportional', where: '3.3',
+      def: 'Two quantities where one rises as the other falls by the same factor. Current and resistance, when voltage is held constant. Graphs as a hyperbola.' },
+    { key: 'slope', term: 'Slope', where: '3.6',
+      def: 'The steepness of a line, calculated as rise over run. On a current-versus-voltage graph the slope equals 1/R, so a steeper line means a smaller resistance.' },
+    { key: 'troubleshooting', term: 'Troubleshooting', where: '3.8',
+      def: 'The systematic process of identifying and locating a fault in a circuit or system.' },
+    { key: 'apm', term: 'APM approach', where: '3.8',
+      def: 'Analysis, planning, measurement. Work out what the readings should be, plan which measurements narrow the field fastest, then measure.' },
+    { key: 'half-splitting', term: 'Half-splitting', where: '3.8',
+      def: 'A troubleshooting tactic that eliminates half of the remaining possibilities with each measurement, rather than testing components in order.' },
+    { key: 'open', term: 'Open', where: '3.8',
+      def: 'A break in the current path. Current stops everywhere in a series circuit, good components drop zero volts, and the full source voltage appears across the break.' },
+    { key: 'short', term: 'Short', where: '3.8',
+      def: 'An unintended path of very low resistance. The shorted component drops zero volts, total resistance falls, and current rises.' },
+    { key: 'tolerance', term: 'Tolerance', where: '3.7',
+      def: 'The permitted range around a component\u2019s marked value, shown by the fourth band on a resistor. A 5% 1.0 kΩ resistor may legitimately measure anywhere from 950 Ω to 1 050 Ω.' },
+    { key: 'percent-difference', term: 'Percent difference', where: '3.7',
+      def: 'How far a measured value sits from the calculated one, as a percentage of the calculated value. The standard way to report agreement in a lab report.' },
+    { key: 'load', term: 'Load', where: '3.1',
+      def: 'The component or components that consume the energy the source supplies. In this chapter, the resistor and the lamp.' },
+    { key: 'siemens', term: 'Conductance', where: '3.2',
+      def: 'The reciprocal of resistance, measured in siemens. A measure of how readily a circuit allows current rather than how much it opposes it.' }
+  ];
+
+  var glossIndex = {};
+  GLOSSARY.forEach(function (g) { glossIndex[g.key] = g; });
+
+  function renderGlossary(filter) {
+    var body = document.getElementById('glossBody');
+    body.textContent = '';
+    var f = (filter || '').trim().toLowerCase();
+    var shown = 0;
+    GLOSSARY.slice().sort(function (a, b) { return a.term.localeCompare(b.term); }).forEach(function (g) {
+      if (f && g.term.toLowerCase().indexOf(f) === -1 && g.def.toLowerCase().indexOf(f) === -1) return;
+      shown++;
+      var d = document.createElement('div');
+      d.className = 'gloss-entry';
+      d.id = 'gloss-' + g.key;
+      var h = document.createElement('h4');
+      h.textContent = g.term;
+      var pEl = document.createElement('p');
+      pEl.textContent = g.def;
+      var w = document.createElement('p');
+      w.className = 'where';
+      w.textContent = 'introduced in ' + g.where;
+      d.appendChild(h); d.appendChild(pEl); d.appendChild(w);
+      body.appendChild(d);
+    });
+    document.getElementById('glossCount').textContent =
+      shown + (shown === 1 ? ' term' : ' terms') + (f ? ' matching "' + filter + '"' : '');
+    if (!shown) {
+      var none = document.createElement('p');
+      none.textContent = 'No terms match that. Clear the filter to see all of them.';
+      body.appendChild(none);
+    }
+  }
+  document.getElementById('glossSearch').addEventListener('input', function () {
+    renderGlossary(this.value);
+  });
+  renderGlossary('');
+
+  // inline dotted terms reveal their definition after the paragraph they sit in
+  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+    var key = btn.getAttribute('data-term');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      var host = btn.closest('p, li');
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
+      if (open && existing) {
+        existing.parentNode.removeChild(existing);
+        btn.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      var g = glossIndex[key];
+      if (!g) return;
+      var span = document.createElement('span');
+      span.className = 'termdef';
+      span.setAttribute('data-for', key);
+      span.setAttribute('role', 'note');
+      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
+      host.parentNode.insertBefore(span, host.nextSibling);
+      btn.setAttribute('aria-expanded', 'true');
+    });
+  });
+
+  /* ---------------- Homework set ---------------- */
+
+  function seedFrom(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  var hwSet = null, hwSeed = 0, hwIdValue = '';
+
+  function buildHomework(id) {
+    var rnd = mulberry32(seedFrom('elec103ch3:' + id));
+    function choose(arr) { return arr[Math.floor(rnd() * arr.length)]; }
+    var Rs = [100, 220, 330, 470, 680, 1000, 1500, 2200, 3300, 4700, 6800, 10000];
+    var Vs = [1.5, 3, 4.5, 5, 6, 9, 12, 15, 18, 24];
+    var mAs = [0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    var out = [];
+
+    // 3 x find current
+    for (var a = 0; a < 3; a++) {
+      var r = choose(Rs), v = choose(Vs), i = v / r;
+      var u = i < 0.001 ? 'µA' : 'mA';
+      out.push({ text: 'A ' + (r >= 1000 ? (r / 1000) + ' kΩ' : r + ' Ω') + ' resistor is connected across a ' + v + ' V source. Find the current.',
+                 unit: u, ans: u === 'µA' ? i * 1e6 : i * 1000, work: 'I = ' + v + ' V ÷ ' + r + ' Ω' });
+    }
+    // 2 x find voltage
+    for (var b = 0; b < 2; b++) {
+      var r2 = choose(Rs), m = choose(mAs);
+      out.push({ text: 'A current of ' + m + ' mA is in a ' + (r2 >= 1000 ? (r2 / 1000) + ' kΩ' : r2 + ' Ω') + ' resistor. Find the voltage across it.',
+                 unit: 'V', ans: (m / 1000) * r2, work: 'V = ' + m + ' mA × ' + r2 + ' Ω' });
+    }
+    // 2 x find resistance
+    for (var c = 0; c < 2; c++) {
+      var v3 = choose(Vs), m3 = choose(mAs);
+      out.push({ text: 'A component draws ' + m3 + ' mA from a ' + v3 + ' V source. Find its resistance.',
+                 unit: 'Ω', ans: v3 / (m3 / 1000), work: 'R = ' + v3 + ' V ÷ ' + m3 + ' mA' });
+    }
+    // 1 x proportional reasoning
+    var r4 = choose(Rs), v4 = choose(Vs), f = choose([2, 3, 4]);
+    out.push({ text: 'A ' + (r4 >= 1000 ? (r4 / 1000) + ' kΩ' : r4 + ' Ω') + ' resistor carries some current at ' + v4 + ' V. The voltage is then increased by a factor of ' + f + ', with the resistor unchanged. What is the new current?',
+               unit: 'mA', ans: (v4 * f) / r4 * 1000, work: 'Current is directly proportional to voltage: ' + f + ' × (' + v4 + ' V ÷ ' + r4 + ' Ω)' });
+    // 1 x graph slope
+    var r5 = choose([100, 220, 470, 1000, 2200]);
+    out.push({ text: 'On a graph of current against voltage for a ' + (r5 >= 1000 ? (r5 / 1000) + ' kΩ' : r5 + ' Ω') + ' resistor, what current does the line reach at 20 V? Answer in milliamperes.',
+               unit: 'mA', ans: 20 / r5 * 1000, work: 'The line is straight through the origin with slope 1/R: I = 20 V ÷ ' + r5 + ' Ω' });
+    // 1 x fault
+    var rA = choose([470, 680, 1000]), rB = choose([1500, 2200, 3300]), vS = choose([9, 12, 15, 18]);
+    out.push({ text: 'Two resistors, ' + rA + ' Ω and ' + rB + ' Ω, are in series across a ' + vS + ' V source. The ' + rA + ' Ω resistor goes open. What voltage will a meter read across the ' + rB + ' Ω resistor?',
+               unit: 'V', ans: 0, work: 'With the circuit open, no current flows, so the good resistor drops 0 V and all ' + vS + ' V appears across the break.', zero: true });
+
+    return out;
+  }
+
+  function renderHomework() {
+    var body = document.getElementById('hwBody');
+    body.textContent = '';
+    hwSet.forEach(function (q, i) {
+      var d = document.createElement('div');
+      d.className = 'hw-problem';
+      d.setAttribute('data-i', i);
+      var q1 = document.createElement('div');
+      q1.className = 'hq';
+      q1.innerHTML = '<span class="hn">' + (i + 1) + '</span><span>' + q.text + '</span>';
+      var row = document.createElement('div');
+      row.className = 'answer-row';
+      row.innerHTML = '<label class="visually-hidden" for="hw-' + i + '">Answer to problem ' + (i + 1) + '</label>' +
+        '<input type="text" id="hw-' + i + '" inputmode="decimal" autocomplete="off">' +
+        '<span class="unit-tag">' + q.unit + '</span>';
+      var mark = document.createElement('p');
+      mark.className = 'hw-mark';
+      d.appendChild(q1); d.appendChild(row); d.appendChild(mark);
+      body.appendChild(d);
+    });
+    document.getElementById('hwActions').hidden = false;
+  }
+
+  document.getElementById('hwBuild').addEventListener('click', function () {
+    var id = document.getElementById('hwId').value.trim();
+    var fb = document.getElementById('hwFeedback');
+    if (id.length < 4) {
+      fb.className = 'feedback no';
+      fb.textContent = 'Enter your full student ID — at least four characters.';
+      return;
+    }
+    hwIdValue = id;
+    hwSeed = seedFrom('elec103ch3:' + id);
+    hwSet = buildHomework(id);
+    renderHomework();
+    fb.className = 'feedback';
+    fb.textContent = '';
+    document.getElementById('hwCodeWrap').hidden = true;
+    document.getElementById('hwStatus').textContent = 'Set built · 10 problems';
+    state.hwId = id;
+    saveState(state);
+  });
+
+  document.getElementById('hwGrade').addEventListener('click', function () {
+    if (!hwSet) return;
+    var score = 0;
+    hwSet.forEach(function (q, i) {
+      var box = document.querySelector('.hw-problem[data-i="' + i + '"]');
+      var val = parseFloat(document.getElementById('hw-' + i).value.replace(/,/g, '').trim());
+      var mark = box.querySelector('.hw-mark');
+      box.classList.remove('right', 'wrong');
+      var right;
+      if (q.zero) right = val === 0;
+      else right = !isNaN(val) && Math.abs(val - q.ans) / q.ans <= 0.02;
+      if (right) {
+        score++;
+        box.classList.add('right');
+        mark.className = 'hw-mark ok';
+        mark.textContent = 'Correct.';
+      } else {
+        box.classList.add('wrong');
+        mark.className = 'hw-mark no';
+        mark.textContent = 'Not correct. Set it up as ' + q.work + ' and try again.';
+      }
+    });
+    var fb = document.getElementById('hwFeedback');
+    fb.className = 'feedback ' + (score === 10 ? 'ok' : 'no');
+    fb.textContent = score + ' of 10 correct. ' + (score === 10
+      ? 'Submit the code below.'
+      : 'Fix the ones marked and check again, or submit as it stands.');
+    var check = (hwSeed ^ (score * 2654435761)) >>> 0;
+    document.getElementById('hwCode').textContent =
+      'OHM3-' + hwIdValue.toUpperCase() + '-' + score + '-' + check.toString(36).toUpperCase();
+    document.getElementById('hwCodeWrap').hidden = false;
+    document.getElementById('hwStatus').textContent = 'Scored ' + score + '/10';
+    state.hwScore = score;
+    saveState(state);
+  });
+
+  document.getElementById('hwPrint').addEventListener('click', function () { window.print(); });
+
+  if (state.hwId) {
+    document.getElementById('hwId').value = state.hwId;
+  }
+
+
+  /* ---------------- Display preferences ---------------- */
+
+  var SCALES = [0.85, 0.925, 1, 1.1, 1.2, 1.35];
+  var scaleIdx = typeof state.scale === 'number' ? state.scale : 2;
+  var THEMES = [
+    { key: 'system', icon: '\u25D0', label: 'System theme' },
+    { key: 'light', icon: '\u2600', label: 'Light' },
+    { key: 'dark', icon: '\u263D', label: 'Dark' }
+  ];
+  var themeIdx = 0;
+  for (var ti = 0; ti < THEMES.length; ti++) {
+    if (THEMES[ti].key === state.theme) themeIdx = ti;
+  }
+
+  function applyScale() {
+    scaleIdx = Math.max(0, Math.min(SCALES.length - 1, scaleIdx));
+    document.documentElement.style.setProperty('--ui-scale', SCALES[scaleIdx]);
+    document.getElementById('textSizeLabel').textContent = Math.round(SCALES[scaleIdx] * 100) + '%';
+    document.getElementById('textSmaller').disabled = scaleIdx === 0;
+    document.getElementById('textLarger').disabled = scaleIdx === SCALES.length - 1;
+    state.scale = scaleIdx;
+    saveState(state);
+  }
+
+  function applyTheme() {
+    var t = THEMES[themeIdx];
+    document.documentElement.setAttribute('data-theme', t.key);
+    document.getElementById('themeIcon').textContent = t.icon;
+    document.getElementById('themeLabel').textContent = t.label;
+    document.getElementById('themeBtn').setAttribute('aria-pressed', t.key === 'dark' ? 'true' : 'false');
+    state.theme = t.key;
+    saveState(state);
+  }
+
+  document.getElementById('textSmaller').addEventListener('click', function () { scaleIdx--; applyScale(); });
+  document.getElementById('textLarger').addEventListener('click', function () { scaleIdx++; applyScale(); });
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    themeIdx = (themeIdx + 1) % THEMES.length;
+    applyTheme();
+  });
+  applyScale();
+  applyTheme();
+
+
+  /* ============================================================
+     STUDENT NOTES MODULE — ported from the ENGI 216 chapter modules
+     Single global modal driven by:
+       (a) the floating action button (.notes-fab)
+       (b) the keyboard shortcut 'n' (when not typing in a field)
+       (c) the chip in the progress row
+     Notes are kept per section. The section is auto-selected from
+     whichever tab is open, and the student can override it.
+     ============================================================ */
+  (function NotesModule() {
+
+    /* ═══════════════════════════════════════════════════════════
+       CUSTOMIZE per chapter — these four constants are the only
+       things that change when porting this module to a new chapter.
+       ═══════════════════════════════════════════════════════════ */
+
+    // Unique storage prefix. Do NOT collide with other chapters.
+    var CHAPTER_KEY = 'elec103_ch3';
+
+    // Appears as the H1 in every export.
+    var CHAPTER_TITLE = 'Chapter 3 \u00B7 Ohm\u2019s Law';
+
+    // Same across every chapter of this course.
+    var CHAPTER_COURSE = 'ELEC 103 \u00B7 Electrical Skills and Techniques';
+
+    // One entry per section the student can write notes on. The id MUST
+    // match a panel id in the chapter HTML.
+    var NOTE_SECTIONS = [
+      { id: 'panel-0',  num: '\u00A7 3.1', title: 'The relationship you will use every day' },
+      { id: 'panel-1',  num: '\u00A7 3.2', title: 'The three quantities' },
+      { id: 'panel-2',  num: '\u00A7 3.3', title: 'Ohm\u2019s law and its three forms' },
+      { id: 'panel-3',  num: '\u00A7 3.4', title: 'Calculating current' },
+      { id: 'panel-4',  num: '\u00A7 3.5', title: 'Calculating voltage and resistance' },
+      { id: 'panel-5',  num: '\u00A7 3.6', title: 'Seeing the law as a graph' },
+      { id: 'panel-6',  num: '\u00A7 3.7', title: 'At the bench' },
+      { id: 'panel-7',  num: '\u00A7 3.8', title: 'Troubleshooting with Ohm\u2019s law' },
+      { id: 'panel-8',  num: '\u00A7 3.9', title: 'Check yourself' },
+      { id: 'panel-9',  num: 'Homework',   title: 'Homework set' },
+      { id: 'panel-10', num: 'Glossary',   title: 'Glossary' },
+      { id: 'panel-11', num: 'Resources',  title: 'Related resources' },
+      { id: 'panel-12', num: 'Quick Ref',  title: 'Cheat sheet' }
+    ];
+
+    /* ═══════════════════════════════════════════════════════════
+       END CUSTOMIZE block. Nothing below needs to change.
+       ═══════════════════════════════════════════════════════════ */
+
+    var GENERAL = { id: '_general', num: 'General', title: 'General notes (anywhere in the chapter)' };
+    var AUTOSAVE_DEBOUNCE_MS = 500;
+
+    /* ---------- Storage, with graceful fallback ---------- */
+    var storage = (function () {
+      var memStore = {};
+      try {
+        var testKey = '__ls_test__';
+        window.localStorage.setItem(testKey, '1');
+        window.localStorage.removeItem(testKey);
+        return {
+          get: function (k) { return window.localStorage.getItem(k); },
+          set: function (k, v) { try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+          remove: function (k) { try { window.localStorage.removeItem(k); } catch (e) {} },
+          isReal: true
+        };
+      } catch (e) {
+        return {
+          get: function (k) { return memStore.hasOwnProperty(k) ? memStore[k] : null; },
+          set: function (k, v) { memStore[k] = v; return true; },
+          remove: function (k) { delete memStore[k]; },
+          isReal: false
+        };
+      }
+    })();
+
+    function key(suffix) { return CHAPTER_KEY + '_' + suffix; }
+    function sectionKey(id) { return key('note_' + id); }
+    function nameKey() { return key('name'); }
+    function lastSavedKey() { return key('lastSaved'); }
+
+    function loadNote(id) { return storage.get(sectionKey(id)) || ''; }
+    function saveNote(id, text) {
+      if (text && text.length) storage.set(sectionKey(id), text);
+      else storage.remove(sectionKey(id));
+      storage.set(lastSavedKey(), new Date().toISOString());
+    }
+    function loadName() { return storage.get(nameKey()) || ''; }
+    function saveName(n) { if (n) storage.set(nameKey(), n); else storage.remove(nameKey()); }
+
+    /* ---------- Helpers ---------- */
+    function fmtTime(iso) {
+      if (!iso) return 'never';
+      var t = new Date(iso);
+      if (isNaN(t)) return 'never';
+      var diff = (new Date() - t) / 1000;
+      if (diff < 5) return 'just now';
+      if (diff < 60) return Math.floor(diff) + ' sec ago';
+      if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + ' hr ago';
+      return t.toLocaleDateString();
+    }
+    function debounce(fn, wait) {
+      var t = null;
+      return function () {
+        var args = arguments, ctx = this;
+        if (t) clearTimeout(t);
+        t = setTimeout(function () { fn.apply(ctx, args); }, wait);
+      };
+    }
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function findSection(id) {
+      if (id === GENERAL.id) return GENERAL;
+      for (var i = 0; i < NOTE_SECTIONS.length; i++) if (NOTE_SECTIONS[i].id === id) return NOTE_SECTIONS[i];
+      return null;
+    }
+    function allSectionsWithGeneral() { return [GENERAL].concat(NOTE_SECTIONS); }
+
+    /* ---------- Which section the student is reading ----------
+       The chapter is tabbed rather than one long scroll, so the open
+       tab is the answer — no scroll detection needed. */
+    function detectCurrentSection() {
+      var open = document.querySelector('[role="tabpanel"]:not([hidden])');
+      if (open && findSection(open.id)) return open.id;
+      return NOTE_SECTIONS[0].id;
+    }
+
+    /* ---------- Element refs ---------- */
+    var backdrop     = document.getElementById('notesBackdrop');
+    var picker       = document.getElementById('notesSectionPicker');
+    var autoTag      = document.getElementById('notesAutoTag');
+    var textarea     = document.getElementById('notesTextarea');
+    var metaCount    = document.getElementById('notesMetaCount');
+    var metaStatus   = document.getElementById('notesMetaStatus');
+    var clearSecBtn  = document.getElementById('notesClearSection');
+    var allListUl    = document.getElementById('notesAllList');
+    var allListEmpty = document.getElementById('notesAllEmpty');
+    var nameField    = document.getElementById('notesNameField');
+    var printBtn     = document.getElementById('notesPrint');
+    var mdBtn        = document.getElementById('notesMd');
+    var docBtn       = document.getElementById('notesDoc');
+    var clearAllBtn  = document.getElementById('notesClearAll');
+    var closeBtn     = document.getElementById('notesCloseBtn');
+    var fab          = document.getElementById('notesFab');
+    var fabCount     = document.getElementById('notesFabCount');
+    var chipBtn      = document.getElementById('notesChipBtn');
+    var chipStatus   = document.getElementById('notesChipStatus');
+
+    if (!backdrop || !picker || !textarea) return;
+
+    allSectionsWithGeneral().forEach(function (sec) {
+      var opt = document.createElement('option');
+      opt.value = sec.id;
+      opt.textContent = sec.num + ' \u2014 ' + sec.title;
+      picker.appendChild(opt);
+    });
+
+    /* ---------- Dots on tabs that hold notes ---------- */
+    function refreshTabDots() {
+      NOTE_SECTIONS.forEach(function (sec, i) {
+        var tab = document.getElementById('tab-' + sec.id.split('-')[1]);
+        if (!tab) return;
+        var existing = tab.querySelector('.tab-note-dot');
+        var has = loadNote(sec.id).length > 0 || (Img && Img.has(sec.id));
+        if (has && !existing) {
+          var dot = document.createElement('span');
+          dot.className = 'tab-note-dot';
+          dot.setAttribute('aria-label', 'has notes');
+          tab.appendChild(dot);
+        } else if (!has && existing) {
+          existing.parentNode.removeChild(existing);
+        }
+      });
+    }
+
+    /* ---------- Stats ---------- */
+    function collectNotes() {
+      var out = [];
+      allSectionsWithGeneral().forEach(function (sec) {
+        var v = loadNote(sec.id);
+        if (v && v.length) out.push({ sec: sec, text: v });
+      });
+      return out;
+    }
+
+    function refreshChip() {
+      var notes = collectNotes();
+      var imgTotal = Img ? Img.totalCount() : 0;
+      var secSet = Object.create(null);
+      notes.forEach(function (n) { secSet[n.sec.id] = true; });
+      if (Img) allSectionsWithGeneral().forEach(function (sec) { if (Img.has(sec.id)) secSet[sec.id] = true; });
+      var distinct = Object.keys(secSet).length;
+      if (chipStatus) {
+        if (distinct === 0) chipStatus.textContent = 'empty';
+        else {
+          var chars = 0;
+          notes.forEach(function (n) { chars += n.text.length; });
+          var parts = [distinct + ' section' + (distinct === 1 ? '' : 's'), chars + ' chars'];
+          if (imgTotal > 0) parts.push(imgTotal + ' img' + (imgTotal === 1 ? '' : 's'));
+          chipStatus.textContent = parts.join(' \u00B7 ');
+        }
+      }
+      if (fabCount) {
+        if (distinct === 0) fabCount.hidden = true;
+        else { fabCount.hidden = false; fabCount.textContent = String(distinct); }
+      }
+    }
+
+    /* ---------- "All my notes" list ---------- */
+    function refreshAllList() {
+      if (!allListUl) return;
+      while (allListUl.firstChild) allListUl.removeChild(allListUl.firstChild);
+      var notes = collectNotes();
+      if (notes.length === 0) {
+        allListUl.style.display = 'none';
+        if (allListEmpty) allListEmpty.hidden = false;
+        return;
+      }
+      allListUl.style.display = '';
+      if (allListEmpty) allListEmpty.hidden = true;
+      notes.forEach(function (n) {
+        var li = document.createElement('li');
+        if (n.sec.id === picker.value) li.className = 'active';
+        var title = document.createElement('span');
+        title.className = 'title';
+        title.textContent = n.sec.num + ' \u2014 ' + n.sec.title;
+        var meta = document.createElement('span');
+        meta.className = 'meta';
+        meta.textContent = n.text.length + ' chars';
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'open-btn';
+        btn.textContent = 'open';
+        btn.addEventListener('click', function () { switchToSection(n.sec.id, true); });
+        li.appendChild(title); li.appendChild(meta); li.appendChild(btn);
+        allListUl.appendChild(li);
+      });
+    }
+
+    /* ---------- Switching sections inside the modal ---------- */
+    function switchToSection(id, manual) {
+      flushSave();
+      if (picker.value !== id) picker.value = id;
+      var existing = loadNote(id);
+      textarea.value = existing;
+      metaCount.textContent = existing.length + ' characters';
+      metaStatus.textContent = existing.length ? ('Saved \u00B7 ' + fmtTime(storage.get(lastSavedKey()))) : '(empty)';
+      if (autoTag) autoTag.hidden = !!manual;
+      if (Img && Img.loadFor) Img.loadFor(id);
+      refreshAllList();
+      if (!backdrop.hidden) setTimeout(function () { textarea.focus(); }, 30);
+    }
+    picker.addEventListener('change', function () { switchToSection(picker.value, true); });
+
+    /* ---------- Save flow ---------- */
+    var pendingTimer = null;
+    function flushSave() {
+      if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null; doSaveNow(); }
+    }
+    function doSaveNow() {
+      saveNote(picker.value, textarea.value);
+      metaStatus.textContent = 'Saved \u00B7 ' + fmtTime(new Date().toISOString());
+      refreshChip(); refreshAllList(); refreshTabDots();
+    }
+    textarea.addEventListener('input', function () {
+      metaCount.textContent = textarea.value.length + ' characters';
+      metaStatus.textContent = 'Typing\u2026';
+      if (pendingTimer) clearTimeout(pendingTimer);
+      pendingTimer = setTimeout(function () { pendingTimer = null; doSaveNow(); }, AUTOSAVE_DEBOUNCE_MS);
+    });
+
+    clearSecBtn.addEventListener('click', function () {
+      var sec = findSection(picker.value);
+      var hasImgs = Img && Img.has(picker.value);
+      if (textarea.value.length === 0 && !hasImgs) return;
+      if (!window.confirm('Clear your notes' + (hasImgs ? ' and screenshots' : '') + ' for ' + sec.num +
+        '? This cannot be undone unless you have already exported them.')) return;
+      textarea.value = '';
+      saveNote(picker.value, '');
+      metaCount.textContent = '0 characters';
+      metaStatus.textContent = 'Cleared';
+      var after = function () { refreshChip(); refreshAllList(); refreshTabDots(); textarea.focus(); };
+      if (hasImgs) Img.clearSection(picker.value).then(after); else after();
+    });
+
+    clearAllBtn.addEventListener('click', function () {
+      var notes = collectNotes();
+      var imgTotal = Img ? Img.totalCount() : 0;
+      if (notes.length === 0 && imgTotal === 0) { window.alert('There are no notes to clear.'); return; }
+      var what = notes.length + ' section' + (notes.length === 1 ? '' : 's') + ' of notes';
+      if (imgTotal > 0) what += ' and ' + imgTotal + ' image' + (imgTotal === 1 ? '' : 's');
+      if (!window.confirm('Permanently delete ALL notes for this chapter? (' + what +
+        ') This cannot be undone unless you have already exported them.')) return;
+      allSectionsWithGeneral().forEach(function (sec) { storage.remove(sectionKey(sec.id)); });
+      storage.remove(lastSavedKey());
+      textarea.value = '';
+      metaCount.textContent = '0 characters';
+      metaStatus.textContent = 'Cleared';
+      var after = function () { refreshChip(); refreshAllList(); refreshTabDots(); };
+      if (Img) Img.clearAll().then(after); else after();
+    });
+
+    if (nameField) {
+      nameField.value = loadName();
+      nameField.addEventListener('input', debounce(function () { saveName(nameField.value.trim()); }, 400));
+    }
+
+    /* ============================================================
+       SCREENSHOTS — IndexedDB-backed image attachments per section.
+       Text notes stay in localStorage; only images live in IndexedDB,
+       stored as native blobs. A synchronous in-memory mirror keeps the
+       chip and tab dots fast.
+       ============================================================ */
+    var Img = (function () {
+      var DB_NAME = 'elec103_notes_images';
+      var DB_VERSION = 1;
+      var STORE = 'images';
+      var MAX_DIM = 1600;
+      var ENCODE_TYPE = 'image/webp';
+      var ENCODE_Q = 0.85;
+      var MAX_SOURCE_BYTES = 25 * 1024 * 1024;
+      var MAX_PER_SECTION = 30;
+
+      var available = !!(window.indexedDB);
+      var dbPromise = null;
+      var sectionsWithImages = Object.create(null);
+      var objectURLs = [];
+      var currentSection = null;
+      var wrap, dropzone, addBtn, fileInput, grid, statusEl;
+
+      function openDB() {
+        if (!available) return Promise.reject(new Error('no-indexeddb'));
+        if (dbPromise) return dbPromise;
+        dbPromise = new Promise(function (resolve, reject) {
+          var req = window.indexedDB.open(DB_NAME, DB_VERSION);
+          req.onupgradeneeded = function (e) {
+            var db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE)) {
+              var os = db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+              os.createIndex('by_section', ['chapter', 'section'], { unique: false });
+              os.createIndex('by_chapter', 'chapter', { unique: false });
+            }
+          };
+          req.onsuccess = function (e) { resolve(e.target.result); };
+          req.onerror = function () { reject(req.error || new Error('idb-open-failed')); };
+        });
+        return dbPromise;
+      }
+      function store(mode) {
+        return openDB().then(function (db) { return db.transaction(STORE, mode).objectStore(STORE); });
+      }
+      function addRecord(rec) {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var r = os.add(rec);
+            r.onsuccess = function () { rec.id = r.result; resolve(rec); };
+            r.onerror = function () { reject(r.error); };
+          });
+        });
+      }
+      function putRecord(rec) {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var r = os.put(rec);
+            r.onsuccess = function () { resolve(); };
+            r.onerror = function () { reject(r.error); };
+          });
+        });
+      }
+      function deleteRecord(id) {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var r = os.delete(id);
+            r.onsuccess = function () { resolve(); };
+            r.onerror = function () { reject(r.error); };
+          });
+        });
+      }
+      function listBySection(section) {
+        return store('readonly').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var out = [];
+            var cur = os.index('by_section').openCursor(window.IDBKeyRange.only([CHAPTER_KEY, section]));
+            cur.onsuccess = function (e) { var k = e.target.result; if (k) { out.push(k.value); k.continue(); } else resolve(out); };
+            cur.onerror = function () { reject(cur.error); };
+          });
+        });
+      }
+      function deleteChapter() {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var cur = os.index('by_chapter').openCursor(window.IDBKeyRange.only(CHAPTER_KEY));
+            cur.onsuccess = function (e) { var k = e.target.result; if (k) { k.delete(); k.continue(); } else resolve(); };
+            cur.onerror = function () { reject(cur.error); };
+          });
+        });
+      }
+      function loadMirror() {
+        return store('readonly').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var cur = os.index('by_chapter').openCursor(window.IDBKeyRange.only(CHAPTER_KEY));
+            cur.onsuccess = function (e) {
+              var k = e.target.result;
+              if (k) { var sec = k.value.section; sectionsWithImages[sec] = (sectionsWithImages[sec] || 0) + 1; k.continue(); }
+              else resolve();
+            };
+            cur.onerror = function () { reject(cur.error); };
+          });
+        });
+      }
+      function bump(section, delta) {
+        var c = (sectionsWithImages[section] || 0) + delta;
+        if (c <= 0) delete sectionsWithImages[section]; else sectionsWithImages[section] = c;
+      }
+
+      function decode(blob) {
+        if (window.createImageBitmap) {
+          return window.createImageBitmap(blob).then(
+            function (bmp) { return { drawable: bmp, width: bmp.width, height: bmp.height, close: function () { try { bmp.close(); } catch (e) {} } }; },
+            function () { return decodeViaImg(blob); }
+          );
+        }
+        return decodeViaImg(blob);
+      }
+      function decodeViaImg(blob) {
+        return new Promise(function (resolve, reject) {
+          var url = URL.createObjectURL(blob);
+          var im = new Image();
+          im.onload = function () { resolve({ drawable: im, width: im.naturalWidth, height: im.naturalHeight, close: function () { URL.revokeObjectURL(url); } }); };
+          im.onerror = function () { URL.revokeObjectURL(url); reject(new Error('decode-failed')); };
+          im.src = url;
+        });
+      }
+      function dataURLtoBlob(durl) {
+        var parts = durl.split(','), mime = parts[0].match(/:(.*?);/)[1];
+        var bin = atob(parts[1]); var n = bin.length; var u8 = new Uint8Array(n);
+        while (n--) u8[n] = bin.charCodeAt(n);
+        return new Blob([u8], { type: mime });
+      }
+      function process(file) {
+        return decode(file).then(function (src) {
+          var scale = Math.min(1, MAX_DIM / Math.max(src.width, src.height));
+          var ow = Math.max(1, Math.round(src.width * scale));
+          var oh = Math.max(1, Math.round(src.height * scale));
+          var canvas = document.createElement('canvas');
+          canvas.width = ow; canvas.height = oh;
+          canvas.getContext('2d').drawImage(src.drawable, 0, 0, ow, oh);
+          if (src.close) src.close();
+          return new Promise(function (resolve) {
+            if (canvas.toBlob) {
+              canvas.toBlob(function (b) {
+                if (b && b.size) resolve({ blob: b, type: b.type || ENCODE_TYPE, w: ow, h: oh });
+                else canvas.toBlob(function (b2) {
+                  if (b2 && b2.size) resolve({ blob: b2, type: b2.type || 'image/jpeg', w: ow, h: oh });
+                  else { var du = canvas.toDataURL('image/jpeg', ENCODE_Q); resolve({ blob: dataURLtoBlob(du), type: 'image/jpeg', w: ow, h: oh }); }
+                }, 'image/jpeg', ENCODE_Q);
+              }, ENCODE_TYPE, ENCODE_Q);
+            } else {
+              var du = canvas.toDataURL('image/jpeg', ENCODE_Q);
+              resolve({ blob: dataURLtoBlob(du), type: 'image/jpeg', w: ow, h: oh });
+            }
+          });
+        });
+      }
+      function blobToDataURL(blob) {
+        return new Promise(function (resolve, reject) {
+          var fr = new FileReader();
+          fr.onload = function () { resolve(fr.result); };
+          fr.onerror = function () { reject(fr.error); };
+          fr.readAsDataURL(blob);
+        });
+      }
+      function fmtKB(bytes) {
+        return bytes < 1024 ? bytes + ' B' : (bytes / 1024 < 1024 ? Math.round(bytes / 1024) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB');
+      }
+      function setStatus(msg, warn) {
+        if (!statusEl) return;
+        statusEl.textContent = msg || '';
+        statusEl.className = 'notes-img-status' + (warn ? ' warn' : '');
+      }
+      function revokeURLs() { objectURLs.forEach(function (u) { try { URL.revokeObjectURL(u); } catch (e) {} }); objectURLs = []; }
+
+      function renderGrid(section) {
+        if (!grid) return Promise.resolve();
+        revokeURLs();
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        if (!available) return Promise.resolve();
+        return listBySection(section).then(function (recs) {
+          recs.forEach(function (rec) {
+            var li = document.createElement('li');
+            li.className = 'notes-img-fig';
+            li.setAttribute('role', 'group');
+            var url = URL.createObjectURL(rec.blob);
+            objectURLs.push(url);
+            var im = document.createElement('img');
+            im.src = url;
+            im.alt = rec.alt && rec.alt.trim() ? rec.alt : ('Screenshot, ' + (rec.w || '?') + ' by ' + (rec.h || '?') + ' pixels');
+
+            var altRow = document.createElement('div');
+            altRow.className = 'alt-row';
+            var altId = 'imgalt_' + rec.id;
+            var lab = document.createElement('label');
+            lab.setAttribute('for', altId);
+            lab.textContent = 'Description (alt text)';
+            var altInput = document.createElement('input');
+            altInput.type = 'text'; altInput.id = altId; altInput.value = rec.alt || '';
+            altInput.placeholder = 'Describe this image';
+            altInput.maxLength = 250;
+            altInput.addEventListener('input', debounce(function () {
+              rec.alt = altInput.value;
+              putRecord(rec).then(function () { im.alt = rec.alt.trim() || im.alt; });
+            }, 400));
+            altRow.appendChild(lab); altRow.appendChild(altInput);
+
+            var foot = document.createElement('div');
+            foot.className = 'fig-foot';
+            var dims = document.createElement('span');
+            dims.className = 'dims';
+            dims.textContent = (rec.w || '?') + '\u00D7' + (rec.h || '?') + ' \u00B7 ' + fmtKB(rec.blob.size || 0);
+            var rm = document.createElement('button');
+            rm.type = 'button'; rm.className = 'notes-img-remove'; rm.textContent = 'Remove';
+            rm.setAttribute('aria-label', 'Remove this image');
+            rm.addEventListener('click', function () {
+              if (!window.confirm('Remove this image? This cannot be undone unless you have already exported it.')) return;
+              deleteRecord(rec.id).then(function () {
+                bump(section, -1);
+                setStatus('Image removed.');
+                renderGrid(section);
+                refreshChip(); refreshTabDots();
+              });
+            });
+            foot.appendChild(dims); foot.appendChild(rm);
+            li.appendChild(im); li.appendChild(altRow); li.appendChild(foot);
+            grid.appendChild(li);
+          });
+        }).catch(function () {});
+      }
+
+      function handleFiles(fileList) {
+        if (!available) { setStatus('Image storage is not available in this browser.', true); return; }
+        var files = Array.prototype.slice.call(fileList).filter(function (f) { return f && /^image\//.test(f.type); });
+        var skipped = fileList.length - files.length;
+        if (files.length === 0) { setStatus(skipped ? 'Those were not image files — nothing added.' : '', !!skipped); return; }
+        var have = sectionsWithImages[currentSection] || 0;
+        var room = Math.max(0, MAX_PER_SECTION - have);
+        if (room === 0) { setStatus('Limit is ' + MAX_PER_SECTION + ' images per section.', true); return; }
+        var overflow = files.length - room;
+        if (overflow > 0) files = files.slice(0, room);
+        setStatus('Processing ' + files.length + ' image' + (files.length === 1 ? '' : 's') + '\u2026');
+        var section = currentSection;
+        var chain = Promise.resolve();
+        var added = 0;
+        files.forEach(function (file) {
+          chain = chain.then(function () {
+            if (file.size > MAX_SOURCE_BYTES) return;
+            return process(file).then(function (out) {
+              return addRecord({
+                chapter: CHAPTER_KEY, section: section,
+                blob: out.blob, type: out.type, alt: '',
+                w: out.w, h: out.h, added: new Date().toISOString()
+              }).then(function () { added++; bump(section, 1); });
+            }).catch(function () {});
+          });
+        });
+        chain.then(function () {
+          var msg = 'Added ' + added + ' image' + (added === 1 ? '' : 's') + '.';
+          if (overflow > 0) msg += ' ' + overflow + ' skipped (per-section limit).';
+          setStatus(msg, added === 0);
+          if (section === currentSection) renderGrid(section);
+          refreshChip(); refreshTabDots();
+        });
+      }
+
+      function init() {
+        wrap = document.getElementById('notesImgWrap');
+        dropzone = document.getElementById('notesDropzone');
+        addBtn = document.getElementById('notesImgAddBtn');
+        fileInput = document.getElementById('notesImgInput');
+        grid = document.getElementById('notesImgGrid');
+        statusEl = document.getElementById('notesImgStatus');
+        if (!wrap) return Promise.resolve();
+        if (!available) {
+          if (dropzone) {
+            var msg = document.createElement('div');
+            msg.className = 'notes-img-disabled';
+            msg.textContent = 'Image attachments need IndexedDB, which this browser or mode has disabled. Your text notes still work normally.';
+            dropzone.parentNode.replaceChild(msg, dropzone);
+          }
+          return Promise.resolve();
+        }
+        if (addBtn && fileInput) {
+          addBtn.addEventListener('click', function () { fileInput.value = ''; fileInput.click(); });
+          fileInput.addEventListener('change', function () { if (fileInput.files && fileInput.files.length) handleFiles(fileInput.files); });
+        }
+        if (dropzone) {
+          ['dragenter', 'dragover'].forEach(function (ev) {
+            dropzone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); dropzone.classList.add('drag'); });
+          });
+          ['dragleave', 'dragend', 'drop'].forEach(function (ev) {
+            dropzone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('drag'); });
+          });
+          dropzone.addEventListener('drop', function (e) {
+            var dt = e.dataTransfer;
+            if (dt && dt.files && dt.files.length) handleFiles(dt.files);
+          });
+        }
+        backdrop.addEventListener('paste', function (e) {
+          if (backdrop.hidden) return;
+          var items = e.clipboardData && e.clipboardData.items;
+          if (!items) return;
+          var imgs = [];
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].kind === 'file' && /^image\//.test(items[i].type)) {
+              var f = items[i].getAsFile();
+              if (f) imgs.push(f);
+            }
+          }
+          if (imgs.length) { e.preventDefault(); handleFiles(imgs); }
+        });
+        return loadMirror().catch(function () {});
+      }
+
+      return {
+        available: available,
+        init: init,
+        loadFor: function (section) { currentSection = section; setStatus(''); return renderGrid(section); },
+        has: function (section) { return !!sectionsWithImages[section]; },
+        totalCount: function () { var t = 0; for (var k in sectionsWithImages) t += sectionsWithImages[k]; return t; },
+        clearSection: function (section) {
+          if (!available) return Promise.resolve();
+          return listBySection(section).then(function (recs) {
+            return Promise.all(recs.map(function (r) { return deleteRecord(r.id); }));
+          }).then(function () { delete sectionsWithImages[section]; if (section === currentSection) renderGrid(section); });
+        },
+        clearAll: function () {
+          if (!available) return Promise.resolve();
+          return deleteChapter().then(function () { sectionsWithImages = Object.create(null); renderGrid(currentSection); });
+        },
+        getForPrint: function (section) {
+          if (!available) return Promise.resolve([]);
+          return listBySection(section).then(function (recs) {
+            return Promise.all(recs.map(function (r) {
+              return blobToDataURL(r.blob).then(function (durl) { return { dataURL: durl, alt: r.alt || '', w: r.w, h: r.h }; });
+            }));
+          }).catch(function () { return []; });
+        }
+      };
+    })();
+
+    /* ---------- Building the export body ---------- */
+    function exportHeader() {
+      var nm = loadName();
+      var meta = CHAPTER_COURSE;
+      if (nm) meta += ' \u00B7 Student: ' + nm;
+      meta += ' \u00B7 Exported: ' + new Date().toLocaleString();
+      return { title: CHAPTER_TITLE, meta: meta, name: nm };
+    }
+
+    function gatherForExport() {
+      var ordered = allSectionsWithGeneral();
+      var jobs = ordered.map(function (sec) {
+        var text = loadNote(sec.id);
+        var hasImgs = Img && Img.available && Img.has(sec.id);
+        if (!text && !hasImgs) return Promise.resolve(null);
+        var imgsP = hasImgs ? Img.getForPrint(sec.id) : Promise.resolve([]);
+        return imgsP.then(function (imgs) { return { sec: sec, text: text, imgs: imgs || [] }; })
+          .catch(function () { return { sec: sec, text: text, imgs: [] }; });
+      });
+      return Promise.all(jobs).then(function (r) { return r.filter(Boolean); });
+    }
+
+    function download(filename, text, mime) {
+      try {
+        var blob = new Blob([text], { type: mime });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        return true;
+      } catch (e) { return false; }
+    }
+
+    /* ---------- Print / Save as PDF (includes screenshots) ---------- */
+    function runPrint() {
+      flushSave();
+      var block = document.getElementById('notesPrintBlock');
+      if (!block) return;
+      var h = exportHeader();
+      gatherForExport().then(function (items) {
+        var inner = '<h1>' + escapeHtml(h.title) + '</h1>';
+        inner += '<div class="meta">' + escapeHtml(h.meta) + '</div>';
+        if (items.length === 0) {
+          inner += '<p><em>No notes recorded for this chapter yet.</em></p>';
+        } else {
+          items.forEach(function (it) {
+            inner += '<h2>' + escapeHtml(it.sec.num) + ' \u2014 ' + escapeHtml(it.sec.title) + '</h2>';
+            if (it.text) inner += '<div class="note-body">' + escapeHtml(it.text) + '</div>';
+            it.imgs.forEach(function (im, i) {
+              var hasAlt = im.alt && im.alt.trim();
+              var alt = hasAlt ? im.alt : ('Screenshot ' + (i + 1) + ' for ' + it.sec.title);
+              inner += '<figure class="note-fig"><img src="' + im.dataURL + '" alt="' + escapeHtml(alt) + '">';
+              if (hasAlt) inner += '<figcaption>' + escapeHtml(im.alt) + '</figcaption>';
+              inner += '</figure>';
+            });
+          });
+        }
+        block.innerHTML = inner;
+        var wasOpen = !backdrop.hidden;
+        if (wasOpen) closeModal(true);
+        document.body.classList.add('printing-notes');
+        setTimeout(function () {
+          window.print();
+          setTimeout(function () {
+            document.body.classList.remove('printing-notes');
+            block.innerHTML = '';
+            if (wasOpen) openModal();
+          }, 500);
+        }, 80);
+      });
+    }
+    printBtn.addEventListener('click', runPrint);
+
+    /* ---------- Markdown export ---------- */
+    mdBtn.addEventListener('click', function () {
+      flushSave();
+      var h = exportHeader();
+      gatherForExport().then(function (items) {
+        if (items.length === 0) { window.alert('There are no notes to export yet.'); return; }
+        var md = '# ' + h.title + '\n\n_' + h.meta + '_\n';
+        items.forEach(function (it) {
+          md += '\n## ' + it.sec.num + ' \u2014 ' + it.sec.title + '\n\n';
+          if (it.text) md += it.text + '\n';
+          if (it.imgs.length) {
+            md += '\n_' + it.imgs.length + ' screenshot' + (it.imgs.length === 1 ? '' : 's') +
+                  ' attached to this section — screenshots are included in the PDF and Word exports, not in Markdown._\n';
+          }
+        });
+        if (!download('elec103-ch3-notes.md', md, 'text/markdown;charset=utf-8'))
+          window.alert('The download was blocked. Use Print / Save as PDF instead.');
+      });
+    });
+
+    /* ---------- Word export (screenshots embedded) ---------- */
+    docBtn.addEventListener('click', function () {
+      flushSave();
+      var h = exportHeader();
+      gatherForExport().then(function (items) {
+        if (items.length === 0) { window.alert('There are no notes to export yet.'); return; }
+        var body = '<h1>' + escapeHtml(h.title) + '</h1><p><i>' + escapeHtml(h.meta) + '</i></p><hr>';
+        items.forEach(function (it) {
+          body += '<h2>' + escapeHtml(it.sec.num) + ' &mdash; ' + escapeHtml(it.sec.title) + '</h2>';
+          if (it.text) body += '<p style="white-space:pre-wrap">' + escapeHtml(it.text) + '</p>';
+          it.imgs.forEach(function (im, i) {
+            var hasAlt = im.alt && im.alt.trim();
+            var alt = hasAlt ? im.alt : ('Screenshot ' + (i + 1) + ' for ' + it.sec.title);
+            body += '<p><img src="' + im.dataURL + '" alt="' + escapeHtml(alt) + '" width="480"></p>';
+            if (hasAlt) body += '<p><i>' + escapeHtml(im.alt) + '</i></p>';
+          });
+        });
+        var doc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+          'xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+          '<head><meta charset="utf-8"><title>' + escapeHtml(h.title) + '</title></head><body>' +
+          body + '</body></html>';
+        if (!download('elec103-ch3-notes.doc', doc, 'application/msword'))
+          window.alert('The download was blocked. Use Print / Save as PDF instead.');
+      });
+    });
+
+    /* ---------- "Finished the chapter" export reminder ---------- */
+    var remindedThisSession = false;
+    var pendingReminder = false;
+    var reminderEl = null;
+
+    function notesExist() { return collectNotes().length > 0 || (Img && Img.totalCount() > 0); }
+    function buildReminder() {
+      if (reminderEl) return reminderEl;
+      var box = document.createElement('div');
+      box.className = 'notes-reminder';
+      box.setAttribute('role', 'region');
+      box.setAttribute('aria-label', 'Save your notes reminder');
+      box.hidden = true;
+      var msg = document.createElement('p');
+      msg.className = 'nr-msg';
+      msg.setAttribute('aria-live', 'polite');
+      msg.innerHTML = 'You have reached the end of the chapter. <strong>Export your notes</strong> before you leave — browser storage can be cleared at any time.';
+      var actions = document.createElement('div');
+      actions.className = 'nr-actions';
+      var save = document.createElement('button');
+      save.type = 'button'; save.textContent = 'Save as PDF';
+      save.addEventListener('click', function () { hideReminder(); runPrint(); });
+      var dismiss = document.createElement('button');
+      dismiss.type = 'button'; dismiss.className = 'nr-dismiss'; dismiss.textContent = 'Not now';
+      dismiss.addEventListener('click', hideReminder);
+      actions.appendChild(save); actions.appendChild(dismiss);
+      box.appendChild(msg); box.appendChild(actions);
+      document.body.appendChild(box);
+      reminderEl = box;
+      return box;
+    }
+    function showReminder() {
+      if (remindedThisSession || !notesExist()) return;
+      if (!backdrop.hidden) { pendingReminder = true; return; }
+      remindedThisSession = true;
+      pendingReminder = false;
+      buildReminder().hidden = false;
+    }
+    function hideReminder() { if (reminderEl) reminderEl.hidden = true; }
+
+    // The chapter is tabbed, so "the end" is the last numbered section being opened.
+    window.setInterval(function () {
+      var open = document.querySelector('[role="tabpanel"]:not([hidden])');
+      if (open && open.id === 'panel-8') showReminder();
+    }, 4000);
+
+    /* ---------- Modal open / close ---------- */
+    var lastFocusedBeforeOpen = null;
+
+    function openModal(opts) {
+      opts = opts || {};
+      lastFocusedBeforeOpen = document.activeElement;
+      var targetId = opts.section || detectCurrentSection();
+      switchToSection(targetId, false);
+      refreshAllList();
+      refreshChip();
+      backdrop.hidden = false;
+      document.body.classList.add('notes-modal-open');
+      setTimeout(function () { textarea.focus(); }, 30);
+    }
+
+    function closeModal(skipFocus) {
+      flushSave();
+      backdrop.hidden = true;
+      document.body.classList.remove('notes-modal-open');
+      if (!skipFocus && lastFocusedBeforeOpen && lastFocusedBeforeOpen.focus) {
+        try { lastFocusedBeforeOpen.focus(); } catch (e) {}
+      }
+      if (pendingReminder && !remindedThisSession) showReminder();
+    }
+
+    fab.addEventListener('click', function () { openModal(); });
+    if (chipBtn) chipBtn.addEventListener('click', function () { openModal(); });
+    closeBtn.addEventListener('click', function () { closeModal(); });
+
+    // ESC closes; clicking the backdrop does not.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && backdrop.hidden && reminderEl && !reminderEl.hidden) {
+        e.preventDefault(); hideReminder(); return;
+      }
+      if (e.key === 'Escape' && !backdrop.hidden) { e.preventDefault(); closeModal(); return; }
+      if ((e.key === 'n' || e.key === 'N') && backdrop.hidden && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        var t = e.target;
+        var tag = t && t.tagName ? t.tagName.toUpperCase() : '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    // Keep focus inside the dialog while it is open.
+    backdrop.addEventListener('keydown', function (e) {
+      if (backdrop.hidden || e.key !== 'Tab') return;
+      var focusables = backdrop.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      var visible = Array.prototype.filter.call(focusables, function (el) { return !el.disabled && el.offsetParent !== null; });
+      if (visible.length === 0) return;
+      var first = visible[0], last = visible[visible.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+
+    /* ---------- Initial pass ---------- */
+    Img.init().then(function () { refreshChip(); refreshTabDots(); });
+    refreshChip();
+    refreshTabDots();
+    refreshAllList();
+    switchToSection(detectCurrentSection(), false);
+
+    window.setInterval(function () {
+      if (backdrop.hidden) return;
+      var iso = storage.get(lastSavedKey());
+      if (iso && metaStatus.textContent.indexOf('Saved') === 0) {
+        metaStatus.textContent = 'Saved \u00B7 ' + fmtTime(iso);
+      }
+    }, 20000);
+
+    // Warn on unload only when storage fell back to memory.
+    if (!storage.isReal) {
+      window.addEventListener('beforeunload', function (e) {
+        if (collectNotes().length > 0) {
+          e.preventDefault();
+          e.returnValue = 'Your notes will be lost — export them first.';
+          return e.returnValue;
+        }
+      });
+    }
+  })();
+
+  /* ---------------- Restore ---------------- */
+
+  refreshProgress();
+  selectTab(validIndex(state.last) ? state.last : 0, false);
+  window.scrollTo(0, 0);
+})();
+</script>
+</body>
+</html>
