@@ -456,10 +456,10 @@ html { font-size: calc(100% * var(--ui-scale)); }
       file: 'elec103-ch5-series-circuits.html', key: 'elec103-ch5-v1', sections: 11, mins: 154,
       blurb: 'One path, one current. Kirchhoff\u2019s voltage law, voltage dividers, and circuit ground.' },
     { no: 6, title: 'Parallel Circuits', weeks: 'Weeks 12\u201313',
-      file: null, key: 'elec103-ch6-v1', sections: 8, mins: 90,
+      file: 'elec103-ch6-parallel-circuits.html', key: 'elec103-ch6-v1', sections: 11, mins: 150,
       blurb: 'Many paths, one voltage. Kirchhoff\u2019s current law and the current divider.' },
     { no: 7, title: 'Series-Parallel Circuits', weeks: 'Weeks 14\u201315',
-      file: null, key: 'elec103-ch7-v1', sections: 9, mins: 110,
+      file: 'elec103-ch7-series-parallel-circuits.html', key: 'elec103-ch7-v1', sections: 8, mins: 112,
       blurb: 'Combining both, meter loading, the Wheatstone bridge, and the skills this course ends on.' }
   ];
 
@@ -600,7 +600,9 @@ html { font-size: calc(100% * var(--ui-scale)); }
     statusEl.textContent = totalRead + ' of ' + totalSections + ' sections read across the ' +
       ready + ' chapter' + (ready === 1 ? '' : 's') + ' available so far.';
   } else {
-    statusEl.textContent = ready + ' of ' + CHAPTERS.length + ' chapters are ready. The rest arrive as the semester goes on.';
+    statusEl.textContent = ready === CHAPTERS.length
+      ? 'All ' + ready + ' chapters are ready. Open the first one to start; your place is kept automatically.'
+      : ready + ' of ' + CHAPTERS.length + ' chapters are ready. The rest arrive as the semester goes on.';
   }
 })();
 </script>
