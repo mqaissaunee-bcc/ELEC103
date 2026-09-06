@@ -367,20 +367,20 @@ html { font-size: calc(100% * var(--ui-scale)); }
       <h2><span class="kicker">Semester</span>Where each chapter falls</h2>
       <table class="sched">
         <thead>
-          <tr><th scope="col">Weeks</th><th scope="col">Chapter</th><th scope="col">Assessment</th></tr>
+          <tr><th scope="col">Weeks</th><th scope="col">Chapter</th><th scope="col">Exam</th></tr>
         </thead>
         <tbody>
           <tr><td class="wk">1&ndash;2</td><td>Ch 1 &middot; Quantities and Units</td><td></td></tr>
-          <tr class="exam"><td class="wk">3&ndash;4</td><td>Ch 2 &middot; Voltage, Current, and Resistance</td><td>Exam 1</td></tr>
-          <tr><td class="wk">5</td><td>Ch 3 &middot; Ohm&rsquo;s Law</td><td></td></tr>
-          <tr class="exam"><td class="wk">6</td><td>Ch 4 &middot; Energy and Power</td><td>Exam 2</td></tr>
-          <tr><td class="wk">7&ndash;8</td><td>Ch 11 &middot; AC Fundamentals and the Oscilloscope</td><td></td></tr>
-          <tr class="exam"><td class="wk">9&ndash;10</td><td>Ch 5 &middot; Series Circuits</td><td>Exam 3</td></tr>
-          <tr class="exam"><td class="wk">11&ndash;12</td><td>Ch 6 &middot; Parallel Circuits</td><td>Exam 4</td></tr>
-          <tr><td class="wk">13&ndash;14</td><td>Ch 7 &middot; Series-Parallel Circuits</td><td></td></tr>
-          <tr class="exam"><td class="wk">15</td><td>Course project and review</td><td>Exam 5</td></tr>
+          <tr><td class="wk">3&ndash;4</td><td>Ch 2 &middot; Voltage, Current, and Resistance</td><td></td></tr>
+          <tr class="exam"><td class="wk">5&ndash;6</td><td>Ch 3 &middot; Ohm&rsquo;s Law</td><td>Exam 1 opens week 5 &middot; Ch 1&ndash;2</td></tr>
+          <tr><td class="wk">7</td><td>Ch 4 &middot; Energy and Power</td><td></td></tr>
+          <tr class="exam"><td class="wk">8&ndash;9</td><td>Ch 11 &middot; AC Fundamentals and the Oscilloscope</td><td>Exam 2 opens week 8 &middot; Ch 3&ndash;4</td></tr>
+          <tr><td class="wk">10&ndash;11</td><td>Ch 5 &middot; Series Circuits</td><td></td></tr>
+          <tr class="exam"><td class="wk">12&ndash;13</td><td>Ch 6 &middot; Parallel Circuits</td><td>Exam 3 opens week 12 &middot; Ch 11, Ch 5</td></tr>
+          <tr class="exam"><td class="wk">14&ndash;15</td><td>Ch 7 &middot; Series-Parallel Circuits</td><td>Exam 4 in week 15 &middot; Ch 6&ndash;7</td></tr>
         </tbody>
       </table>
+      <p style="font-family:var(--font-ui);font-size:.86rem;color:var(--ink-soft);margin-top:1rem;max-width:46ch;">Each exam is given at the start of the week after the material it covers, so you have a weekend between finishing a chapter and being tested on it. Exam 4 is the exception, since there is no week after it.</p>
     </section>
 
     <section>
@@ -389,7 +389,7 @@ html { font-size: calc(100% * var(--ui-scale)); }
       <div class="info-card">
         <h3>Grading</h3>
         <ul>
-          <li>50% test average, across five equally weighted exams</li>
+          <li>50% test average, across four equally weighted exams</li>
           <li>25% laboratory performance</li>
           <li>25% homework</li>
         </ul>
@@ -401,7 +401,6 @@ html { font-size: calc(100% * var(--ui-scale)); }
         <ul>
           <li>Submit every mandatory lab report</li>
           <li>Hold a passing test average and lab average</li>
-          <li>Submit the course project</li>
         </ul>
         <p style="margin-top:.6rem;">Lab reports are due within two weeks of the lab, with a 10% penalty per week late.</p>
       </div>
@@ -444,22 +443,22 @@ html { font-size: calc(100% * var(--ui-scale)); }
     { no: 2, title: 'Voltage, Current, and Resistance', weeks: 'Weeks 3\u20134',
       file: 'elec103-ch2-voltage-current-resistance.html', key: 'elec103-ch2-v1', sections: 10, mins: 107,
       blurb: 'Where charge comes from, the resistor color code, reading a DMM, and lab safety.' },
-    { no: 3, title: 'Ohm\u2019s Law', weeks: 'Week 5',
+    { no: 3, title: 'Ohm\u2019s Law', weeks: 'Weeks 5\u20136',
       file: 'elec103-ch3-ohms-law.html', key: 'elec103-ch3-v1', sections: 9, mins: 85,
       blurb: 'The one relationship the rest of the course is built on, and how to use it to find a fault.' },
-    { no: 4, title: 'Energy and Power', weeks: 'Week 6',
+    { no: 4, title: 'Energy and Power', weeks: 'Week 7',
       file: 'elec103-ch4-energy-and-power.html', key: 'elec103-ch4-v1', sections: 8, mins: 84,
       blurb: 'What a circuit costs in energy, resistor power ratings, and why parts fail.' },
-    { no: 11, title: 'AC Fundamentals and the Oscilloscope', weeks: 'Weeks 7\u20138',
+    { no: 11, title: 'AC Fundamentals and the Oscilloscope', weeks: 'Weeks 8\u20139',
       file: 'elec103-ch11-ac-fundamentals.html', key: 'elec103-ch11-v1', sections: 7, mins: 90,
       blurb: 'Sine waves, frequency, RMS, and the instruments the lab has been promising you.' },
-    { no: 5, title: 'Series Circuits', weeks: 'Weeks 9\u201310',
+    { no: 5, title: 'Series Circuits', weeks: 'Weeks 10\u201311',
       file: null, key: 'elec103-ch5-v1', sections: 9, mins: 100,
       blurb: 'One path, one current. Kirchhoff\u2019s voltage law, voltage dividers, and circuit ground.' },
-    { no: 6, title: 'Parallel Circuits', weeks: 'Weeks 11\u201312',
+    { no: 6, title: 'Parallel Circuits', weeks: 'Weeks 12\u201313',
       file: null, key: 'elec103-ch6-v1', sections: 8, mins: 90,
       blurb: 'Many paths, one voltage. Kirchhoff\u2019s current law and the current divider.' },
-    { no: 7, title: 'Series-Parallel Circuits', weeks: 'Weeks 13\u201314',
+    { no: 7, title: 'Series-Parallel Circuits', weeks: 'Weeks 14\u201315',
       file: null, key: 'elec103-ch7-v1', sections: 9, mins: 110,
       blurb: 'Combining both, meter loading, the Wheatstone bridge, and the skills this course ends on.' }
   ];
