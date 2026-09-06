@@ -353,7 +353,7 @@ html { font-size: calc(100% * var(--ui-scale)); }
 <div class="wrap">
 
   <h2><span class="kicker">Chapters</span>The eight units of this course</h2>
-  <p class="section-intro">Chapters follow the textbook, not the calendar, so the numbering skips around where the course does. Open one and your place is kept automatically.</p>
+  <p class="section-intro">Chapters follow the textbook, not the calendar, so the numbering skips around where the course does. Each one opens in a new tab, and your place in it is kept automatically.</p>
 
   <div class="chapters" id="chapterGrid"></div>
 
@@ -393,7 +393,6 @@ html { font-size: calc(100% * var(--ui-scale)); }
           <li>25% laboratory performance</li>
           <li>25% homework</li>
         </ul>
-        <p style="margin-top:.6rem;">Assignment 4 must be done in Microsoft Excel to be eligible for an A.</p>
       </div>
 
       <div class="info-card">
@@ -529,7 +528,11 @@ html { font-size: calc(100% * var(--ui-scale)); }
   CHAPTERS.forEach(function (ch) {
     var card = document.createElement(ch.file ? 'a' : 'div');
     card.className = 'ch-card' + (ch.file ? '' : ' pending');
-    if (ch.file) card.href = ch.file;
+    if (ch.file) {
+      card.href = ch.file;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+    }
 
     var top = document.createElement('div');
     top.className = 'ch-top';
@@ -553,7 +556,7 @@ html { font-size: calc(100% * var(--ui-scale)); }
     foot.className = 'ch-foot';
     var tag = document.createElement('span');
     tag.className = 'tag ' + (ch.file ? 'ready' : 'pending');
-    tag.textContent = ch.file ? 'Open' : 'In development';
+    tag.textContent = ch.file ? 'Open in a new tab' : 'In development';
     foot.appendChild(tag);
 
     var stat = document.createElement('span');
