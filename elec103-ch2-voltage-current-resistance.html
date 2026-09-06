@@ -1,0 +1,4290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 2: Voltage, Current, and Resistance — ELEC 103</title>
+<meta name="description" content="Interactive Chapter 2 of ELEC 103: charge, voltage, current, resistance, the resistor color code, variable resistors, the basic circuit, and using a multimeter safely.">
+<style>
+:root {
+  /* Palette drawn from the resistor color code and the lab bench */
+  --paper: #F3F6F8;
+  --surface: #FFFFFF;
+  --bench: #17242F;
+  --bench-soft: #24384A;
+  --ink: #15212C;
+  --ink-soft: #4C5C6B;
+  --ink-faint: #5A6875;
+  --rule: #D3DCE3;
+  --rule-soft: #E7ECF0;
+
+  --gold: #B08421;        /* tolerance band — primary accent, fills and rules */
+  --gold-text: #8A6414;   /* darkened for small text: 4.9:1 on paper */
+  --gold-bright: #D9B23F;
+  --brown: #7B4A2D;
+  --red: #BE3A2B;
+  --orange: #D2691E;
+  --green: #2C7A57;
+  --blue: #2A5DA8;
+  --violet: #6B3FA0;
+
+  --lcd-bg: #101A16;
+  --lcd-ink: #7DE3A1;
+
+  --ok-bg: #E3F3EA;
+  --ok-ink: #1E6343;
+  --no-bg: #FBE7E4;
+  --no-ink: #96261A;
+
+  --font-read: "Iowan Old Style", "IBM Plex Serif", Charter, Georgia, "Times New Roman", serif;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --measure: 66ch;
+  --ui-scale: 1;
+  --r-sm: 3px;
+  --r-md: 6px;
+  --shadow: 0 1px 2px rgba(21,33,44,.08), 0 6px 20px rgba(21,33,44,.06);
+}
+
+/* Dark values live in one place, applied either by explicit choice or by system preference */
+:root[data-theme="dark"] {
+  --paper: #0E161D;
+  --surface: #16212C;
+  --bench: #0A1218;
+  --bench-soft: #1B2A36;
+  --ink: #E4ECF2;
+  --ink-soft: #A9BAC7;
+  --ink-faint: #8697A5;
+  --rule: #2B3C4A;
+  --rule-soft: #223140;
+
+  --gold: #E0BC57;
+  --gold-text: #E0BC57;
+  --gold-bright: #F2D07C;
+  --brown: #B77B54;
+  --red: #E8695A;
+  --orange: #E9924B;
+  --green: #5FBF8F;
+  --blue: #6FA3E8;
+  --violet: #A683DC;
+
+  --ok-bg: #14312A;
+  --ok-ink: #86E0B4;
+  --no-bg: #35201E;
+  --no-ink: #F0958A;
+
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --paper: #0E161D;
+    --surface: #16212C;
+    --bench: #0A1218;
+    --bench-soft: #1B2A36;
+    --ink: #E4ECF2;
+    --ink-soft: #A9BAC7;
+    --ink-faint: #8697A5;
+    --rule: #2B3C4A;
+    --rule-soft: #223140;
+
+    --gold: #E0BC57;
+    --gold-text: #E0BC57;
+    --gold-bright: #F2D07C;
+    --brown: #B77B54;
+    --red: #E8695A;
+    --orange: #E9924B;
+    --green: #5FBF8F;
+    --blue: #6FA3E8;
+    --violet: #A683DC;
+
+    --ok-bg: #14312A;
+    --ok-ink: #86E0B4;
+    --no-bg: #35201E;
+    --no-ink: #F0958A;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+
+html { font-size: calc(100% * var(--ui-scale)); }
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-read);
+  font-size: clamp(1rem, .96rem + .22vw, 1.12rem);
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--gold);
+  color: #15212C;
+  padding: .75rem 1rem;
+  font-family: var(--font-ui);
+  z-index: 100;
+}
+.skip-link:focus { left: 0; }
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.wrap {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.col {
+  max-width: var(--measure);
+}
+
+/* ---------- Masthead ---------- */
+
+.masthead {
+  background: var(--bench);
+  color: #E9F0F5;
+  padding: 1.6rem 0 1.4rem;
+  border-bottom: 3px solid var(--gold);
+}
+.masthead .wrap { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: baseline; justify-content: space-between; }
+.course-line {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  letter-spacing: .04em;
+  color: #9FB4C4;
+  margin: 0 0 .3rem;
+}
+.masthead h1 {
+  font-family: var(--font-read);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.6rem);
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -.01em;
+}
+.masthead h1 .ch {
+  display: block;
+  font-family: var(--font-num);
+  font-size: .8rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: var(--gold-bright);
+  margin-bottom: .5rem;
+}
+.masthead .lede {
+  font-size: .98rem;
+  color: #B9CAD7;
+  margin: .7rem 0 0;
+  max-width: 34ch;
+}
+
+/* ---------- Section nav ---------- */
+
+.chapter-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+}
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .1rem;
+  padding: .2rem 0;
+}
+.tablist .divider {
+  flex: 0 0 100%;
+  height: 1px;
+  background: var(--rule-soft);
+  margin: .15rem 0;
+}
+@media (max-width: 760px) {
+  .chapter-nav { position: static; }
+  .tablist button { font-size: .8rem; padding: .45rem .5rem; }
+}
+.tablist button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: .55rem .6rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: var(--font-ui);
+  font-size: .84rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.tablist button:hover { color: var(--ink); background: var(--rule-soft); }
+.tablist button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+  font-weight: 600;
+}
+.tablist .num {
+  font-family: var(--font-num);
+  font-size: .74rem;
+  color: var(--ink-faint);
+}
+.tablist button[aria-selected="true"] .num { color: var(--gold-text); }
+.tablist .done { color: var(--green); font-size: .8rem; }
+.tablist button.extra { color: var(--gold-text); }
+.tablist button.extra[aria-selected="true"] { color: var(--ink); }
+
+.progress-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+  padding: .5rem 0 .6rem;
+  font-family: var(--font-ui);
+  font-size: .78rem;
+  color: var(--ink-faint);
+}
+.bar {
+  flex: 1 1 8rem;
+  height: 5px;
+  background: var(--rule-soft);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--gold);
+  transition: width .3s ease;
+}
+
+/* ---------- Display preferences ---------- */
+
+.viewprefs { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.prefbtn, .sizer button {
+  min-height: 32px;
+  padding: .25rem .6rem;
+  font-family: var(--font-ui);
+  font-size: .76rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-soft);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.prefbtn:hover, .sizer button:hover { background: var(--rule-soft); color: var(--ink); }
+.sizer {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+.sizer button { border: none; background: none; min-width: 34px; justify-content: center; }
+.sizer button:disabled { opacity: .4; cursor: not-allowed; }
+.sizer #textSizeLabel {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  min-width: 3.1rem;
+  text-align: center;
+  border-left: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  padding: .25rem .2rem;
+}
+#themeIcon { font-size: .95rem; line-height: 1; }
+
+/* ---------- Panels ---------- */
+
+main { padding: 2rem 0 4rem; }
+.panel { scroll-margin-top: 5.5rem; }
+.panel[hidden] { display: none; }
+.panel { animation: none; }
+
+h2 {
+  font-family: var(--font-read);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.9rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  margin: 0 0 .2rem;
+}
+h2 .sec-no {
+  display: block;
+  font-family: var(--font-num);
+  font-size: .78rem;
+  color: var(--gold-text);
+  letter-spacing: .1em;
+  margin-bottom: .45rem;
+}
+h3 {
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 2rem 0 .5rem;
+  color: var(--ink);
+}
+p { margin: 0 0 1rem; }
+.panel > .col > p:first-of-type { margin-top: .8rem; }
+
+a { color: var(--blue); }
+
+ul, ol { max-width: var(--measure); padding-left: 1.2rem; }
+li { margin-bottom: .4rem; }
+
+.eq {
+  font-family: var(--font-num);
+  font-size: 1.05em;
+  background: var(--rule-soft);
+  padding: .08em .35em;
+  border-radius: var(--r-sm);
+}
+
+.callout {
+  border-left: 3px solid var(--gold);
+  background: var(--surface);
+  padding: .9rem 1.1rem;
+  margin: 1.5rem 0;
+  max-width: var(--measure);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+.callout h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  font-weight: 600;
+  margin: 0 0 .4rem;
+  color: var(--gold-text);
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout.caution { border-left-color: var(--red); }
+.callout.caution h4 { color: var(--red); }
+
+.worked {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  padding: 1.1rem 1.2rem;
+  margin: 1.5rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.worked h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--ink-faint);
+}
+.worked .steps {
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 2;
+  margin: .6rem 0 0;
+  color: var(--ink);
+}
+.worked .steps span { display: block; }
+.worked .steps .ans { color: var(--green); font-weight: 600; }
+
+/* ---------- Interactive shell ---------- */
+
+.tool {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  margin: 2rem 0;
+  overflow: hidden;
+}
+.tool-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--rule-soft);
+}
+.tool-head h3 {
+  margin: 0;
+  font-size: .92rem;
+}
+.tool-body { padding: 1rem; }
+
+.viewtoggle { display: flex; gap: .3rem; }
+.viewtoggle button {
+  min-height: 36px;
+  padding: .3rem .7rem;
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-soft);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.viewtoggle button[aria-pressed="true"] {
+  background: var(--bench);
+  border-color: var(--bench);
+  color: #EAF1F6;
+  font-weight: 600;
+}
+
+.stage {
+  background: var(--bench);
+  border-radius: var(--r-md);
+  padding: .5rem;
+}
+.stage svg { display: block; width: 100%; height: auto; }
+
+.controls {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (min-width: 700px) {
+  .controls { grid-template-columns: 1fr 1fr; }
+  .controls.three { grid-template-columns: repeat(3, 1fr); }
+}
+
+.ctrl label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  color: var(--ink-soft);
+  margin-bottom: .35rem;
+}
+.ctrl .val {
+  font-family: var(--font-num);
+  color: var(--ink);
+  font-weight: 600;
+}
+input[type="range"] {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: .6rem;
+  margin-top: 1rem;
+}
+.meter {
+  background: var(--lcd-bg);
+  border: 1px solid #2C4A3B;
+  border-radius: var(--r-sm);
+  padding: .6rem .7rem;
+}
+.meter .lbl {
+  font-family: var(--font-ui);
+  font-size: .72rem;
+  color: #6E9C83;
+  margin-bottom: .15rem;
+}
+.meter .num {
+  font-family: var(--font-num);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--lcd-ink);
+  letter-spacing: -.01em;
+}
+
+.btn {
+  min-height: 44px;
+  padding: .55rem 1rem;
+  font-family: var(--font-ui);
+  font-size: .88rem;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--bench);
+  background: var(--bench);
+  color: #EAF1F6;
+  cursor: pointer;
+}
+.btn:hover { background: var(--bench-soft); }
+.btn.ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--rule);
+}
+.btn.ghost:hover { background: var(--rule-soft); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+
+/* ---------- Formula triangle ---------- */
+
+.triangle-wrap {
+  display: grid;
+  gap: 1.2rem;
+  align-items: center;
+}
+@media (min-width: 700px) {
+  .triangle-wrap { grid-template-columns: minmax(0, 260px) 1fr; }
+}
+.tri-out {
+  font-family: var(--font-num);
+  font-size: 1.1rem;
+  background: var(--rule-soft);
+  border-radius: var(--r-md);
+  padding: 1rem;
+  min-height: 8rem;
+}
+.tri-out .big {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold-text);
+  display: block;
+  margin-bottom: .5rem;
+}
+.tri-out p {
+  font-family: var(--font-read);
+  font-size: .95rem;
+  margin: 0;
+  color: var(--ink-soft);
+}
+.tri-hot { cursor: pointer; }
+.tri-hot:focus-visible rect, .tri-hot:focus-visible circle { outline: 3px solid var(--gold); }
+
+.maprow {
+  display: flex; flex-wrap: wrap; gap: .4rem 1.4rem;
+  margin-top: .8rem;
+  font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft);
+}
+.maprow span { display: inline-flex; align-items: center; gap: .4rem; }
+.maprow span::before {
+  content: ""; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--gold); flex: 0 0 auto;
+}
+#mapWater span::before { background: #4EA3D6; }
+
+.legend { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin-top: .7rem; }
+.legend .chip {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-family: var(--font-num); font-size: .82rem; color: var(--ink-soft);
+}
+.legend .chip i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+/* ---------- Practice ---------- */
+
+.problem {
+  font-family: var(--font-read);
+  font-size: 1.08rem;
+  margin: 0 0 1rem;
+}
+.answer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+}
+input[type="text"], input[type="number"] {
+  min-height: 44px;
+  padding: .5rem .7rem;
+  font-family: var(--font-num);
+  font-size: 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  width: 9rem;
+}
+.unit-tag {
+  font-family: var(--font-num);
+  font-size: 1rem;
+  color: var(--ink-soft);
+}
+.feedback {
+  margin-top: 1rem;
+  padding: .75rem .9rem;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.feedback.ok { background: var(--ok-bg); color: var(--ok-ink); }
+.feedback.no { background: var(--no-bg); color: var(--no-ink); }
+.feedback:empty { display: none; }
+.streak {
+  font-family: var(--font-num);
+  font-size: .82rem;
+  color: var(--ink-faint);
+}
+
+/* ---------- Troubleshooting ---------- */
+
+.tp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: .5rem;
+  margin-top: 1rem;
+}
+.tp {
+  min-height: 44px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--r-sm);
+  padding: .5rem;
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  cursor: pointer;
+  text-align: left;
+}
+.tp:hover { border-color: var(--gold); }
+.tp .reading {
+  display: block;
+  font-family: var(--font-num);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold-text);
+  margin-top: .2rem;
+}
+.tp .reading:empty::before { content: "— — —"; color: var(--ink-faint); font-weight: 400; }
+
+.diagnosis {
+  display: grid;
+  gap: .5rem;
+  margin-top: 1.2rem;
+}
+@media (min-width: 700px) { .diagnosis { grid-template-columns: 1fr 1fr auto; align-items: end; } }
+select {
+  min-height: 44px;
+  width: 100%;
+  padding: .5rem;
+  font-family: var(--font-ui);
+  font-size: .9rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* ---------- Quiz ---------- */
+
+.q {
+  border-top: 1px solid var(--rule);
+  padding: 1.2rem 0;
+  max-width: var(--measure);
+}
+.q:first-of-type { border-top: none; }
+.q .stem {
+  font-weight: 600;
+  margin: 0 0 .7rem;
+  display: flex;
+  gap: .6rem;
+}
+.q .stem .qn { font-family: var(--font-num); color: var(--gold-text); font-size: .85rem; padding-top: .2rem; }
+.opts { display: grid; gap: .35rem; }
+.opt {
+  display: flex;
+  gap: .6rem;
+  align-items: flex-start;
+  padding: .55rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: .92rem;
+  background: var(--surface);
+}
+.opt:hover { border-color: var(--gold); }
+.opt input { margin-top: .25rem; accent-color: var(--gold); min-width: 18px; min-height: 18px; }
+.opt.correct { background: var(--ok-bg); border-color: var(--ok-ink); }
+.opt.wrong { background: var(--no-bg); border-color: var(--no-ink); }
+.rationale {
+  font-family: var(--font-ui);
+  font-size: .87rem;
+  color: var(--ink-soft);
+  margin: .6rem 0 0;
+  padding-left: .7rem;
+  border-left: 2px solid var(--rule);
+}
+.score {
+  font-family: var(--font-num);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.2rem;
+}
+
+/* ---------- Key terms ---------- */
+
+dl.terms { max-width: var(--measure); margin: 1rem 0; }
+dl.terms dt {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: .92rem;
+  margin-top: 1rem;
+}
+dl.terms dd { margin: .2rem 0 0; color: var(--ink-soft); }
+
+/* ---------- Worked example disclosure ---------- */
+
+.attempt {
+  display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+  margin-top: .8rem;
+}
+.attempt input[type="text"] { width: 7.5rem; }
+.attempt .unit-tag { font-size: .95rem; }
+.worked .steps.veiled { display: none; }
+.attempt-note {
+  font-family: var(--font-ui); font-size: .85rem;
+  margin: .7rem 0 0; padding: .5rem .7rem; border-radius: var(--r-sm);
+}
+.attempt-note.ok { background: var(--ok-bg); color: var(--ok-ink); }
+.attempt-note.no { background: var(--no-bg); color: var(--no-ink); }
+.attempt-note:empty { display: none; }
+
+/* ---------- Glossary terms ---------- */
+
+button.term {
+  font: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  border-bottom: 1.5px dotted var(--gold);
+  min-height: 0;
+}
+button.term:hover { border-bottom-style: solid; }
+button.term[aria-expanded="true"] { background: var(--rule-soft); }
+.termdef {
+  display: block;
+  margin: .6rem 0 1rem;
+  padding: .6rem .8rem;
+  border-left: 3px solid var(--gold);
+  background: var(--surface);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+  color: var(--ink-soft);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.termdef strong { color: var(--ink); }
+
+/* ---------- Glossary panel ---------- */
+
+.gloss { max-width: var(--measure); }
+.gloss-entry {
+  border-top: 1px solid var(--rule);
+  padding: .9rem 0;
+}
+.gloss-entry:first-child { border-top: none; }
+.gloss-entry h4 {
+  font-family: var(--font-ui);
+  font-size: .96rem;
+  margin: 0 0 .25rem;
+}
+.gloss-entry p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+.gloss-entry .where {
+  font-family: var(--font-num);
+  font-size: .76rem;
+  color: var(--ink-faint);
+  margin-top: .3rem;
+}
+.gloss-filter { margin-bottom: 1rem; }
+.gloss-filter input { width: 100%; max-width: 22rem; }
+
+/* ---------- Resources ---------- */
+
+.res-group { max-width: var(--measure); margin-bottom: 2rem; }
+.res {
+  display: block;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  padding: .8rem .9rem;
+  margin-bottom: .6rem;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+}
+a.res:hover { border-color: var(--gold); }
+.res .rt { font-family: var(--font-ui); font-weight: 600; font-size: .95rem; color: var(--blue); }
+.res .rd { font-size: .9rem; color: var(--ink-soft); margin-top: .2rem; }
+.res .rmeta {
+  font-family: var(--font-num); font-size: .74rem; color: var(--ink-faint);
+  margin-top: .35rem;
+}
+.res.internal .rt { color: var(--ink); }
+
+/* ---------- Homework ---------- */
+
+.hw-problem {
+  border-top: 1px solid var(--rule);
+  padding: .9rem 0;
+}
+.hw-problem:first-of-type { border-top: none; }
+.hw-problem .hq { display: flex; gap: .6rem; margin-bottom: .5rem; }
+.hw-problem .hn { font-family: var(--font-num); color: var(--gold-text); font-size: .85rem; padding-top: .15rem; }
+.hw-problem.right { border-left: 3px solid var(--ok-ink); padding-left: .7rem; }
+.hw-problem.wrong { border-left: 3px solid var(--no-ink); padding-left: .7rem; }
+.hw-mark { font-family: var(--font-ui); font-size: .85rem; margin-top: .4rem; }
+.hw-mark.ok { color: var(--ok-ink); }
+.hw-mark.no { color: var(--no-ink); }
+.code-out {
+  font-family: var(--font-num);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  background: var(--lcd-bg);
+  color: var(--lcd-ink);
+  padding: .8rem 1rem;
+  border-radius: var(--r-sm);
+  margin-top: 1rem;
+  word-break: break-all;
+}
+.est {
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  color: var(--ink-faint);
+  margin: 0 0 1rem;
+}
+
+
+/* ============================================================
+   STUDENT NOTES — global modal, ported from the ENGI 216 pattern
+   ============================================================ */
+
+.notes-fab {
+  position: fixed; right: 18px; bottom: 24px; z-index: 50;
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .75rem 1.1rem; min-height: 48px;
+  border-radius: 30px;
+  background: var(--bench); color: #EAF1F6;
+  border: 1px solid var(--bench);
+  cursor: pointer;
+  font-family: var(--font-ui); font-size: .84rem; font-weight: 600;
+  box-shadow: 0 4px 14px rgba(16,36,58,.28), 0 2px 4px rgba(16,36,58,.16);
+  transition: background .15s, transform .15s;
+}
+.notes-fab:hover, .notes-fab:focus-visible { background: var(--bench-soft); transform: translateY(-1px); }
+.notes-fab .icon { font-size: 1rem; line-height: 1; }
+.notes-fab .count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px;
+  background: var(--gold); color: #15212C;
+  font-family: var(--font-num); font-size: .74rem; font-weight: 700;
+}
+.notes-fab .count[hidden] { display: none; }
+@media (max-width: 560px) {
+  .notes-fab { right: 12px; bottom: 14px; padding: .6rem .8rem; }
+  .notes-fab .label-long { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notes-fab { transition: none; }
+  .notes-fab:hover { transform: none; }
+}
+
+.notes-chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-family: var(--font-ui); font-size: .78rem; color: var(--ink-faint);
+}
+.notes-chip button {
+  background: none; border: none; padding: 0;
+  font: inherit; font-weight: 600; color: var(--gold-text);
+  cursor: pointer; border-bottom: 1px dotted var(--gold);
+  min-height: 0;
+}
+.notes-chip #notesChipStatus { font-family: var(--font-num); font-size: .74rem; }
+
+.notes-modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(16,36,58,.55);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 4vh 16px 16px;
+  overflow-y: auto;
+}
+.notes-modal-backdrop[hidden] { display: none !important; }
+:root[data-theme="dark"] .notes-modal-backdrop { background: rgba(0,0,0,.72); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notes-modal-backdrop { background: rgba(0,0,0,.72); }
+}
+body.notes-modal-open { overflow: hidden; }
+
+.notes-modal {
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: var(--r-md);
+  box-shadow: 0 10px 40px rgba(0,0,0,.4);
+  width: 100%; max-width: 46rem;
+  display: flex; flex-direction: column;
+  max-height: 92vh;
+}
+.notes-modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 1rem; padding: .9rem 1.1rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--rule-soft);
+  border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.notes-modal-head h2 {
+  margin: 0; font-family: var(--font-read); font-size: 1.15rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.notes-modal-close {
+  background: none; border: 1px solid var(--rule); color: var(--ink-soft);
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  cursor: pointer; font-size: 1.2rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.notes-modal-close:hover, .notes-modal-close:focus-visible { color: var(--red); border-color: var(--red); }
+.notes-modal-body { padding: 1.1rem; overflow-y: auto; flex: 1; }
+
+.notes-section-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.notes-section-row label { font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft); white-space: nowrap; }
+.notes-section-row select { flex: 1; min-width: 12rem; }
+.notes-section-row .auto-tag {
+  font-family: var(--font-num); font-size: .7rem; color: var(--gold-text);
+  background: var(--rule-soft); padding: .2rem .5rem; border-radius: var(--r-sm);
+  border: 1px solid var(--rule);
+}
+.notes-section-row .auto-tag[hidden] { display: none; }
+
+.notes-modal textarea {
+  width: 100%; min-height: 11rem; resize: vertical;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  padding: .75rem .85rem;
+  font-family: var(--font-num); font-size: .95rem; line-height: 1.6;
+}
+.notes-meta-row {
+  display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  flex-wrap: wrap; margin-top: .45rem;
+  font-family: var(--font-num); font-size: .74rem; color: var(--ink-faint);
+}
+.notes-clear-section {
+  background: none; border: 1px solid var(--rule); color: var(--ink-soft);
+  padding: .3rem .6rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .74rem; cursor: pointer; min-height: 32px;
+}
+.notes-clear-section:hover, .notes-clear-section:focus-visible { color: var(--red); border-color: var(--red); }
+
+.notes-sub-head {
+  margin: 1.2rem 0 .5rem; padding-top: 1rem;
+  border-top: 1px dotted var(--rule);
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600; color: var(--ink-soft);
+}
+.notes-all-list { list-style: none; padding: 0; margin: 0; }
+.notes-all-list li {
+  display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  padding: .45rem .6rem; border: 1px solid var(--rule);
+  border-radius: var(--r-sm); margin-bottom: .4rem; background: var(--surface);
+}
+.notes-all-list li.active { border-color: var(--gold); background: var(--rule-soft); }
+.notes-all-list .title { flex: 1; font-family: var(--font-ui); font-size: .88rem; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notes-all-list .meta { font-family: var(--font-num); font-size: .72rem; color: var(--ink-faint); white-space: nowrap; }
+.notes-all-list .open-btn {
+  background: none; border: 1px solid var(--gold); color: var(--gold-text);
+  padding: .25rem .6rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .74rem; cursor: pointer; min-height: 32px;
+}
+.notes-all-list .open-btn:hover, .notes-all-list .open-btn:focus-visible { background: var(--gold); color: #15212C; }
+.notes-all-empty {
+  font-family: var(--font-ui); font-size: .84rem; color: var(--ink-soft);
+  padding: .7rem; background: var(--rule-soft); border-radius: var(--r-sm);
+  border: 1px dashed var(--rule); margin: 0;
+}
+
+.notes-name-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-top: 1.2rem; padding-top: 1rem; border-top: 1px dotted var(--rule); }
+.notes-name-row label { font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft); white-space: nowrap; }
+.notes-name-row input { flex: 1; min-width: 11rem; width: auto; }
+
+.notes-modal .save-warn {
+  background: #FFF8E1; color: #5A4400;
+  border: 1px solid #D8A700; border-radius: var(--r-sm);
+  padding: .7rem .8rem; margin-top: 1rem;
+  font-family: var(--font-ui); font-size: .85rem;
+}
+:root[data-theme="dark"] .notes-modal .save-warn { background: #352D12; color: #E6C869; border-color: #8A6D1A; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notes-modal .save-warn { background: #352D12; color: #E6C869; border-color: #8A6D1A; }
+}
+.notes-modal .save-warn .h { display: block; font-weight: 700; font-size: .76rem; margin-bottom: .2rem; }
+
+.notes-modal-foot {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  padding: .9rem 1.1rem;
+  border-top: 1px solid var(--rule); background: var(--rule-soft);
+  border-radius: 0 0 var(--r-md) var(--r-md);
+}
+.notes-modal-foot .spacer { flex: 1; }
+.notes-modal-foot button {
+  min-height: 44px; padding: .5rem .9rem;
+  font-family: var(--font-ui); font-size: .84rem; font-weight: 600;
+  border-radius: var(--r-sm); cursor: pointer;
+  border: 1px solid var(--bench); background: var(--bench); color: #EAF1F6;
+}
+.notes-modal-foot button:hover, .notes-modal-foot button:focus-visible { background: var(--bench-soft); }
+.notes-modal-foot button.secondary { background: var(--surface); color: var(--ink); border-color: var(--rule); }
+.notes-modal-foot button.secondary:hover { background: var(--paper); }
+.notes-modal-foot button.danger { background: none; color: var(--red); border-color: var(--red); }
+.notes-modal-foot button.danger:hover, .notes-modal-foot button.danger:focus-visible { background: var(--red); color: #fff; }
+
+/* Screenshot attachments */
+.notes-dropzone {
+  border: 1.5px dashed var(--rule); border-radius: var(--r-sm);
+  padding: .8rem; background: var(--surface);
+  display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+}
+.notes-dropzone.drag { border-color: var(--gold); background: var(--rule-soft); }
+.notes-dropzone .hint { font-family: var(--font-ui); font-size: .78rem; color: var(--ink-soft); }
+.notes-img-addbtn {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .8rem; font-weight: 600;
+  border-radius: var(--r-sm); cursor: pointer;
+  border: 1px solid var(--bench); background: var(--bench); color: #EAF1F6;
+}
+.notes-img-addbtn:hover, .notes-img-addbtn:focus-visible { background: var(--bench-soft); }
+.notes-img-disabled {
+  font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft);
+  border: 1px dashed var(--rule); border-radius: var(--r-sm); padding: .7rem; background: var(--rule-soft);
+}
+.notes-img-status { font-family: var(--font-num); font-size: .74rem; color: var(--ink-faint); margin: .5rem 0 0; min-height: 1em; }
+.notes-img-status.warn { color: var(--red); }
+.notes-img-grid {
+  list-style: none; padding: 0; margin: .6rem 0 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .7rem;
+}
+.notes-img-fig {
+  margin: 0; border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--surface); padding: .5rem; display: flex; flex-direction: column; gap: .4rem;
+}
+.notes-img-fig img { width: 100%; height: 7rem; object-fit: contain; background: var(--rule-soft); border-radius: var(--r-sm); }
+.notes-img-fig .alt-row { display: flex; flex-direction: column; gap: .2rem; }
+.notes-img-fig .alt-row label { font-family: var(--font-ui); font-size: .68rem; color: var(--ink-soft); }
+.notes-img-fig .alt-row input { width: 100%; min-height: 32px; font-size: .8rem; padding: .3rem .45rem; }
+.notes-img-fig .fig-foot { display: flex; justify-content: space-between; align-items: center; gap: .4rem; }
+.notes-img-fig .dims { font-family: var(--font-num); font-size: .68rem; color: var(--ink-faint); }
+.notes-img-remove {
+  background: none; border: 1px solid var(--rule); color: var(--ink-soft);
+  padding: .2rem .5rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .7rem; cursor: pointer; min-height: 30px;
+}
+.notes-img-remove:hover, .notes-img-remove:focus-visible { color: var(--red); border-color: var(--red); }
+
+/* dot on tabs that hold notes */
+.tab-note-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold); margin-left: .3rem; vertical-align: middle;
+}
+
+/* end-of-chapter reminder */
+.notes-reminder {
+  position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%);
+  z-index: 60; max-width: 28rem; width: calc(100% - 36px);
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--gold); border-left: 4px solid var(--gold);
+  border-radius: var(--r-md); box-shadow: 0 8px 28px rgba(16,36,58,.28);
+  padding: .9rem 1rem; display: flex; flex-direction: column; gap: .6rem;
+}
+.notes-reminder[hidden] { display: none !important; }
+.notes-reminder .nr-msg { font-family: var(--font-ui); font-size: .88rem; margin: 0; }
+.notes-reminder .nr-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.notes-reminder button {
+  min-height: 40px; padding: .4rem .8rem; border-radius: var(--r-sm);
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--bench); background: var(--bench); color: #EAF1F6;
+}
+.notes-reminder button.nr-dismiss { background: var(--surface); color: var(--ink-soft); border-color: var(--rule); }
+
+.notes-print-only { display: none; }
+
+@media print {
+  body.printing-notes .masthead,
+  body.printing-notes .chapter-nav,
+  body.printing-notes footer.page,
+  body.printing-notes main,
+  body.printing-notes .notes-fab,
+  body.printing-notes .notes-modal-backdrop,
+  body.printing-notes .notes-reminder { display: none !important; }
+  body.printing-notes { background: #fff !important; color: #000 !important; }
+  body.printing-notes .notes-print-only {
+    display: block !important; background: #fff !important; color: #000 !important;
+    max-width: none; padding: 0;
+  }
+  body.printing-notes .notes-print-only h1 { font-size: 17pt; margin: 0 0 5pt; border-bottom: 2px solid #000; padding-bottom: 4pt; }
+  body.printing-notes .notes-print-only h2 { font-size: 13pt; margin: 13pt 0 4pt; border-bottom: 1px solid #888; padding-bottom: 2pt; }
+  body.printing-notes .notes-print-only .meta { font-family: var(--font-num); font-size: 9pt; color: #444; margin-bottom: 11pt; }
+  body.printing-notes .notes-print-only .note-body { white-space: pre-wrap; font-size: 10.5pt; line-height: 1.5; margin: 5pt 0 9pt; }
+  body.printing-notes .notes-print-only figure.note-fig { margin: 5pt 0 11pt; padding: 0; break-inside: avoid; }
+  body.printing-notes .notes-print-only figure.note-fig img { max-width: 100%; max-height: 5in; height: auto; border: 1px solid #ccc; }
+  body.printing-notes .notes-print-only figure.note-fig figcaption { font-family: var(--font-num); font-size: 9pt; color: #444; margin-top: 3pt; }
+}
+
+/* ---------- Chapter 1 interactives ---------- */
+
+.parts-grid { display: grid; gap: .7rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+.part-card {
+  display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  background: var(--bench); border: 1px solid var(--bench); border-radius: var(--r-sm);
+  padding: .7rem .5rem; cursor: pointer; min-height: 44px;
+}
+.part-card[aria-pressed="true"] { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.part-card .part-sym { display: block; width: 100%; }
+.part-card .part-sym svg { width: 100%; height: auto; display: block; }
+.part-card .part-name { font-family: var(--font-ui); font-size: .82rem; font-weight: 600; color: #DCE7EF; }
+
+table.ct.wide { font-size: .92rem; }
+table.ct.wide th, table.ct.wide td { padding: .35rem .8rem .35rem 0; }
+table.ct.wide thead th { color: var(--ink-faint); border-bottom: 1px solid var(--rule); }
+
+.ladder { list-style: none; padding: 0; margin: 1rem 0 0; }
+.ladder-row {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem;
+  padding: .45rem .7rem; border: 1px solid var(--rule); border-radius: var(--r-sm);
+  margin-bottom: .35rem; background: var(--surface);
+}
+.ladder-row.best { border-color: var(--gold); background: var(--rule-soft); }
+.ladder-row .lv { font-family: var(--font-num); font-size: 1rem; font-weight: 600; min-width: 9rem; }
+.ladder-row .ln { font-family: var(--font-ui); font-size: .8rem; color: var(--ink-soft); flex: 1; }
+.ladder-row .lb { font-family: var(--font-ui); font-size: .72rem; font-weight: 600; color: var(--gold-text); }
+
+.sig-display {
+  font-family: var(--font-num); font-size: 2rem; letter-spacing: .06em;
+  margin: 1rem 0 0; word-break: break-all;
+}
+.sig-display .sig-yes { color: var(--gold-text); font-weight: 700; }
+.sig-display .sig-no { color: var(--ink-faint); opacity: .5; }
+.sig-display .sig-maybe { color: var(--ink-faint); text-decoration: underline dotted; }
+
+#targetToggle button { font-size: .78rem; }
+
+/* ---------- Chapter 2 interactives ---------- */
+
+.part-card .part-sub { font-family: var(--font-num); font-size: .72rem; color: #9FB4C4; }
+
+.band-label { font-family: var(--font-num); font-size: 15px; fill: #93A9B8; }
+
+.band-picks {
+  display: grid; gap: .6rem; margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+.band-pick label {
+  display: block; font-family: var(--font-ui); font-size: .78rem;
+  color: var(--ink-soft); margin-bottom: .25rem;
+}
+.band-pick select { width: 100%; }
+
+.dmm-grid { display: grid; gap: 1rem; margin: 1rem 0; }
+@media (min-width: 760px) { .dmm-grid { grid-template-columns: repeat(3, 1fr); } }
+.dmm-label {
+  font-family: var(--font-ui); font-size: .78rem; font-weight: 600;
+  color: var(--ink-soft); margin: 0 0 .4rem;
+}
+.dmm-opts { display: flex; flex-direction: column; gap: .35rem; }
+.dmm-opt {
+  min-height: 44px; padding: .5rem .7rem; text-align: left;
+  font-family: var(--font-ui); font-size: .86rem;
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.dmm-opt:hover { border-color: var(--gold); }
+.dmm-opt[aria-pressed="true"] {
+  background: var(--bench); border-color: var(--bench); color: #EAF1F6; font-weight: 600;
+}
+
+/* ---------- Cheat sheet ---------- */
+
+.cheat {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  padding: 1.2rem 1.3rem 1rem;
+  margin: 1.5rem 0;
+  box-shadow: var(--shadow);
+}
+.cheat-title {
+  font-family: var(--font-read);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--gold);
+}
+.cheat-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) { .cheat-grid { grid-template-columns: 1fr 1fr; } }
+.cheat .card {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  padding: .8rem .9rem;
+  break-inside: avoid;
+}
+.cheat .card h4 {
+  font-family: var(--font-ui);
+  font-size: .84rem;
+  font-weight: 600;
+  margin: 0 0 .5rem;
+  color: var(--gold-text);
+}
+.cheat .card p { font-size: .9rem; margin: 0 0 .5rem; }
+.cheat .card p:last-child { margin-bottom: 0; }
+.cheat .fine { font-family: var(--font-num); font-size: .8rem; color: var(--ink-soft); }
+.cheat .fine-list { font-size: .88rem; margin: 0; padding-left: 1.1rem; }
+.cheat .fine-list li { margin-bottom: .3rem; }
+table.ct { width: 100%; border-collapse: collapse; font-size: .88rem; margin-bottom: .5rem; }
+table.ct th, table.ct td {
+  text-align: left;
+  vertical-align: top;
+  padding: .28rem .4rem .28rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-weight: 400;
+}
+table.ct th { color: var(--ink-soft); font-family: var(--font-ui); font-size: .84rem; padding-right: .8rem; }
+table.ct td { font-family: var(--font-num); color: var(--ink); }
+table.ct tr:last-child th, table.ct tr:last-child td { border-bottom: none; }
+.cheat-foot { font-family: var(--font-ui); font-size: .74rem; color: var(--ink-faint); margin: 1rem 0 0; }
+
+@media print {
+  .masthead, .chapter-nav, footer.page, .no-print, .skip-link { display: none !important; }
+  body { background: #fff; color: #000; font-size: 8.4pt; line-height: 1.35; }
+  main { padding: 0; }
+  .wrap { max-width: none; padding: 0; }
+  .cheat { border: none; box-shadow: none; margin: 0; padding: 0; }
+  .cheat-title { font-size: 12pt; margin-bottom: .5rem; padding-bottom: .3rem; border-bottom: 1.5pt solid #000; }
+  .cheat-grid { gap: .45rem; grid-template-columns: 1fr 1fr; }
+  .cheat .card { border: .75pt solid #888; padding: .4rem .5rem; }
+  .cheat .card h4 { color: #000; font-size: 8.6pt; margin-bottom: .3rem; }
+  .cheat .card p { font-size: 8.2pt; margin-bottom: .3rem; }
+  .cheat .fine, .cheat .fine-list { font-size: 7.8pt; }
+  .cheat .fine-list li { margin-bottom: .1rem; }
+  table.ct { font-size: 8.2pt; margin-bottom: .3rem; }
+  table.ct th, table.ct td { padding: .12rem .3rem .12rem 0; }
+  table.ct th { color: #333; font-size: 8pt; }
+  .cheat-foot { font-size: 7pt; margin-top: .5rem; }
+  .btn, .btnrow, .attempt, .tool-head .streak, .est { display: none !important; }
+  .tool { border: none; box-shadow: none; }
+  .tool-head { background: none; border-bottom: 1pt solid #000; padding-left: 0; }
+  .tool-body { padding: 0; }
+  input[type="text"] {
+    border: none; border-bottom: .75pt solid #000; border-radius: 0;
+    width: 6rem; background: none;
+  }
+  .hw-problem { break-inside: avoid; padding: .3rem 0; }
+  .hw-problem .hq { display: inline; margin-bottom: 0; }
+  .hw-problem .hn { padding-right: .45rem; }
+  .hw-problem .answer-row { display: inline-flex; margin-left: .8rem; gap: .3rem; vertical-align: baseline; }
+  #panel-9 > .col > p, #panel-9 .callout { display: none !important; }
+  .streak { display: none !important; }
+  .worked .attempt-note { display: none !important; }
+  .feedback, .code-out, .hw-mark { display: none !important; }
+  @page { margin: 11mm; }
+}
+
+/* ---------- Section footer nav ---------- */
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+}
+
+footer.page {
+  border-top: 1px solid var(--rule);
+  padding: 1.5rem 0 2.5rem;
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  color: var(--ink-faint);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* SVG helpers */
+.wire { stroke: #8FA6B6; stroke-width: 3; fill: none; stroke-linecap: round; }
+.wire-live { stroke: var(--gold-bright); }
+.comp { fill: var(--bench); stroke: #C8D6E0; stroke-width: 2.5; }
+.comp-fill { fill: var(--bench); }
+.label-svg { font-family: var(--font-num); font-size: 20px; fill: #C8D6E0; }
+.label-svg.dim { fill: #93A9B8; font-size: 17px; }
+.charge { fill: var(--gold-bright); }
+.water { fill: #4EA3D6; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div>
+      <p class="course-line">ELEC 103 · Electrical Skills and Techniques</p>
+      <h1><span class="ch">Chapter 2</span>Voltage, Current, and Resistance</h1>
+    </div>
+    <p class="lede">Three quantities, the components that carry them, and the meter that measures all three. This is the chapter your lab work runs on.</p>
+  </div>
+</header>
+
+<nav class="chapter-nav" aria-label="Chapter sections">
+  <div class="wrap">
+    <div class="tablist" role="tablist" aria-label="Chapter 3 sections" id="tablist"></div>
+    <div class="progress-row">
+      <span id="progressLabel">0 of 10 sections read</span>
+      <span class="bar"><i id="progressBar"></i></span>
+      <span class="notes-chip" id="notesChip" aria-live="polite">
+        <span aria-hidden="true">✎</span>
+        <button type="button" id="notesChipBtn">My notes</button>
+        <span id="notesChipStatus">empty</span>
+      </span>
+      <div class="viewprefs" role="group" aria-label="Display settings">
+        <div class="sizer" role="group" aria-label="Text size">
+          <button type="button" id="textSmaller" aria-label="Make text smaller">A<span aria-hidden="true">−</span></button>
+          <span id="textSizeLabel" aria-live="polite">100%</span>
+          <button type="button" id="textLarger" aria-label="Make text larger">A<span aria-hidden="true">+</span></button>
+        </div>
+        <button type="button" id="themeBtn" class="prefbtn" aria-pressed="false">
+          <span id="themeIcon" aria-hidden="true">◐</span><span id="themeLabel">System theme</span>
+        </button>
+        <button class="prefbtn" id="resetAll">Reset chapter</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+<div class="wrap">
+
+<!-- ============ 2.1 ============ -->
+<section class="panel" id="panel-0" role="tabpanel" aria-labelledby="tab-0" tabindex="-1">
+  <div class="col">
+    <h2><span class="sec-no">2.1</span>Where charge comes from</h2>
+    <p>Electric current is moving charge. To understand why charge moves easily through copper and not at all through rubber, you have to look at the atom — specifically at its outermost electrons.</p>
+
+    <h3>The Bohr model</h3>
+    <p>Niels Bohr pictured the atom as a nucleus of positively charged protons and uncharged neutrons, with negatively charged electrons in discrete shells around it. It is not the modern picture, but it is exactly the right level of detail for electronics, and it predicts the one thing this course cares about: how tightly the outer electrons are held.</p>
+    <p>The <button class="term" data-term="valence">valence shell</button> is the outermost occupied shell. The electrons in it are furthest from the nucleus, held most weakly, and are the ones that can be persuaded to leave.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Valence and conduction</h3>
+      <div class="viewtoggle" role="group" aria-label="Choose an element" id="atomToggle"></div>
+    </div>
+    <div class="tool-body">
+      <div class="stage">
+        <svg id="atomSvg" viewBox="0 0 460 320" role="img" aria-labelledby="atomTitle" aria-describedby="atomCaption">
+          <title id="atomTitle">Bohr diagram of the selected element</title>
+          <g id="atomShells"></g>
+          <g id="atomElectrons"></g>
+          <circle cx="230" cy="150" r="17" fill="var(--gold-bright)"></circle>
+          <text x="230" y="156" text-anchor="middle" class="label-svg" fill="#17242F" id="atomSymbol" style="font-weight:700">Cu</text>
+        </svg>
+      </div>
+      <p class="streak" id="atomCaption" style="margin-top:.9rem;" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>The rule of four</h3>
+    <p>Count the valence electrons and you can predict the electrical behavior.</p>
+    <ul>
+      <li><strong>Fewer than four:</strong> the atom gives electrons up easily. It is a conductor. Copper has one.</li>
+      <li><strong>More than four:</strong> the atom holds its electrons tightly. It is an insulator.</li>
+      <li><strong>Exactly four:</strong> neither. These are the semiconductors, and silicon is the one the whole industry runs on.</li>
+    </ul>
+    <p>An electron that escapes its atom entirely becomes a <button class="term" data-term="free-electron">free electron</button>. In a copper wire there are enormous numbers of them drifting at random. Apply a voltage and that random drift acquires a direction, and you have current.</p>
+
+    <h3>Charge and Coulomb's law</h3>
+    <p>Charge is measured in coulombs, symbol Q. One coulomb is the charge of about 6.25 &times; 10<sup>18</sup> electrons — the sort of number section 1.3 taught you to write properly.</p>
+    <p>Coulomb's law says the force between two charges is proportional to the product of the charges and inversely proportional to the square of the distance between them. Like charges repel; unlike charges attract. That force is what a voltage source works against when it pushes charge around a circuit.</p>
+
+    <div class="callout">
+      <h4>Why copper and not gold</h4>
+      <p>Silver conducts better than copper and gold resists corrosion better than either, so neither is chosen on physics alone. Copper wins on cost per unit of conductivity. Gold still appears where a connection must not corrode — the contacts on a circuit board edge connector, for instance — because a thin plating is cheap and a bad contact is not.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.2 ============ -->
+<section class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.2</span>Voltage</h2>
+    <p><button class="term" data-term="voltage">Voltage</button> is energy per unit of charge. Formally:</p>
+    <p style="text-align:center;font-family:var(--font-num);font-size:1.45rem;margin:1.4rem 0;"><em>V</em> = <em>W</em> / <em>Q</em></p>
+    <p>where W is energy in joules and Q is charge in coulombs. One volt is one joule per coulomb. A 12 V battery gives every coulomb that passes through it 12 joules to spend on the way round the circuit.</p>
+
+    <h3>Voltage is always between two points</h3>
+    <p>This is the idea people most often skip, and it causes trouble for the rest of the course. There is no such thing as the voltage <em>at</em> a point, only the voltage <em>between</em> two points, in the same way that a single stair has no height until you say what you are measuring it against.</p>
+    <p>That is why a voltmeter has two leads and why you place them on either side of a component. If someone says "the voltage at the collector," they mean with respect to ground, and ground is the second point they left unsaid.</p>
+
+    <div class="worked" data-answer="9" data-unit="V" data-tol="0.01">
+      <h4>Worked example 1</h4>
+      <p>Moving 4.5 C of charge through a component takes 40.5 J of energy. What is the voltage across it?</p>
+      <div class="steps">
+        <span>V = W / Q</span>
+        <span>V = 40.5 J &divide; 4.5 C</span>
+        <span class="ans">V = 9.0 V</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h4>Two words for the same thing</h4>
+      <p>You will see voltage called <em>potential difference</em> and <em>electromotive force</em>, or emf. All three name the same quantity. Older texts and European sources prefer the letter E where this book uses V. If you meet <span class="eq">E = IR</span> in your reading, it is Ohm's law with different clothes on.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.3 ============ -->
+<section class="panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.3</span>Sources of voltage</h2>
+    <p>Every source converts some other form of energy into electrical energy. Knowing which form tells you what the source is good at and how it fails.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head"><h3>Where the energy comes from</h3></div>
+    <div class="tool-body">
+      <div class="parts-grid" id="sourceGrid"></div>
+      <p class="streak" id="sourceNote" style="margin-top:.9rem;" aria-live="polite">Select a source to see how it works and where it is used.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>The one you will actually use</h3>
+    <p>Almost every measurement in this course comes from the bench power supply, which converts AC from the wall into a regulated DC output you can dial in. Regulated means it holds its set voltage as the load changes — within limits. Exceed its current limit and it will either fold back the voltage or shut down, depending on the model.</p>
+    <p>Get in the habit of measuring the supply output rather than trusting the dial. The two disagree more often than you would expect, and section 1.6 explains why that is not a defect.</p>
+
+    <div class="callout caution">
+      <h4>Batteries in series, and one wired backwards</h4>
+      <p>Voltage sources in series add. Three 9 V batteries in series give 27 V. Reverse one of them and it subtracts instead: you get 9 V, not 27. In a battery holder, one cell inserted backwards is the most common reason a circuit reads roughly a third of what it should.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.4 ============ -->
+<section class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.4</span>Current</h2>
+    <p><button class="term" data-term="current">Current</button> is the rate at which charge flows past a point:</p>
+    <p style="text-align:center;font-family:var(--font-num);font-size:1.45rem;margin:1.4rem 0;"><em>I</em> = <em>Q</em> / <em>t</em></p>
+    <p>One ampere is one coulomb per second. Current is the only electrical quantity that is an SI base unit, and it is defined using time, another base unit.</p>
+
+    <div class="worked" data-answer="2" data-unit="A" data-tol="0.01">
+      <h4>Worked example 2</h4>
+      <p>10 coulombs of charge pass a point in 5 seconds. What is the current?</p>
+      <div class="steps">
+        <span>I = Q / t</span>
+        <span>I = 10 C &divide; 5 s</span>
+        <span class="ans">I = 2.0 A</span>
+      </div>
+    </div>
+
+    <h3>Current is measured through, not across</h3>
+    <p>Because current is a flow past a point, an ammeter has to be in the path so that the flow goes through it. You break the circuit open and insert the meter into the gap. This is the practical difference that costs beginners meter fuses, and section 2.9 covers it in detail.</p>
+
+    <h3>How fast do electrons actually move?</h3>
+    <p>Slowly. In a typical wire, individual electrons drift at fractions of a millimeter per second. What travels near the speed of light is the electric field, not the electrons. The usual analogy is a pipe already full of water: open the tap and water comes out the far end immediately, but the particular molecule you added takes a long time to make the trip.</p>
+
+    <div class="callout">
+      <h4>Typical magnitudes</h4>
+      <p>An LED indicator runs on 10 to 20 mA. A phone charger delivers 1 to 3 A. A car starter motor draws hundreds of amperes for a second or two. Anything above roughly 10 mA through a person is dangerous, which is a much smaller number than most of the ones above.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.5 ============ -->
+<section class="panel" id="panel-4" role="tabpanel" aria-labelledby="tab-4" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.5</span>Resistance and conductance</h2>
+    <p><button class="term" data-term="resistance">Resistance</button> is opposition to current, measured in ohms. One ohm is the resistance that allows one ampere when one volt is applied — which is Ohm's law hiding inside a definition, and Chapter 3 will make it explicit.</p>
+    <p><button class="term" data-term="conductance">Conductance</button> is the reciprocal of resistance, measured in siemens. It answers the same question from the other side: not how much a circuit opposes current, but how readily it allows it. You will rarely use it in this course, but it appears in parallel-circuit formulas in Chapter 6.</p>
+
+    <h3>Where resistance comes from</h3>
+    <p>Four physical properties set the resistance of a conductor: the material, the length, the cross-sectional area, and the temperature. Longer means more resistance; thicker means less. That is why wire is specified by gauge — <button class="term" data-term="awg">AWG</button>, American Wire Gauge — and why the numbering runs backwards, with a smaller gauge number meaning a thicker wire.</p>
+
+    <div class="callout">
+      <h4>Wire is not a perfect conductor</h4>
+      <p>Every wire, solder joint, switch contact, and meter lead has some resistance. In this course it is small enough to ignore, and the book will tell you to ignore it. Remember that you are choosing to, because in a high-current circuit that same resistance is what turns an undersized wire into a heater.</p>
+    </div>
+
+    <h3>Resistors</h3>
+    <p>A resistor is a component built to have a specific resistance on purpose. The ones on your bench are carbon film or metal film, rated in ohms and in watts, with a tolerance band that says how far from the marked value the real one is allowed to be. The next section is about reading those markings.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.6 ============ -->
+<section class="panel" id="panel-5" role="tabpanel" aria-labelledby="tab-5" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.6</span>Reading a resistor</h2>
+    <p>Resistors are too small to print a number on, so the value is coded in colored bands. Learning to read them is a genuine skill and one you will use in every lab this semester.</p>
+    <p>On a four-band resistor the first two bands are digits, the third is a multiplier, and the fourth is the tolerance. On a five-band resistor the first three are digits, then multiplier, then tolerance. Five-band parts are the precision ones.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Color code decoder</h3>
+      <div class="viewtoggle" role="group" aria-label="Number of bands">
+        <button type="button" id="band4" aria-pressed="true">4 bands</button>
+        <button type="button" id="band5" aria-pressed="false">5 bands</button>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="stage">
+        <svg id="resistorSvg" viewBox="0 0 620 180" role="img" aria-labelledby="resTitle" aria-describedby="resValue">
+          <title id="resTitle">Resistor with colored bands</title>
+          <path d="M 20 90 H 130" class="wire"></path>
+          <path d="M 490 90 H 600" class="wire"></path>
+          <rect x="130" y="50" width="360" height="80" rx="26" fill="#C9B08A" stroke="#8A7355" stroke-width="2"></rect>
+          <g id="resistorBands"></g>
+        </svg>
+      </div>
+
+      <div class="band-picks" id="bandPicks"></div>
+
+      <div class="readouts" aria-live="polite">
+        <div class="meter"><div class="lbl">Resistance</div><div class="num" id="resValue">—</div></div>
+        <div class="meter"><div class="lbl">Tolerance</div><div class="num" id="resTol">—</div></div>
+        <div class="meter"><div class="lbl">Acceptable range</div><div class="num" id="resRange">—</div></div>
+      </div>
+      <p class="streak" id="resNote" style="margin-top:.9rem;"></p>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Color code drill</h3>
+      <span class="streak" id="colorDrillStreak">Streak 0 &middot; Best 0</span>
+    </div>
+    <div class="tool-body">
+      <p class="problem" id="colorDrillProblem">Loading a problem&hellip;</p>
+      <div class="answer-row">
+        <label for="colorDrillInput" class="visually-hidden">Your answer</label>
+        <input type="text" id="colorDrillInput" inputmode="decimal" autocomplete="off">
+        <span class="unit-tag" id="colorDrillUnit">&#937;</span>
+        <button class="btn" id="colorDrillCheck" type="button">Check answer</button>
+        <button class="btn ghost" id="colorDrillNew" type="button">New problem</button>
+      </div>
+      <div class="feedback" id="colorDrillFeedback" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="callout caution">
+      <h4>If you cannot distinguish the colors</h4>
+      <p>Roughly one man in twelve has some degree of color vision deficiency, and brown, red, and orange are exactly the confusion most often affects. This is not a barrier to working in electronics. Measure the resistor with an ohmmeter and label the strip or the bin — professionals do this routinely, because a faded band on an old part fools everyone. Tell your instructor if the bands are hard to read; the lab can be set up so that this never slows you down.</p>
+    </div>
+
+    <h3>Which end do you start from?</h3>
+    <p>The tolerance band is usually gold or silver and sits slightly further from the end. Put that band on your right and read left to right. If both ends look the same, measure it — guessing the direction turns a 220 &#937; resistor into a 22 &#937; one.</p>
+
+    <h3>Alphanumeric labeling</h3>
+    <p>Larger resistors and most schematics skip the colors and use a letter in place of the decimal point. The letter tells you the multiplier and its position tells you where the point goes.</p>
+    <ul>
+      <li><span class="eq">4R7</span> is 4.7 &#937;</li>
+      <li><span class="eq">4K7</span> is 4.7 k&#937;</li>
+      <li><span class="eq">47K</span> is 47 k&#937;</li>
+      <li><span class="eq">1M0</span> is 1.0 M&#937;</li>
+    </ul>
+    <p>This scheme exists because a printed decimal point disappears on a photocopy or a worn label, and a misplaced one is a factor of ten. You will see it constantly on schematics from Chapter 5 onward.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.7 ============ -->
+<section class="panel" id="panel-6" role="tabpanel" aria-labelledby="tab-6" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.7</span>Variable resistors</h2>
+    <p>A <button class="term" data-term="potentiometer">potentiometer</button> has three terminals: the two ends of a resistive track and a wiper that slides along it. The resistance from the wiper to either end depends on where the wiper sits, and the two always add up to the full track resistance.</p>
+    <p>A <button class="term" data-term="rheostat">rheostat</button> has two terminals and varies the resistance in a circuit. Any potentiometer can be wired as a rheostat by using the wiper and one end, and leaving the third terminal unconnected — or better, tying it to the wiper so a dirty track cannot open the circuit.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Potentiometer</h3>
+      <div class="viewtoggle" role="group" aria-label="Wiring">
+        <button type="button" id="potMode3" aria-pressed="true">As a potentiometer</button>
+        <button type="button" id="potMode2" aria-pressed="false">As a rheostat</button>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="stage">
+        <svg id="potSvg" viewBox="0 0 620 240" role="img" aria-labelledby="potTitle" aria-describedby="potSummary">
+          <title id="potTitle">Potentiometer with a movable wiper</title>
+          <rect x="140" y="120" width="340" height="34" fill="none" stroke="#C8D6E0" stroke-width="3"></rect>
+          <path d="M 40 137 H 140" class="wire"></path>
+          <path id="potEndB" d="M 480 137 H 580" class="wire"></path>
+          <text x="60" y="176" class="label-svg">A</text>
+          <text x="556" y="176" class="label-svg" id="potLabelB">B</text>
+          <g id="potWiper">
+            <path id="potWiperLead" d="M 310 60 V 106" class="wire"></path>
+            <path d="M 300 106 L 310 120 L 320 106 Z" fill="#C8D6E0"></path>
+            <text x="310" y="46" text-anchor="middle" class="label-svg">W</text>
+          </g>
+          <rect id="potFillA" x="141" y="121" width="169" height="32" fill="var(--gold)" opacity=".55"></rect>
+          <text x="310" y="216" text-anchor="middle" class="label-svg dim" id="potHint">the wiper splits the track in two</text>
+        </svg>
+      </div>
+
+      <div class="controls">
+        <div class="ctrl">
+          <label for="potPos">Wiper position <span class="val" id="potPosOut">50%</span></label>
+          <input type="range" id="potPos" min="0" max="100" step="1" value="50">
+        </div>
+        <div class="ctrl">
+          <label for="potTotal">Track resistance <span class="val" id="potTotalOut">10.0 k&#937;</span></label>
+          <select id="potTotal">
+            <option value="1000">1.0 k&#937;</option>
+            <option value="10000" selected>10 k&#937;</option>
+            <option value="100000">100 k&#937;</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="readouts" aria-live="polite">
+        <div class="meter"><div class="lbl">A to wiper</div><div class="num" id="potAW">5.00 k&#937;</div></div>
+        <div class="meter"><div class="lbl">Wiper to B</div><div class="num" id="potWB">5.00 k&#937;</div></div>
+        <div class="meter"><div class="lbl">A to B</div><div class="num" id="potAB">10.0 k&#937;</div></div>
+      </div>
+      <p class="streak" id="potSummary" style="margin-top:.9rem;"></p>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>Where you will meet them</h3>
+    <p>A volume control is a potentiometer. A dimmer is a rheostat. On your bench, the trimmer on a circuit board is a potentiometer set once at the factory and not meant to be adjusted casually.</p>
+    <p>Note that the resistance from A to B never changes no matter where the wiper sits. Only the split changes. Chapter 5 turns that fact into the voltage divider, which is one of the most useful circuits in the book.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.8 ============ -->
+<section class="panel" id="panel-7" role="tabpanel" aria-labelledby="tab-7" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.8</span>The basic circuit</h2>
+    <p>Every working circuit has three things, and almost every one has a fourth.</p>
+    <ol>
+      <li>A <strong>source</strong> of voltage</li>
+      <li>A <strong>load</strong> that does something with the energy</li>
+      <li>A complete <strong>current path</strong> between them</li>
+      <li>Usually, a means of <strong>control</strong> — a switch</li>
+    </ol>
+    <p>A flashlight is the canonical example: battery, lamp, metal body forming the path, and a slide switch. Take away any one of the first three and nothing happens.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Open and closed</h3>
+      <span class="streak" id="switchState">switch closed</span>
+    </div>
+    <div class="tool-body">
+      <div class="stage">
+        <svg id="circuitSvg" viewBox="0 0 620 280" role="img" aria-labelledby="cktTitle" aria-describedby="cktCaption">
+          <title id="cktTitle">Basic circuit with a battery, switch, and lamp</title>
+          <path id="loopPath" class="wire" d="M 90 80 L 530 80 L 530 220 L 90 220 Z"></path>
+          <rect x="72" y="120" width="36" height="60" class="comp-fill" stroke="none"></rect>
+          <line x1="70" y1="132" x2="110" y2="132" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="80" y1="146" x2="100" y2="146" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="70" y1="160" x2="110" y2="160" stroke="#C8D6E0" stroke-width="3"></line>
+          <text x="90" y="206" text-anchor="middle" class="label-svg">9 V</text>
+          <rect x="250" y="58" width="120" height="44" class="comp-fill" stroke="none"></rect>
+          <circle cx="262" cy="80" r="5" fill="#C8D6E0"></circle>
+          <circle cx="358" cy="80" r="5" fill="#C8D6E0"></circle>
+          <line id="switchArm" x1="262" y1="80" x2="358" y2="80" stroke="#C8D6E0" stroke-width="3.5" stroke-linecap="round"></line>
+          <text x="310" y="40" text-anchor="middle" class="label-svg">SPST switch</text>
+          <circle id="lampGlow" cx="530" cy="150" r="34" fill="#D9B23F" opacity="0"></circle>
+          <circle cx="530" cy="150" r="22" class="comp"></circle>
+          <line x1="515" y1="135" x2="545" y2="165" stroke="#C8D6E0" stroke-width="2.5"></line>
+          <line x1="545" y1="135" x2="515" y2="165" stroke="#C8D6E0" stroke-width="2.5"></line>
+          <text x="530" y="106" text-anchor="middle" class="label-svg dim">lamp</text>
+          <g id="charges"></g>
+        </svg>
+      </div>
+      <div class="btnrow">
+        <button class="btn" id="switchToggle" type="button">Open the switch</button>
+      </div>
+      <p class="streak" id="cktCaption" style="margin-top:.9rem;" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>Poles and throws</h3>
+    <p>Switches are named by how many independent circuits they control and how many contacts each one can reach. A <em>pole</em> is a movable arm; a <em>throw</em> is a position it can be thrown to.</p>
+    <ul>
+      <li><strong>SPST</strong> — single pole, single throw. On or off. The flashlight switch.</li>
+      <li><strong>SPDT</strong> — single pole, double throw. Selects between two destinations.</li>
+      <li><strong>DPST</strong> and <strong>DPDT</strong> — the same, but switching two circuits at once with one action.</li>
+    </ul>
+
+    <h3>Reading a schematic</h3>
+    <p>A schematic shows how components connect, not where they physically sit. A wire on a schematic is a perfect conductor of zero length and zero resistance. Two lines crossing without a dot are not connected; a dot means a junction. Your breadboard layout will look nothing like the schematic and must be electrically identical to it, and reconciling those two pictures is most of what the first few labs teach.</p>
+
+    <div class="callout">
+      <h4>Protective devices belong in the path too</h4>
+      <p>A fuse is a deliberate weak point placed in series so that it fails before anything expensive does. It is rated in amperes, and replacing a blown fuse with a higher-rated one removes the protection entirely. Your DMM has one in its current path, and you will meet it the first time someone connects the ammeter across a supply.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.9 ============ -->
+<section class="panel" id="panel-8" role="tabpanel" aria-labelledby="tab-8" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.9</span>The meter, and staying safe</h2>
+    <p>The digital multimeter measures voltage, current, and resistance with the same two probes, and the three measurements are connected in completely different ways. Getting this wrong is the most common lab accident in the course.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Meter setup drill</h3>
+      <span class="streak" id="dmmScore">Solved 0</span>
+    </div>
+    <div class="tool-body">
+      <p class="problem" id="dmmTask">Loading a task&hellip;</p>
+      <div class="dmm-grid">
+        <div>
+          <p class="dmm-label">Function</p>
+          <div class="dmm-opts" id="dmmFunc"></div>
+        </div>
+        <div>
+          <p class="dmm-label">Connection</p>
+          <div class="dmm-opts" id="dmmConn"></div>
+        </div>
+        <div>
+          <p class="dmm-label">Power</p>
+          <div class="dmm-opts" id="dmmPower"></div>
+        </div>
+      </div>
+      <div class="btnrow">
+        <button class="btn" id="dmmSubmit" type="button">Check my setup</button>
+        <button class="btn ghost" id="dmmNew" type="button">New task</button>
+      </div>
+      <div class="feedback" id="dmmFeedback" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>The three connections</h3>
+    <table class="ct wide">
+      <thead><tr><th scope="col">Measuring</th><th scope="col">Meter goes</th><th scope="col">Circuit</th><th scope="col">Meter resistance</th></tr></thead>
+      <tbody>
+        <tr><td>Voltage</td><td>across the component</td><td>powered, intact</td><td>very high</td></tr>
+        <tr><td>Current</td><td>in line with it</td><td>powered, broken open</td><td>very low</td></tr>
+        <tr><td>Resistance</td><td>across the component</td><td>power off, component lifted</td><td>supplies its own current</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem;">The pattern behind the table: a voltmeter must not divert current, so it has high resistance. An ammeter must not obstruct current, so it has low resistance. Put the low-resistance one across a supply and you have deliberately built a short circuit.</p>
+
+    <h3>Safety</h3>
+    <p>The voltages on your bench are low, and the habits you build here are the ones you will carry to equipment where they are not.</p>
+    <ul>
+      <li>Know where the emergency power shutoff is before you need it.</li>
+      <li>Current, not voltage, is what injures. Around 10 mA across the body is enough to prevent you from letting go.</li>
+      <li>Remove rings and watches. Metal jewelry across a low-voltage, high-current source causes serious burns.</li>
+      <li>Electrical fires need a Class C extinguisher. Water conducts.</li>
+      <li>Keep the bench clear. Most lab injuries start as clutter.</li>
+    </ul>
+
+    <div class="callout caution">
+      <h4>The habit that saves the fuse</h4>
+      <p>Leave the meter in its voltage function and the leads in the voltage jacks whenever you are not actively measuring current. Nearly every blown meter fuse happens because the leads were still in the current jacks from the last measurement while the dial had been turned back to volts.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ 2.10 ============ -->
+<section class="panel" id="panel-9" role="tabpanel" aria-labelledby="tab-9" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">2.10</span>Check yourself</h2>
+    <p>Ten questions, scored but not recorded. Nothing here goes to Canvas. Take it as many times as you like — the questions and the answer choices are reshuffled each time.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Self-check</h3>
+      <span class="streak" id="quizBest"></span>
+    </div>
+    <div class="tool-body">
+      <div id="quizBody"></div>
+      <div class="btnrow">
+        <button class="btn" id="quizGrade" type="button">Score my answers</button>
+        <button class="btn ghost" id="quizReset" type="button">Start over with new questions</button>
+      </div>
+      <div class="score" id="quizScore" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>Before the next chapter</h3>
+    <p>You now have the three quantities and the instruments that measure them. Chapter 3 ties all three together with a single equation, and from that point on every circuit in the course is solved by applying it repeatedly. If the color code still takes you a while, keep the drill in this chapter open while you work through Chapter 3 — the resistor values there are the same ones you will be reading off real parts in lab.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Homework ============ -->
+<section class="panel" id="panel-10" role="tabpanel" aria-labelledby="tab-10" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">Graded</span>Homework set</h2>
+    <p>Ten problems drawn from the whole chapter. Enter your student ID and the set builds itself from it, so your numbers are yours alone and stay the same every time you come back. Work them on paper, enter your answers, and submit the code it gives you.</p>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Problem set</h3>
+      <span class="streak" id="hwStatus">Not started</span>
+    </div>
+    <div class="tool-body">
+      <div class="answer-row">
+        <label for="hwId" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Student ID</label>
+        <input type="text" id="hwId" inputmode="numeric" autocomplete="off" placeholder="e.g. 0912345" style="width:11rem;">
+        <button class="btn" id="hwBuild" type="button">Build my set</button>
+      </div>
+      <p class="streak" style="margin-top:.7rem;">Use the same ID every time. A different ID gives a different set of problems.</p>
+      <div id="hwBody" style="margin-top:1.2rem;"></div>
+      <div class="btnrow" id="hwActions" hidden>
+        <button class="btn" id="hwGrade" type="button">Check my work</button>
+        <button class="btn ghost" id="hwPrint" type="button">Print the problems</button>
+      </div>
+      <div class="feedback" id="hwFeedback" role="status" aria-live="polite"></div>
+      <div id="hwCodeWrap" hidden>
+        <p style="font-family:var(--font-ui);font-size:.88rem;margin:1.2rem 0 0;">Paste this code into the Canvas assignment:</p>
+        <div class="code-out" id="hwCode"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="callout">
+      <h4>How this is graded</h4>
+      <p>The code carries your ID, your score, and a check value. Your instructor can confirm it came from your problem set rather than someone else's. You can retry as many times as you like before you submit — the code always reflects your most recent attempt.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Glossary ============ -->
+<section class="panel" id="panel-11" role="tabpanel" aria-labelledby="tab-11" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">Reference</span>Glossary</h2>
+    <p>Every term this chapter defines. The dotted terms in the reading link here.</p>
+    <div class="gloss-filter">
+      <label for="glossSearch" class="visually-hidden">Filter terms</label>
+      <input type="text" id="glossSearch" placeholder="Filter terms…" autocomplete="off">
+    </div>
+    <div class="gloss" id="glossBody"></div>
+    <p class="est" id="glossCount"></p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Resources ============ -->
+<section class="panel" id="panel-12" role="tabpanel" aria-labelledby="tab-12" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">Reference</span>Related resources</h2>
+    <p>Places to go when this chapter has not clicked yet, and places to go when it has. External links open in a new tab.</p>
+
+    <h3>In this course</h3>
+    <div class="res-group">
+      <div class="res internal">
+        <div class="rt">Floyd, <em>Principles of Electric Circuits</em>, 10th edition, Chapter 2</div>
+        <div class="rd">The source this module is built from, and the longest chapter in the book. Its resistor color code problems are worth working through in bulk.</div>
+        <div class="rmeta">textbook · assigned</div>
+      </div>
+      <div class="res internal">
+        <div class="rt">Your DMM's manual</div>
+        <div class="rd">Find the input jacks, the fuse rating, and the maximum current on each range before the first lab. Every meter is slightly different and the fuse is behind a screw.</div>
+        <div class="rmeta">required · read before lab</div>
+      </div>
+      <div class="res internal">
+        <div class="rt">Brookdale tutoring, STEM Institute</div>
+        <div class="rd">Free tutoring for this course. Bring a handful of real resistors if the color code is the sticking point.</div>
+        <div class="rmeta">support · free</div>
+      </div>
+    </div>
+
+    <h3>Practice and simulation</h3>
+    <div class="res-group">
+      <a class="res" href="https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc" target="_blank" rel="noopener noreferrer">
+        <div class="rt">PhET — Circuit Construction Kit: DC</div>
+        <div class="rd">Build a circuit by dragging parts, then place a voltmeter or ammeter on it. The safest place to learn that an ammeter goes in line and a voltmeter goes across, since nothing here blows a fuse.</div>
+        <div class="rmeta">free · runs in a browser · opens in a new tab</div>
+      </a>
+      <a class="res" href="https://www.tinkercad.com/circuits" target="_blank" rel="noopener noreferrer">
+        <div class="rt">Tinkercad Circuits</div>
+        <div class="rd">Breadboard simulation with real resistor color bands and a working multimeter. Useful for rehearsing a wiring layout before you build it.</div>
+        <div class="rmeta">free account required · opens in a new tab</div>
+      </a>
+    </div>
+
+    <h3>Another explanation</h3>
+    <div class="res-group">
+      <a class="res" href="https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_1.html" target="_blank" rel="noopener noreferrer">
+        <div class="rt">Lessons in Electric Circuits, Volume I — Chapter 1, Basic Concepts of Electricity</div>
+        <div class="rd">Tony Kuphaldt's open textbook, Creative Commons licensed. Its sections on static electricity and on conductors and insulators come at the atomic picture from a different angle.</div>
+        <div class="rmeta">free · open textbook · opens in a new tab</div>
+      </a>
+      <a class="res" href="https://www.ibiblio.org/kuphaldt/electricCircuits/DC/DC_3.html" target="_blank" rel="noopener noreferrer">
+        <div class="rt">Lessons in Electric Circuits — Chapter 3, Electrical Safety</div>
+        <div class="rd">A far more thorough treatment of shock hazard than any textbook chapter gives, including the physiological effects at each current level. Worth reading once, early.</div>
+        <div class="rmeta">free · open textbook · opens in a new tab</div>
+      </a>
+    </div>
+
+    <div class="callout">
+      <h4>A note on color code calculators</h4>
+      <p>Plenty of sites will decode bands for you, and the decoder in section 2.6 is one of them. Use them to check your work, not to replace it. In lab you will be holding a resistor with your hands full and no phone, and the exam will not have a calculator on it.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<!-- ============ Cheat sheet ============ -->
+<section class="panel" id="panel-13" role="tabpanel" aria-labelledby="tab-13" tabindex="-1" hidden>
+  <div class="col no-print">
+    <h2><span class="sec-no">Chapter 2</span>Cheat sheet</h2>
+    <p>Everything from this chapter on one page. Print it, or keep it open on your phone at the bench.</p>
+    <div class="btnrow">
+      <button class="btn" id="printCheat" type="button">Print this page</button>
+    </div>
+  </div>
+
+  <div class="cheat" id="cheatSheet">
+    <h3 class="cheat-title">Voltage, Current, and Resistance — ELEC 103 Chapter 2</h3>
+    <div class="cheat-grid">
+      <div class="card">
+        <h4>Resistor color code</h4>
+        <table class="ct">
+          <tr><th scope="row">black</th><td>0 &middot; &times;1</td></tr>
+          <tr><th scope="row">brown</th><td>1 &middot; &times;10 &middot; &plusmn;1%</td></tr>
+          <tr><th scope="row">red</th><td>2 &middot; &times;100 &middot; &plusmn;2%</td></tr>
+          <tr><th scope="row">orange</th><td>3 &middot; &times;1 k</td></tr>
+          <tr><th scope="row">yellow</th><td>4 &middot; &times;10 k</td></tr>
+          <tr><th scope="row">green</th><td>5 &middot; &times;100 k</td></tr>
+          <tr><th scope="row">blue</th><td>6 &middot; &times;1 M</td></tr>
+          <tr><th scope="row">violet</th><td>7</td></tr>
+          <tr><th scope="row">grey</th><td>8</td></tr>
+          <tr><th scope="row">white</th><td>9</td></tr>
+          <tr><th scope="row">gold</th><td>&times;0.1 &middot; &plusmn;5%</td></tr>
+          <tr><th scope="row">silver</th><td>&times;0.01 &middot; &plusmn;10%</td></tr>
+        </table>
+        <p class="fine">4 bands: digit, digit, multiplier, tolerance. 5 bands: three digits first.</p>
+      </div>
+
+      <div class="card">
+        <h4>The three formulas so far</h4>
+        <table class="ct">
+          <tr><th scope="row">Voltage</th><td>V = W / Q &middot; joules per coulomb</td></tr>
+          <tr><th scope="row">Current</th><td>I = Q / t &middot; coulombs per second</td></tr>
+          <tr><th scope="row">Conductance</th><td>G = 1 / R &middot; siemens</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h4>Connecting the meter</h4>
+        <table class="ct">
+          <tr><th scope="row">Voltage</th><td>across the part, power on, circuit intact</td></tr>
+          <tr><th scope="row">Current</th><td>in line, power on, circuit broken open</td></tr>
+          <tr><th scope="row">Resistance</th><td>across the part, power off, one end lifted</td></tr>
+        </table>
+        <p class="fine">Voltmeter: high resistance. Ammeter: low resistance. An ammeter across a supply is a short.</p>
+      </div>
+
+      <div class="card">
+        <h4>Valence and behavior</h4>
+        <table class="ct">
+          <tr><th scope="row">Fewer than 4</th><td>conductor &middot; copper has 1</td></tr>
+          <tr><th scope="row">Exactly 4</th><td>semiconductor &middot; silicon, carbon</td></tr>
+          <tr><th scope="row">More than 4</th><td>insulator</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h4>Alphanumeric labels</h4>
+        <table class="ct">
+          <tr><th scope="row">4R7</th><td>4.7 &#937;</td></tr>
+          <tr><th scope="row">220R</th><td>220 &#937;</td></tr>
+          <tr><th scope="row">4K7</th><td>4.7 k&#937;</td></tr>
+          <tr><th scope="row">68K</th><td>68 k&#937;</td></tr>
+          <tr><th scope="row">1M0</th><td>1.0 M&#937;</td></tr>
+        </table>
+        <p class="fine">The letter replaces the decimal point and names the multiplier.</p>
+      </div>
+
+      <div class="card">
+        <h4>Every circuit needs</h4>
+        <ul class="fine-list">
+          <li>A source of voltage</li>
+          <li>A load to use the energy</li>
+          <li>A complete current path</li>
+          <li>Usually a switch for control</li>
+        </ul>
+        <p class="fine">SPST is on/off. Poles count circuits, throws count destinations.</p>
+      </div>
+
+      <div class="card">
+        <h4>Variable resistors</h4>
+        <table class="ct">
+          <tr><th scope="row">Potentiometer</th><td>3 terminals; wiper splits the track</td></tr>
+          <tr><th scope="row">Rheostat</th><td>2 terminals; varies resistance in the path</td></tr>
+        </table>
+        <p class="fine">A to B never changes. Only the split does.</p>
+      </div>
+
+      <div class="card">
+        <h4>Safety, in five lines</h4>
+        <ul class="fine-list">
+          <li>Know where the emergency shutoff is.</li>
+          <li>Current injures, not voltage. 10 mA is enough to hold you.</li>
+          <li>No rings or watches at the bench.</li>
+          <li>Class C extinguisher for electrical fires.</li>
+          <li>Leads in the voltage jacks unless you are measuring current right now.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="cheat-foot">ELEC 103 &middot; Brookdale Community College &middot; Floyd, <em>Principles of Electric Circuits</em>, 10e, Ch. 2</p>
+  </div>
+  <div class="pager no-print"></div>
+</section>
+
+</div>
+</main>
+
+<footer class="page">
+  <div class="wrap">
+    <p>ELEC 103 &middot; Electrical Skills and Techniques &middot; Brookdale Community College &middot; 2026<br>
+    Companion module to Floyd, <em>Principles of Electric Circuits: Conventional Current</em>, 10th edition, Chapter 2. Your progress is stored in this browser only.</p>
+  </div>
+</footer>
+
+<!-- ============ NOTES: floating button, modal, print target ============ -->
+<button type="button" class="notes-fab" id="notesFab" aria-label="Open my notes" title="Open my notes (keyboard shortcut: N)">
+  <span class="icon" aria-hidden="true">&#9998;</span>
+  <span class="label-long">My notes</span>
+  <span class="count" id="notesFabCount" hidden>0</span>
+</button>
+
+<div class="notes-modal-backdrop" id="notesBackdrop" hidden role="presentation">
+  <div class="notes-modal" role="dialog" aria-modal="true" aria-labelledby="notesModalTitle">
+    <div class="notes-modal-head">
+      <h2 id="notesModalTitle"><span aria-hidden="true">&#9998;</span> My notes</h2>
+      <button type="button" class="notes-modal-close" id="notesCloseBtn" aria-label="Close notes (Esc)">&times;</button>
+    </div>
+
+    <div class="notes-modal-body">
+      <div class="notes-section-row">
+        <label for="notesSectionPicker">Section</label>
+        <select id="notesSectionPicker" aria-describedby="notesAutoTag"></select>
+        <span class="auto-tag" id="notesAutoTag" hidden>auto-selected</span>
+      </div>
+
+      <label class="visually-hidden" for="notesTextarea">Your notes for the selected section</label>
+      <textarea id="notesTextarea" placeholder="Type your notes here…" spellcheck="true"></textarea>
+
+      <div class="notes-meta-row">
+        <span id="notesMetaCount">0 characters</span>
+        <span id="notesMetaStatus">—</span>
+        <button type="button" class="notes-clear-section" id="notesClearSection">Clear this section</button>
+      </div>
+
+      <div id="notesImgWrap">
+        <h3 class="notes-sub-head">Screenshots for this section</h3>
+        <div class="notes-dropzone" id="notesDropzone">
+          <button type="button" class="notes-img-addbtn" id="notesImgAddBtn">Add image</button>
+          <span class="hint">…or paste a screenshot (Ctrl/&#8984;+V), or drag an image file here.</span>
+          <input type="file" id="notesImgInput" accept="image/*" multiple hidden>
+        </div>
+        <p class="notes-img-status" id="notesImgStatus" aria-live="polite"></p>
+        <ul class="notes-img-grid" id="notesImgGrid"></ul>
+      </div>
+
+      <h3 class="notes-sub-head">All my notes for this chapter</h3>
+      <ul class="notes-all-list" id="notesAllList"></ul>
+      <p class="notes-all-empty" id="notesAllEmpty" hidden>No notes yet. Start typing above to add notes for the section you are reading.</p>
+
+      <div class="notes-name-row">
+        <label for="notesNameField">Your name (optional)</label>
+        <input type="text" id="notesNameField" placeholder="e.g. Sam Rivera" autocomplete="name" maxlength="80">
+      </div>
+
+      <div class="save-warn" role="note">
+        <span class="h">Browser storage is temporary</span>
+        Your notes and screenshots live in this browser only. Export a PDF, Word file, or Markdown copy before you switch devices or clear browser data.
+      </div>
+    </div>
+
+    <div class="notes-modal-foot">
+      <button type="button" class="secondary" id="notesPrint">Print / Save as PDF</button>
+      <button type="button" class="secondary" id="notesMd">Markdown</button>
+      <button type="button" class="secondary" id="notesDoc">Word</button>
+      <span class="spacer"></span>
+      <button type="button" class="danger" id="notesClearAll">Clear all</button>
+    </div>
+  </div>
+</div>
+
+<div class="notes-print-only" id="notesPrintBlock"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'elec103-ch2-v1';
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveState(s) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+    catch (e) { /* private mode: run without persistence */ }
+  }
+  var state = loadState();
+  if (!state || typeof state !== 'object') state = {};
+  if (!Array.isArray(state.visited)) state.visited = [];
+  if (!state.best || typeof state.best !== 'object') state.best = {};
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fmtOhms(r) {
+    if (r >= 1000) return (r / 1000).toFixed(2) + ' kΩ';
+    return r.toFixed(0) + ' Ω';
+  }
+  function fmtAmps(a) {
+    if (a === 0) return '0 mA';
+    if (a < 0.001) return (a * 1e6).toFixed(1) + ' µA';
+    if (a < 1) return (a * 1000).toFixed(2) + ' mA';
+    return a.toFixed(3) + ' A';
+  }
+  function sig3(n) {
+    if (n === 0) return '0';
+    var d = Math.ceil(Math.log10(Math.abs(n)));
+    var p = Math.max(0, 3 - d);
+    return Number(n.toFixed(p)).toString();
+  }
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  /* ---------------- Section navigation ---------------- */
+
+  var SECTIONS = [
+    { n: '2.1', label: 'Charge', min: 11 },
+    { n: '2.2', label: 'Voltage', min: 9 },
+    { n: '2.3', label: 'Sources', min: 8 },
+    { n: '2.4', label: 'Current', min: 9 },
+    { n: '2.5', label: 'Resistance', min: 8 },
+    { n: '2.6', label: 'Color code', min: 16 },
+    { n: '2.7', label: 'Variable resistors', min: 10 },
+    { n: '2.8', label: 'The basic circuit', min: 12 },
+    { n: '2.9', label: 'Meter and safety', min: 14 },
+    { n: '2.10', label: 'Check yourself', min: 10 },
+    { n: '', label: 'Homework', extra: true, min: 45 },
+    { n: '', label: 'Glossary', extra: true },
+    { n: '', label: 'Resources', extra: true },
+    { n: '', label: 'Cheat sheet', extra: true }
+  ];
+
+
+
+  var COUNTED = SECTIONS.filter(function (s) { return !s.extra; }).length;
+
+  // Progress saved by an earlier build can name sections this build no longer
+  // has. Drop anything out of range before it reaches the tab code.
+  function validIndex(i) { return typeof i === 'number' && i >= 0 && i < SECTIONS.length; }
+  state.visited = (state.visited || []).filter(function (i) { return validIndex(i) && !SECTIONS[i].extra; });
+  if (!validIndex(state.last)) state.last = 0;
+  if (!validIndex(state.lastRead) || SECTIONS[state.lastRead].extra) state.lastRead = 0;
+  saveState(state);
+
+  var tablist = document.getElementById('tablist');
+  var dividerDone = false;
+  var panels = [];
+  var tabs = [];
+
+  SECTIONS.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.id = 'tab-' + i;
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-controls', 'panel-' + i);
+    b.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    b.tabIndex = i === 0 ? 0 : -1;
+    if (s.extra && !dividerDone) {
+      var div = document.createElement('span');
+      div.className = 'divider';
+      div.setAttribute('aria-hidden', 'true');
+      tablist.appendChild(div);
+      dividerDone = true;
+    }
+    if (s.extra) b.className = 'extra';
+    b.innerHTML = (s.n ? '<span class="num">' + s.n + '</span>' : '') + s.label +
+                  (s.extra ? '' : '<span class="done" aria-hidden="true"></span>');
+    tablist.appendChild(b);
+    tabs.push(b);
+    panels.push(document.getElementById('panel-' + i));
+  });
+
+  function markVisited(i) {
+    if (!SECTIONS[i] || SECTIONS[i].extra) return;
+    if (state.visited.indexOf(i) === -1) {
+      state.visited.push(i);
+      saveState(state);
+    }
+    refreshProgress();
+  }
+
+  function refreshProgress() {
+    var done = state.visited.length;
+    var left = 0;
+    SECTIONS.forEach(function (sec, i) {
+      if (!sec.extra && sec.min && state.visited.indexOf(i) === -1) left += sec.min;
+    });
+    document.getElementById('progressLabel').textContent =
+      done + ' of ' + COUNTED + ' sections read' + (left ? ' · about ' + left + ' min left' : '');
+    document.getElementById('progressBar').style.width = (done / COUNTED * 100) + '%';
+    tabs.forEach(function (t, i) {
+      var mark = t.querySelector('.done');
+      if (mark) mark.textContent = state.visited.indexOf(i) !== -1 ? '✓' : '';
+    });
+  }
+
+  function selectTab(i, focusPanel) {
+    if (!validIndex(i)) i = 0;
+    tabs.forEach(function (t, j) {
+      var on = i === j;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      panels[j].hidden = !on;
+    });
+    markVisited(i);
+    state.last = i;
+    if (SECTIONS[i] && !SECTIONS[i].extra) state.lastRead = i;
+    saveState(state);
+    if (focusPanel) {
+      panels[i].focus();
+      panels[i].scrollIntoView({ block: 'start' });
+    }
+  }
+
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { selectTab(i, false); });
+    t.addEventListener('keydown', function (e) {
+      var next = null;
+      if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = tabs.length - 1;
+      if (next !== null) {
+        e.preventDefault();
+        selectTab(next, false);
+        tabs[next].focus();
+      }
+    });
+  });
+
+  // Time estimate under each section heading
+  panels.forEach(function (p, i) {
+    if (!SECTIONS[i] || !SECTIONS[i].min || SECTIONS[i].extra) return;
+    var h = p.querySelector('h2');
+    if (!h) return;
+    var est = document.createElement('p');
+    est.className = 'est';
+    est.textContent = 'About ' + SECTIONS[i].min + ' minutes';
+    h.parentNode.insertBefore(est, h.nextSibling);
+  });
+
+  // Prev / next pagers
+  panels.forEach(function (p, i) {
+    var pager = p.querySelector('.pager');
+    if (i > 0) {
+      var prev = document.createElement('button');
+      prev.type = 'button';
+      prev.className = 'btn ghost';
+      prev.textContent = ('← ' + SECTIONS[i - 1].n + ' ' + SECTIONS[i - 1].label).replace('←  ', '← ');
+      prev.addEventListener('click', function () { selectTab(i - 1, true); });
+      pager.appendChild(prev);
+    } else {
+      pager.appendChild(document.createElement('span'));
+    }
+    if (i < SECTIONS.length - 1) {
+      var nxt = document.createElement('button');
+      nxt.type = 'button';
+      nxt.className = 'btn';
+      nxt.textContent = (SECTIONS[i + 1].n + ' ' + SECTIONS[i + 1].label + ' →').replace(/^ /, '');
+      nxt.addEventListener('click', function () { selectTab(i + 1, true); });
+      pager.appendChild(nxt);
+    }
+  });
+
+  document.getElementById('printCheat').addEventListener('click', function () {
+    window.print();
+  });
+
+  document.getElementById('resetAll').addEventListener('click', function () {
+    state = { visited: [], best: {}, theme: state.theme, scale: state.scale, hwId: state.hwId };
+    saveState(state);
+    refreshProgress();
+    buildQuiz();
+    document.getElementById('quizScore').textContent = '';
+    updateStreakLabels();
+    selectTab(0, true);
+  });
+
+  /* ---------------- 2.1 Valence explorer ---------------- */
+
+  var ELEMENTS = [
+    { sym: 'Cu', name: 'Copper', shells: [2, 8, 18, 1], valence: 1,
+      note: 'Copper has one valence electron, loosely held and easily freed. Fewer than four means a conductor — and copper is the one nearly every wire in this lab is made of.' },
+    { sym: 'Si', name: 'Silicon', shells: [2, 8, 4], valence: 4,
+      note: 'Silicon has exactly four valence electrons, so it is neither a good conductor nor a good insulator. That in-between behavior is what makes it a semiconductor, and it is why the entire chip industry is built on it.' },
+    { sym: 'C', name: 'Carbon', shells: [2, 4], valence: 4,
+      note: 'Carbon also has four valence electrons. In the carbon-film resistors on your bench it is used for its moderate, controllable resistance rather than as a conductor or an insulator.' },
+    { sym: 'Ne', name: 'Neon', shells: [2, 8], valence: 8,
+      note: 'Neon has a full valence shell of eight. It gives up nothing and takes nothing, which makes it chemically inert and, under ordinary conditions, an insulator.' }
+  ];
+  var atomIdx = 0;
+
+  function renderAtom() {
+    var el = ELEMENTS[atomIdx];
+    var shells = document.getElementById('atomShells');
+    var electrons = document.getElementById('atomElectrons');
+    shells.textContent = '';
+    electrons.textContent = '';
+    document.getElementById('atomSymbol').textContent = el.sym;
+
+    el.shells.forEach(function (count, si) {
+      var r = 42 + si * 34;
+      var ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      ring.setAttribute('cx', 230); ring.setAttribute('cy', 150); ring.setAttribute('r', r);
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', si === el.shells.length - 1 ? 'var(--gold)' : '#33485A');
+      ring.setAttribute('stroke-width', si === el.shells.length - 1 ? 2 : 1.2);
+      shells.appendChild(ring);
+
+      var outer = si === el.shells.length - 1;
+      for (var k = 0; k < count; k++) {
+        var ang = (k / count) * Math.PI * 2 - Math.PI / 2;
+        var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', (230 + r * Math.cos(ang)).toFixed(1));
+        dot.setAttribute('cy', (150 + r * Math.sin(ang)).toFixed(1));
+        dot.setAttribute('r', outer ? 6 : 4);
+        dot.setAttribute('fill', outer ? 'var(--gold-bright)' : '#7C93A4');
+        electrons.appendChild(dot);
+      }
+    });
+
+    var kind = el.valence < 4 ? 'conductor' : (el.valence === 4 ? 'semiconductor' : 'insulator');
+    document.getElementById('atomCaption').textContent =
+      el.name + ' \u00B7 ' + el.valence + ' valence electron' + (el.valence === 1 ? '' : 's') + ' \u00B7 ' + kind + '. ' + el.note;
+    Array.prototype.forEach.call(document.querySelectorAll('#atomToggle button'), function (b, i) {
+      b.setAttribute('aria-pressed', i === atomIdx ? 'true' : 'false');
+    });
+  }
+  ELEMENTS.forEach(function (el, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = el.name;
+    b.addEventListener('click', function () { atomIdx = i; renderAtom(); });
+    document.getElementById('atomToggle').appendChild(b);
+  });
+  renderAtom();
+
+  /* ---------------- 2.3 Voltage sources ---------------- */
+
+  var SOURCES = [
+    { name: 'Battery', from: 'chemical energy',
+      note: 'Chemical reactions separate charge across two electrodes. Its voltage sags as it discharges, and its capacity is rated in ampere-hours, which Chapter 4 explains.' },
+    { name: 'Solar cell', from: 'light energy',
+      note: 'Photons free charge carriers in a semiconductor junction. Output depends on how much light falls on it, so its voltage is not something you can simply set.' },
+    { name: 'Fuel cell', from: 'chemical energy',
+      note: 'Like a battery, but the reactants are supplied continuously from outside rather than stored inside. It runs as long as you keep feeding it.' },
+    { name: 'Bench supply', from: 'AC from the wall',
+      note: 'Converts wall AC to a regulated DC output you set with a dial. This is the source behind nearly every measurement you will take in this course.' }
+  ];
+  var sourceGrid = document.getElementById('sourceGrid');
+  var sourceNote = document.getElementById('sourceNote');
+  SOURCES.forEach(function (src) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'part-card';
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = '<span class="part-name">' + src.name + '</span><span class="part-sub">' + src.from + '</span>';
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call(sourceGrid.querySelectorAll('.part-card'), function (o) { o.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', 'true');
+      sourceNote.textContent = src.name + ' \u2014 converts ' + src.from + '. ' + src.note;
+    });
+    sourceGrid.appendChild(b);
+  });
+
+  /* ---------------- 2.6 Colour code ---------------- */
+
+  var BAND_COLORS = [
+    { name: 'black',  hex: '#1A1A1A', digit: 0, mult: 1,      tol: null },
+    { name: 'brown',  hex: '#7B4A2D', digit: 1, mult: 10,     tol: 1 },
+    { name: 'red',    hex: '#C0392B', digit: 2, mult: 100,    tol: 2 },
+    { name: 'orange', hex: '#E8730C', digit: 3, mult: 1e3,    tol: null },
+    { name: 'yellow', hex: '#E8C63A', digit: 4, mult: 1e4,    tol: null },
+    { name: 'green',  hex: '#2E8B57', digit: 5, mult: 1e5,    tol: 0.5 },
+    { name: 'blue',   hex: '#2A5DA8', digit: 6, mult: 1e6,    tol: 0.25 },
+    { name: 'violet', hex: '#6B3FA0', digit: 7, mult: 1e7,    tol: 0.1 },
+    { name: 'grey',   hex: '#8A8A8A', digit: 8, mult: null,   tol: 0.05 },
+    { name: 'white',  hex: '#F2F2F2', digit: 9, mult: null,   tol: null },
+    { name: 'gold',   hex: '#C9A227', digit: null, mult: 0.1, tol: 5 },
+    { name: 'silver', hex: '#B8BCC0', digit: null, mult: 0.01, tol: 10 }
+  ];
+  function colorByName(n) {
+    for (var i = 0; i < BAND_COLORS.length; i++) if (BAND_COLORS[i].name === n) return BAND_COLORS[i];
+    return null;
+  }
+
+  var bandCount = 4;
+  var bandState = ['yellow', 'violet', 'red', 'gold'];
+
+  function bandRoles() {
+    return bandCount === 4
+      ? ['1st digit', '2nd digit', 'multiplier', 'tolerance']
+      : ['1st digit', '2nd digit', '3rd digit', 'multiplier', 'tolerance'];
+  }
+  function optionsFor(role) {
+    return BAND_COLORS.filter(function (c) {
+      if (role.indexOf('digit') !== -1) return c.digit !== null;
+      if (role === 'multiplier') return c.mult !== null;
+      return c.tol !== null;
+    });
+  }
+
+  function fmtOhms(r) {
+    if (r >= 1e6) return trimTo(r / 1e6) + ' M\u03A9';
+    if (r >= 1e3) return trimTo(r / 1e3) + ' k\u03A9';
+    return trimTo(r) + ' \u03A9';
+  }
+  function trimTo(n) {
+    var s = n.toFixed(3);
+    if (s.indexOf('.') !== -1) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s;
+  }
+
+  function resistorValue() {
+    var digits = '';
+    var roles = bandRoles();
+    var mult = 1, tol = 5;
+    roles.forEach(function (role, i) {
+      var c = colorByName(bandState[i]);
+      if (!c) return;
+      if (role.indexOf('digit') !== -1) digits += String(c.digit);
+      else if (role === 'multiplier') mult = c.mult;
+      else tol = c.tol;
+    });
+    return { ohms: parseInt(digits, 10) * mult, tol: tol };
+  }
+
+  function drawResistor() {
+    var g = document.getElementById('resistorBands');
+    g.textContent = '';
+    var roles = bandRoles();
+    var startX = bandCount === 4 ? 162 : 148;
+    var gap = bandCount === 4 ? 74 : 62;
+    roles.forEach(function (role, i) {
+      var c = colorByName(bandState[i]);
+      if (!c) return;
+      var x = role === 'tolerance' ? 430 : startX + i * gap;
+      var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x); rect.setAttribute('y', 50);
+      rect.setAttribute('width', 26); rect.setAttribute('height', 80);
+      rect.setAttribute('fill', c.hex);
+      rect.setAttribute('stroke', '#5C4A33');
+      rect.setAttribute('stroke-width', 1);
+      g.appendChild(rect);
+      var lab = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lab.setAttribute('x', x + 13); lab.setAttribute('y', 148);
+      lab.setAttribute('text-anchor', 'middle');
+      lab.setAttribute('class', 'band-label');
+      lab.textContent = c.name;
+      g.appendChild(lab);
+    });
+  }
+
+  function renderCode() {
+    drawResistor();
+    var v = resistorValue();
+    var valEl = document.getElementById('resValue');
+    if (isNaN(v.ohms)) { valEl.textContent = '\u2014'; return; }
+    valEl.textContent = fmtOhms(v.ohms);
+    document.getElementById('resTol').textContent = '\u00B1' + v.tol + '%';
+    var lo = v.ohms * (1 - v.tol / 100), hi = v.ohms * (1 + v.tol / 100);
+    document.getElementById('resRange').textContent = fmtOhms(lo) + ' to ' + fmtOhms(hi);
+    var roles = bandRoles();
+    var spoken = roles.map(function (r, i) { return bandState[i]; }).join(', ');
+    document.getElementById('resNote').textContent =
+      spoken + ' \u2014 reads as ' + fmtOhms(v.ohms) + ' \u00B1' + v.tol + '%. A meter reading anywhere in that range means the part is within spec.';
+  }
+
+  function buildPickers() {
+    var host = document.getElementById('bandPicks');
+    host.textContent = '';
+    bandRoles().forEach(function (role, i) {
+      var wrap = document.createElement('div');
+      wrap.className = 'band-pick';
+      var id = 'band-sel-' + i;
+      var lab = document.createElement('label');
+      lab.setAttribute('for', id);
+      lab.textContent = role;
+      var sel = document.createElement('select');
+      sel.id = id;
+      optionsFor(role).forEach(function (c) {
+        var o = document.createElement('option');
+        o.value = c.name;
+        o.textContent = c.name + (role.indexOf('digit') !== -1 ? ' (' + c.digit + ')'
+          : role === 'multiplier' ? ' (\u00D7' + (c.mult >= 1 ? c.mult.toLocaleString() : c.mult) + ')'
+          : ' (\u00B1' + c.tol + '%)');
+        sel.appendChild(o);
+      });
+      if (!optionsFor(role).some(function (c) { return c.name === bandState[i]; })) {
+        bandState[i] = optionsFor(role)[0].name;
+      }
+      sel.value = bandState[i];
+      sel.addEventListener('change', function () { bandState[i] = sel.value; renderCode(); });
+      wrap.appendChild(lab); wrap.appendChild(sel);
+      host.appendChild(wrap);
+    });
+  }
+
+  function setBandCount(n) {
+    if (n === bandCount) return;
+    bandCount = n;
+    bandState = n === 4 ? ['yellow', 'violet', 'red', 'gold'] : ['brown', 'black', 'black', 'red', 'brown'];
+    document.getElementById('band4').setAttribute('aria-pressed', n === 4 ? 'true' : 'false');
+    document.getElementById('band5').setAttribute('aria-pressed', n === 5 ? 'true' : 'false');
+    buildPickers();
+    renderCode();
+  }
+  document.getElementById('band4').addEventListener('click', function () { setBandCount(4); });
+  document.getElementById('band5').addEventListener('click', function () { setBandCount(5); });
+  buildPickers();
+  renderCode();
+
+  /* ---------------- 2.6 Colour code drill ---------------- */
+
+  var E12 = [10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82];
+
+  function makeColorProblem() {
+    var two = E12[Math.floor(Math.random() * E12.length)];
+    var multIdx = Math.floor(Math.random() * 5); // x1 .. x10k
+    var ohms = two * Math.pow(10, multIdx);
+    var d1 = colorByName(nameForDigit(Math.floor(two / 10)));
+    var d2 = colorByName(nameForDigit(two % 10));
+    var m = colorByName(nameForMultiplier(Math.pow(10, multIdx)));
+    var tolName = Math.random() < 0.5 ? 'gold' : 'silver';
+    var tol = colorByName(tolName).tol;
+    return {
+      text: 'A four-band resistor is marked ' + d1.name + ', ' + d2.name + ', ' + m.name + ', ' + tolName +
+            '. What is its nominal resistance in ohms?',
+      unit: '\u03A9', answer: ohms,
+      work: d1.name + ' = ' + d1.digit + ', ' + d2.name + ' = ' + d2.digit + ', ' + m.name + ' = \u00D7' +
+            m.mult.toLocaleString() + ', so ' + two + ' \u00D7 ' + m.mult.toLocaleString() + ' = ' + ohms.toLocaleString() +
+            ' \u03A9 \u00B1' + tol + '%'
+    };
+  }
+  function nameForDigit(d) {
+    for (var i = 0; i < BAND_COLORS.length; i++) if (BAND_COLORS[i].digit === d) return BAND_COLORS[i].name;
+    return 'black';
+  }
+  function nameForMultiplier(m) {
+    for (var i = 0; i < BAND_COLORS.length; i++) if (BAND_COLORS[i].mult === m) return BAND_COLORS[i].name;
+    return 'black';
+  }
+
+  function wireDrill(cfg) {
+    var current = null, streak = 0;
+    var probEl = document.getElementById(cfg.problem);
+    var unitEl = document.getElementById(cfg.unit);
+    var inEl = document.getElementById(cfg.input);
+    var fbEl = document.getElementById(cfg.feedback);
+    var stEl = document.getElementById(cfg.streak);
+    function label() { stEl.textContent = 'Streak ' + streak + ' \u00B7 Best ' + (state.best[cfg.key] || 0); }
+    function next() {
+      current = cfg.make();
+      probEl.textContent = current.text;
+      unitEl.textContent = current.unit;
+      inEl.value = ''; fbEl.textContent = ''; fbEl.className = 'feedback';
+      inEl.focus();
+    }
+    function check() {
+      if (!current) return;
+      var given = parseFloat(inEl.value.replace(/[,\s]/g, '').trim());
+      if (isNaN(given)) {
+        fbEl.className = 'feedback no';
+        fbEl.textContent = 'Enter a number. The unit is already set to ' + current.unit + '.';
+        return;
+      }
+      if (Math.abs(given - current.answer) / Math.abs(current.answer) <= 0.01) {
+        streak++;
+        if (!state.best[cfg.key] || streak > state.best[cfg.key]) { state.best[cfg.key] = streak; saveState(state); }
+        fbEl.className = 'feedback ok';
+        fbEl.textContent = 'Correct. ' + current.work;
+      } else {
+        streak = 0;
+        fbEl.className = 'feedback no';
+        var hint = '';
+        var ratio = given / current.answer;
+        if (Math.abs(ratio - 10) < 0.2 || Math.abs(ratio - 0.1) < 0.002) hint = ' You are out by a factor of ten — check the multiplier band.';
+        fbEl.textContent = 'Not yet. ' + current.work + '.' + hint;
+      }
+      label();
+    }
+    document.getElementById(cfg.check).addEventListener('click', check);
+    document.getElementById(cfg.newBtn).addEventListener('click', next);
+    inEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); check(); } });
+    label(); next();
+    return { label: label };
+  }
+  var drillA = wireDrill({
+    key: 'colorDrill', make: makeColorProblem,
+    problem: 'colorDrillProblem', unit: 'colorDrillUnit', input: 'colorDrillInput',
+    feedback: 'colorDrillFeedback', streak: 'colorDrillStreak',
+    check: 'colorDrillCheck', newBtn: 'colorDrillNew'
+  });
+  function updateStreakLabels() { drillA.label(); }
+
+  /* ---------------- 2.7 Potentiometer ---------------- */
+
+  var potMode = 3;
+  function renderPot() {
+    var pos = parseInt(document.getElementById('potPos').value, 10);
+    var total = parseFloat(document.getElementById('potTotal').value);
+    var aw = total * pos / 100, wb = total - aw;
+    document.getElementById('potPosOut').textContent = pos + '%';
+    document.getElementById('potTotalOut').textContent = fmtOhms(total);
+    document.getElementById('potAW').textContent = fmtOhms(aw);
+    document.getElementById('potWB').textContent = potMode === 3 ? fmtOhms(wb) : 'not used';
+    document.getElementById('potAB').textContent = fmtOhms(total);
+
+    var x = 140 + (340 * pos / 100);
+    document.getElementById('potWiperLead').setAttribute('d', 'M ' + x + ' 60 V 106');
+    var wiper = document.getElementById('potWiper');
+    wiper.querySelector('path:nth-of-type(2)').setAttribute('d',
+      'M ' + (x - 10) + ' 106 L ' + x + ' 120 L ' + (x + 10) + ' 106 Z');
+    wiper.querySelector('text').setAttribute('x', x);
+    document.getElementById('potFillA').setAttribute('width', Math.max(0, x - 141).toFixed(1));
+
+    document.getElementById('potEndB').setAttribute('opacity', potMode === 3 ? '1' : '0.25');
+    document.getElementById('potLabelB').setAttribute('opacity', potMode === 3 ? '1' : '0.35');
+    document.getElementById('potHint').textContent = potMode === 3
+      ? 'A to B never changes; only the split does'
+      : 'terminal B unused \u2014 the circuit sees A to wiper only';
+    document.getElementById('potSummary').textContent = potMode === 3
+      ? 'A to wiper is ' + fmtOhms(aw) + ' and wiper to B is ' + fmtOhms(wb) + '. They always sum to ' + fmtOhms(total) + ', whatever the wiper does.'
+      : 'Wired as a rheostat, the circuit sees ' + fmtOhms(aw) + '. Turning the shaft varies the resistance in the path rather than splitting a voltage.';
+  }
+  document.getElementById('potPos').addEventListener('input', renderPot);
+  document.getElementById('potTotal').addEventListener('change', renderPot);
+  document.getElementById('potMode3').addEventListener('click', function () {
+    potMode = 3;
+    this.setAttribute('aria-pressed', 'true');
+    document.getElementById('potMode2').setAttribute('aria-pressed', 'false');
+    renderPot();
+  });
+  document.getElementById('potMode2').addEventListener('click', function () {
+    potMode = 2;
+    this.setAttribute('aria-pressed', 'true');
+    document.getElementById('potMode3').setAttribute('aria-pressed', 'false');
+    renderPot();
+  });
+  renderPot();
+
+  /* ---------------- 2.8 Basic circuit ---------------- */
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var switchClosed = true;
+  var loopPath = document.getElementById('loopPath');
+  var chargeGroup = document.getElementById('charges');
+  var dots = [];
+  for (var dz = 0; dz < 14; dz++) {
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('r', '5');
+    c.setAttribute('class', 'charge');
+    chargeGroup.appendChild(c);
+    dots.push(c);
+  }
+  var phase = 0, lastT = 0;
+
+  function placeDots(ph) {
+    var len = loopPath.getTotalLength();
+    for (var k = 0; k < dots.length; k++) {
+      var t = ((k / dots.length) + ph) % 1;
+      var pt = loopPath.getPointAtLength(t * len);
+      dots[k].setAttribute('cx', pt.x.toFixed(1));
+      dots[k].setAttribute('cy', pt.y.toFixed(1));
+      dots[k].setAttribute('opacity', switchClosed ? '1' : '0.2');
+    }
+  }
+  function animate(ts) {
+    if (!lastT) lastT = ts;
+    var dt = Math.min(64, ts - lastT);
+    lastT = ts;
+    if (switchClosed) phase = (phase + 0.22 * dt / 1000) % 1;
+    placeDots(phase);
+    window.requestAnimationFrame(animate);
+  }
+  function renderSwitch() {
+    var arm = document.getElementById('switchArm');
+    if (switchClosed) arm.setAttribute('y2', '80');
+    else arm.setAttribute('y2', '52');
+    document.getElementById('lampGlow').setAttribute('opacity', switchClosed ? '0.62' : '0');
+    document.getElementById('switchState').textContent = switchClosed ? 'switch closed' : 'switch open';
+    document.getElementById('switchToggle').textContent = switchClosed ? 'Open the switch' : 'Close the switch';
+    document.getElementById('cktCaption').textContent = switchClosed
+      ? 'The path is complete, so charge circulates and the lamp lights. Source, load, path, control \u2014 all four present.'
+      : 'One break stops the current everywhere at once, not just at the break. The lamp is dark even though the battery is fine and the wiring is otherwise intact.';
+    placeDots(phase);
+  }
+  document.getElementById('switchToggle').addEventListener('click', function () {
+    switchClosed = !switchClosed;
+    renderSwitch();
+  });
+  renderSwitch();
+  placeDots(0);
+  if (!reduceMotion) window.requestAnimationFrame(animate);
+
+  /* ---------------- 2.9 Meter setup drill ---------------- */
+
+  var DMM_TASKS = [
+    { task: 'Measure the voltage across R2 while the circuit is running.', func: 'volts', conn: 'across', power: 'on',
+      why: 'A voltmeter goes across the component with the circuit powered and intact. Its very high resistance means it diverts almost no current.' },
+    { task: 'Measure the current through R1.', func: 'amps', conn: 'inline', power: 'on',
+      why: 'Current is a flow through a point, so the circuit must be broken and the meter inserted into the gap, with power on.' },
+    { task: 'Measure the resistance of a resistor you just pulled from the bin.', func: 'ohms', conn: 'across', power: 'off',
+      why: 'An ohmmeter supplies its own small current, so the power must be off. Out of circuit, connecting across the component is correct.' },
+    { task: 'Measure the resistance of R3, which is soldered into a powered board.', func: 'ohms', conn: 'across', power: 'off',
+      why: 'Power off first, always. And lift one end of R3 out of circuit, or the other components will provide parallel paths and corrupt the reading.' },
+    { task: 'Check the output of the bench supply before connecting anything to it.', func: 'volts', conn: 'across', power: 'on',
+      why: 'Voltage across the supply terminals, powered. Verify the supply rather than trusting the dial.' },
+    { task: 'Find out how much current the lamp draws from the 9 V source.', func: 'amps', conn: 'inline', power: 'on',
+      why: 'Break the circuit at the lamp and insert the meter in line, with the supply on.' }
+  ];
+  var dmmTask = null, dmmSolved = state.best.dmmSolved || 0;
+  var dmmChoice = { func: null, conn: null, power: null };
+
+  var DMM_OPTS = {
+    func: [['volts', 'Volts (V)'], ['amps', 'Amps (A)'], ['ohms', 'Ohms (\u03A9)']],
+    conn: [['across', 'Across the component'], ['inline', 'In line, circuit broken']],
+    power: [['on', 'Power on'], ['off', 'Power off']]
+  };
+
+  Object.keys(DMM_OPTS).forEach(function (group) {
+    var host = document.getElementById('dmm' + group.charAt(0).toUpperCase() + group.slice(1));
+    DMM_OPTS[group].forEach(function (pair) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dmm-opt';
+      b.textContent = pair[1];
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () {
+        dmmChoice[group] = pair[0];
+        Array.prototype.forEach.call(host.querySelectorAll('.dmm-opt'), function (o) { o.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+      });
+      host.appendChild(b);
+    });
+  });
+
+  function newDmmTask() {
+    dmmTask = DMM_TASKS[Math.floor(Math.random() * DMM_TASKS.length)];
+    dmmChoice = { func: null, conn: null, power: null };
+    document.getElementById('dmmTask').textContent = dmmTask.task;
+    Array.prototype.forEach.call(document.querySelectorAll('.dmm-opt'), function (o) { o.setAttribute('aria-pressed', 'false'); });
+    var fb = document.getElementById('dmmFeedback');
+    fb.textContent = ''; fb.className = 'feedback';
+  }
+  document.getElementById('dmmNew').addEventListener('click', newDmmTask);
+  document.getElementById('dmmSubmit').addEventListener('click', function () {
+    var fb = document.getElementById('dmmFeedback');
+    if (!dmmChoice.func || !dmmChoice.conn || !dmmChoice.power) {
+      fb.className = 'feedback no';
+      fb.textContent = 'Choose one option in each of the three groups.';
+      return;
+    }
+    var wrong = [];
+    if (dmmChoice.func !== dmmTask.func) wrong.push('the function');
+    if (dmmChoice.conn !== dmmTask.conn) wrong.push('the connection');
+    if (dmmChoice.power !== dmmTask.power) wrong.push('the power state');
+    if (wrong.length === 0) {
+      dmmSolved++;
+      state.best.dmmSolved = dmmSolved;
+      saveState(state);
+      document.getElementById('dmmScore').textContent = 'Solved ' + dmmSolved;
+      fb.className = 'feedback ok';
+      fb.textContent = 'Correct. ' + dmmTask.why;
+    } else {
+      fb.className = 'feedback no';
+      var extra = (dmmChoice.func === 'amps' && dmmChoice.conn === 'across')
+        ? ' An ammeter connected across a source is a short circuit — that is how meter fuses blow.' : '';
+      fb.textContent = 'Check ' + wrong.join(' and ') + '.' + extra;
+    }
+  });
+  document.getElementById('dmmScore').textContent = 'Solved ' + dmmSolved;
+  newDmmTask();
+
+  /* ---------------- 2.10 Self-check ---------------- */
+
+  var QUESTIONS = [
+    { stem: 'The electrons that determine an element\u2019s electrical behavior are those in',
+      opts: [{ t: 'the valence shell', c: true }, { t: 'the innermost shell', c: false },
+             { t: 'the nucleus', c: false }, { t: 'every shell equally', c: false }],
+      why: 'The outermost electrons are held most weakly and are the ones that can be freed.' },
+    { stem: 'An element with exactly four valence electrons is classified as',
+      opts: [{ t: 'a semiconductor', c: true }, { t: 'a conductor', c: false },
+             { t: 'an insulator', c: false }, { t: 'a superconductor', c: false }],
+      why: 'Fewer than four means conductor, more than four means insulator, exactly four means semiconductor.' },
+    { stem: 'Voltage is defined as',
+      opts: [{ t: 'energy per unit of charge', c: true }, { t: 'charge per unit of time', c: false },
+             { t: 'charge per unit of energy', c: false }, { t: 'energy per unit of time', c: false }],
+      why: 'V = W/Q. Charge per unit time is current; energy per unit time is power.' },
+    { stem: 'Moving 2.0 C of charge through a component takes 30 J. The voltage across it is',
+      opts: [{ t: '15 V', c: true }, { t: '60 V', c: false }, { t: '0.067 V', c: false }, { t: '32 V', c: false }],
+      why: 'V = W/Q = 30 J \u00F7 2.0 C = 15 V.' },
+    { stem: 'If 12 C of charge pass a point in 4 s, the current is',
+      opts: [{ t: '3.0 A', c: true }, { t: '48 A', c: false }, { t: '0.33 A', c: false }, { t: '16 A', c: false }],
+      why: 'I = Q/t = 12 C \u00F7 4 s = 3.0 A.' },
+    { stem: 'A four-band resistor with bands yellow, violet, orange, gold is',
+      opts: [{ t: '47 k\u03A9 \u00B15%', c: true }, { t: '4.7 k\u03A9 \u00B15%', c: false },
+             { t: '470 k\u03A9 \u00B15%', c: false }, { t: '47 k\u03A9 \u00B110%', c: false }],
+      why: 'Yellow 4, violet 7, orange \u00D71000, gold \u00B15%. So 47 \u00D7 1000 = 47 k\u03A9.' },
+    { stem: 'A resistor marked 4K7 has a resistance of',
+      opts: [{ t: '4.7 k\u03A9', c: true }, { t: '47 k\u03A9', c: false },
+             { t: '4.7 \u03A9', c: false }, { t: '470 \u03A9', c: false }],
+      why: 'The letter replaces the decimal point and names the multiplier: 4.7 kilohms.' },
+    { stem: 'As the wiper of a potentiometer moves, the resistance between the two outer terminals',
+      opts: [{ t: 'stays the same', c: true }, { t: 'increases', c: false },
+             { t: 'decreases', c: false }, { t: 'drops to zero at one end', c: false }],
+      why: 'The wiper splits the track into two parts that always sum to the full track resistance.' },
+    { stem: 'To measure the current through a resistor you must',
+      opts: [{ t: 'break the circuit and insert the meter in line', c: true },
+             { t: 'touch the probes to either side of the resistor', c: false },
+             { t: 'turn the power off first', c: false },
+             { t: 'lift one end of the resistor out of circuit', c: false }],
+      why: 'Current flows through the meter, so the meter must be part of the path. The other options describe voltage and resistance measurements.' },
+    { stem: 'The quantity that makes electric shock dangerous is',
+      opts: [{ t: 'current through the body', c: true }, { t: 'voltage alone', c: false },
+             { t: 'resistance alone', c: false }, { t: 'charge stored on the skin', c: false }],
+      why: 'Around 10 mA through the body is enough to prevent letting go. Voltage matters only because it drives that current.' }
+  ];
+
+  var GLOSSARY = [
+    { key: 'valence', term: 'Valence shell', where: '2.1',
+      def: 'The outermost occupied electron shell of an atom. The number of electrons in it predicts whether the element conducts, insulates, or behaves as a semiconductor.' },
+    { key: 'free-electron', term: 'Free electron', where: '2.1',
+      def: 'An electron that has escaped its parent atom and can move through the material. Current in a metal is the drift of free electrons.' },
+    { key: 'coulomb', term: 'Coulomb', where: '2.1',
+      def: 'The unit of electric charge, symbol C. One coulomb is the charge of about 6.25 \u00D7 10\u00B9\u2078 electrons.' },
+    { key: 'voltage', term: 'Voltage', where: '2.2',
+      def: 'Energy per unit of charge, measured in volts. V = W/Q. Always a difference between two points, which is why a voltmeter has two leads.' },
+    { key: 'emf', term: 'Electromotive force', where: '2.2',
+      def: 'Another name for voltage, often abbreviated emf and given the symbol E in older texts. Same quantity, different label.' },
+    { key: 'current', term: 'Current', where: '2.4',
+      def: 'The rate of flow of charge, measured in amperes. I = Q/t. One ampere is one coulomb per second.' },
+    { key: 'resistance', term: 'Resistance', where: '2.5',
+      def: 'Opposition to current, measured in ohms. Set by the material, length, cross-sectional area, and temperature of a conductor.' },
+    { key: 'conductance', term: 'Conductance', where: '2.5',
+      def: 'The reciprocal of resistance, measured in siemens. How readily a circuit allows current rather than how much it opposes it.' },
+    { key: 'awg', term: 'AWG', where: '2.5',
+      def: 'American Wire Gauge, the standard for wire diameter. The numbering runs backwards: a smaller gauge number means a thicker wire and less resistance.' },
+    { key: 'tolerance', term: 'Tolerance', where: '2.6',
+      def: 'The permitted range around a resistor\u2019s marked value, shown by the final color band. A 5% 1.0 k\u03A9 part may legitimately measure 950 \u03A9.' },
+    { key: 'potentiometer', term: 'Potentiometer', where: '2.7',
+      def: 'A three-terminal variable resistor. A wiper splits a resistive track into two parts that always sum to the full track resistance.' },
+    { key: 'rheostat', term: 'Rheostat', where: '2.7',
+      def: 'A two-terminal variable resistor, used to vary the resistance in a current path. Any potentiometer can be wired as one.' },
+    { key: 'load', term: 'Load', where: '2.8',
+      def: 'The component that consumes the energy the source supplies. Without one, a source has nothing to do.' },
+    { key: 'spst', term: 'SPST', where: '2.8',
+      def: 'Single pole, single throw. One movable arm with one destination: on or off. Poles count independent circuits; throws count destinations.' },
+    { key: 'schematic', term: 'Schematic', where: '2.8',
+      def: 'A diagram showing how components connect electrically, not where they sit physically. Crossing lines without a dot are not connected.' },
+    { key: 'dmm', term: 'DMM', where: '2.9',
+      def: 'Digital multimeter. Measures voltage across a component, current in line with it, and resistance with the power off and the component out of circuit.' },
+    { key: 'fuse', term: 'Fuse', where: '2.8',
+      def: 'A deliberate weak point placed in series so that it fails before more expensive components do. Rated in amperes.' }
+  ];
+
+  /* ---------------- Homework generator ---------------- */
+
+  function makeHomework(rnd) {
+    function choose(arr) { return arr[Math.floor(rnd() * arr.length)]; }
+    var out = [];
+    var E12v = [10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82];
+
+    // 3 x colour code reading
+    for (var a = 0; a < 3; a++) {
+      var two = choose(E12v);
+      var mi = Math.floor(rnd() * 5);
+      var ohms = two * Math.pow(10, mi);
+      var d1 = nameForDigit(Math.floor(two / 10)), d2 = nameForDigit(two % 10);
+      var mn = nameForMultiplier(Math.pow(10, mi));
+      var tolName = rnd() < 0.5 ? 'gold' : 'silver';
+      out.push({
+        text: 'A four-band resistor is marked ' + d1 + ', ' + d2 + ', ' + mn + ', ' + tolName + '. Give its nominal resistance in ohms.',
+        unit: '\u03A9', ans: ohms,
+        work: two + ' \u00D7 ' + Math.pow(10, mi).toLocaleString()
+      });
+    }
+    // 1 x tolerance range
+    var tv = choose(E12v) * Math.pow(10, 1 + Math.floor(rnd() * 3));
+    var tp = choose([5, 10]);
+    out.push({
+      text: 'A ' + tv.toLocaleString() + ' \u03A9 resistor has a \u00B1' + tp + '% tolerance. What is the highest resistance it may legitimately measure, in ohms?',
+      unit: '\u03A9', ans: tv * (1 + tp / 100),
+      work: tv.toLocaleString() + ' \u00D7 1.' + (tp === 5 ? '05' : '10')
+    });
+    // 2 x voltage from energy and charge
+    for (var b = 0; b < 2; b++) {
+      var q = choose([1.5, 2, 2.5, 4, 5, 8]);
+      var v = choose([3, 5, 6, 9, 12, 15]);
+      out.push({
+        text: 'It takes ' + (q * v) + ' J of energy to move ' + q + ' C of charge through a component. What is the voltage across it?',
+        unit: 'V', ans: v, work: 'V = W/Q = ' + (q * v) + ' \u00F7 ' + q
+      });
+    }
+    // 2 x current from charge and time
+    for (var c = 0; c < 2; c++) {
+      var t = choose([2, 4, 5, 8, 10]);
+      var i = choose([0.5, 1.5, 2, 3, 4]);
+      out.push({
+        text: (t * i) + ' C of charge pass a point in ' + t + ' s. What is the current?',
+        unit: 'A', ans: i, work: 'I = Q/t = ' + (t * i) + ' \u00F7 ' + t
+      });
+    }
+    // 1 x alphanumeric label
+    var alpha = choose([
+      { s: '4R7', v: 4.7 }, { s: '4K7', v: 4700 }, { s: '68K', v: 68000 },
+      { s: '1M0', v: 1000000 }, { s: '220R', v: 220 }, { s: '3K3', v: 3300 }
+    ]);
+    out.push({
+      text: 'A resistor is labeled ' + alpha.s + '. What is its resistance in ohms?',
+      unit: '\u03A9', ans: alpha.v,
+      work: 'The letter replaces the decimal point and names the multiplier'
+    });
+    // 1 x potentiometer split
+    var pt = choose([1000, 5000, 10000, 100000]);
+    var pp = choose([20, 25, 40, 60, 75, 80]);
+    out.push({
+      text: 'A ' + (pt >= 1000 ? (pt / 1000) + ' k\u03A9' : pt + ' \u03A9') + ' potentiometer has its wiper at ' + pp +
+            '% of the way from terminal A to terminal B. What is the resistance from the wiper to terminal B, in ohms?',
+      unit: '\u03A9', ans: pt * (100 - pp) / 100,
+      work: pt.toLocaleString() + ' \u00D7 ' + (100 - pp) + '%'
+    });
+    return out;
+  }
+
+  var quizOrder = [];
+
+  function buildQuiz() {
+    var body = document.getElementById('quizBody');
+    body.textContent = '';
+    quizOrder = shuffle(QUESTIONS.map(function (q, i) { return i; }));
+    quizOrder.forEach(function (qi, pos) {
+      var q = QUESTIONS[qi];
+      var wrap = document.createElement('div');
+      wrap.className = 'q';
+      wrap.setAttribute('data-q', qi);
+
+      var stem = document.createElement('p');
+      stem.className = 'stem';
+      stem.innerHTML = '<span class="qn">' + (pos + 1) + '</span><span>' + q.stem + '</span>';
+      wrap.appendChild(stem);
+
+      var opts = document.createElement('div');
+      opts.className = 'opts';
+      opts.setAttribute('role', 'group');
+      opts.setAttribute('aria-label', 'Question ' + (pos + 1) + ' choices');
+      shuffle(q.opts).forEach(function (o, oi) {
+        var lab = document.createElement('label');
+        lab.className = 'opt';
+        var input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'q' + qi;
+        input.value = o.c ? '1' : '0';
+        var span = document.createElement('span');
+        span.textContent = o.t;
+        lab.appendChild(input);
+        lab.appendChild(span);
+        opts.appendChild(lab);
+      });
+      wrap.appendChild(opts);
+
+      var why = document.createElement('p');
+      why.className = 'rationale';
+      why.hidden = true;
+      why.textContent = q.why;
+      wrap.appendChild(why);
+
+      body.appendChild(wrap);
+    });
+    document.getElementById('quizScore').textContent = '';
+    var b = state.best.quiz;
+    document.getElementById('quizBest').textContent = b ? 'Best so far ' + b + ' of 10' : '';
+  }
+
+  document.getElementById('quizGrade').addEventListener('click', function () {
+    var score = 0, unanswered = 0;
+    Array.prototype.forEach.call(document.querySelectorAll('.q'), function (wrap) {
+      var chosen = wrap.querySelector('input:checked');
+      Array.prototype.forEach.call(wrap.querySelectorAll('.opt'), function (opt) {
+        opt.classList.remove('correct', 'wrong');
+        var inp = opt.querySelector('input');
+        if (inp.value === '1') opt.classList.add('correct');
+        if (inp.checked && inp.value === '0') opt.classList.add('wrong');
+      });
+      wrap.querySelector('.rationale').hidden = false;
+      if (!chosen) unanswered++;
+      else if (chosen.value === '1') score++;
+    });
+    var msg = 'You scored ' + score + ' out of 10.';
+    if (unanswered) msg += ' (' + unanswered + ' left blank.)';
+    if (score === 10) msg += ' Move on to chapter 3.';
+    else if (score >= 7) msg += ' Reread the sections behind the ones you missed, then try again.';
+    else msg += ' Work back through 2.2 through 2.6 before retaking this.';
+    document.getElementById('quizScore').textContent = msg;
+    if (!state.best.quiz || score > state.best.quiz) {
+      state.best.quiz = score;
+      saveState(state);
+    }
+    document.getElementById('quizBest').textContent = 'Best so far ' + state.best.quiz + ' of 10';
+  });
+
+  document.getElementById('quizReset').addEventListener('click', buildQuiz);
+  buildQuiz();
+
+
+  /* ---------------- Worked examples: attempt before reveal ---------------- */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.worked[data-answer]'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit');
+    var tol = parseFloat(box.getAttribute('data-tol'));
+    var steps = box.querySelector('.steps');
+    steps.classList.add('veiled');
+
+    var row = document.createElement('div');
+    row.className = 'attempt';
+    var id = 'attempt-' + idx;
+    row.innerHTML =
+      '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      '<span class="unit-tag">' + unit + '</span>';
+    var check = document.createElement('button');
+    check.type = 'button';
+    check.className = 'btn';
+    check.textContent = 'Check and show the work';
+    var skip = document.createElement('button');
+    skip.type = 'button';
+    skip.className = 'btn ghost';
+    skip.textContent = 'Just show the work';
+    row.appendChild(check);
+    row.appendChild(skip);
+
+    var note = document.createElement('p');
+    note.className = 'attempt-note';
+
+    box.insertBefore(row, steps);
+    box.appendChild(note);
+
+    function reveal(msg, ok) {
+      steps.classList.remove('veiled');
+      row.querySelector('input').disabled = true;
+      check.disabled = true;
+      skip.disabled = true;
+      if (msg) {
+        note.textContent = msg;
+        note.className = 'attempt-note ' + (ok ? 'ok' : 'no');
+      }
+    }
+    check.addEventListener('click', function () {
+      var given = parseFloat(row.querySelector('input').value.replace(/,/g, '').trim());
+      if (isNaN(given)) {
+        note.textContent = 'Enter a number first, or choose "Just show the work".';
+        note.className = 'attempt-note no';
+        return;
+      }
+      var err = Math.abs(given - answer) / answer;
+      if (err <= tol) reveal('That is right. Compare your steps to the ones below.', true);
+      else if (Math.abs(given * 1000 - answer) / answer <= tol || Math.abs(given / 1000 - answer) / answer <= tol)
+        reveal('The digits are right but the size is off by a factor of 1000 — a prefix slip. The steps are below.', false);
+      else reveal('Not this time. Work through the steps below and see where yours diverged.', false);
+    });
+    skip.addEventListener('click', function () { reveal('', true); });
+  });
+
+  /* ---------------- Glossary ---------------- */
+
+  var glossIndex = {};
+  GLOSSARY.forEach(function (g) { glossIndex[g.key] = g; });
+
+  function renderGlossary(filter) {
+    var body = document.getElementById('glossBody');
+    body.textContent = '';
+    var f = (filter || '').trim().toLowerCase();
+    var shown = 0;
+    GLOSSARY.slice().sort(function (a, b) { return a.term.localeCompare(b.term); }).forEach(function (g) {
+      if (f && g.term.toLowerCase().indexOf(f) === -1 && g.def.toLowerCase().indexOf(f) === -1) return;
+      shown++;
+      var d = document.createElement('div');
+      d.className = 'gloss-entry';
+      d.id = 'gloss-' + g.key;
+      var h = document.createElement('h4');
+      h.textContent = g.term;
+      var pEl = document.createElement('p');
+      pEl.textContent = g.def;
+      var w = document.createElement('p');
+      w.className = 'where';
+      w.textContent = 'introduced in ' + g.where;
+      d.appendChild(h); d.appendChild(pEl); d.appendChild(w);
+      body.appendChild(d);
+    });
+    document.getElementById('glossCount').textContent =
+      shown + (shown === 1 ? ' term' : ' terms') + (f ? ' matching "' + filter + '"' : '');
+    if (!shown) {
+      var none = document.createElement('p');
+      none.textContent = 'No terms match that. Clear the filter to see all of them.';
+      body.appendChild(none);
+    }
+  }
+  document.getElementById('glossSearch').addEventListener('input', function () {
+    renderGlossary(this.value);
+  });
+  renderGlossary('');
+
+  // inline dotted terms reveal their definition after the paragraph they sit in
+  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+    var key = btn.getAttribute('data-term');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      var host = btn.closest('p, li');
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
+      if (open && existing) {
+        existing.parentNode.removeChild(existing);
+        btn.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      var g = glossIndex[key];
+      if (!g) return;
+      var span = document.createElement('span');
+      span.className = 'termdef';
+      span.setAttribute('data-for', key);
+      span.setAttribute('role', 'note');
+      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
+      host.parentNode.insertBefore(span, host.nextSibling);
+      btn.setAttribute('aria-expanded', 'true');
+    });
+  });
+
+  /* ---------------- Homework set ---------------- */
+
+  function seedFrom(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  var hwSet = null, hwSeed = 0, hwIdValue = '';
+
+  function buildHomework(id) {
+    var rnd = mulberry32(seedFrom('elec103ch2:' + id));
+    return makeHomework(rnd);
+  }
+
+  function renderHomework() {
+    var body = document.getElementById('hwBody');
+    body.textContent = '';
+    hwSet.forEach(function (q, i) {
+      var d = document.createElement('div');
+      d.className = 'hw-problem';
+      d.setAttribute('data-i', i);
+      var q1 = document.createElement('div');
+      q1.className = 'hq';
+      q1.innerHTML = '<span class="hn">' + (i + 1) + '</span><span>' + q.text + '</span>';
+      var row = document.createElement('div');
+      row.className = 'answer-row';
+      row.innerHTML = '<label class="visually-hidden" for="hw-' + i + '">Answer to problem ' + (i + 1) + '</label>' +
+        '<input type="text" id="hw-' + i + '" inputmode="decimal" autocomplete="off">' +
+        '<span class="unit-tag">' + q.unit + '</span>';
+      var mark = document.createElement('p');
+      mark.className = 'hw-mark';
+      d.appendChild(q1); d.appendChild(row); d.appendChild(mark);
+      body.appendChild(d);
+    });
+    document.getElementById('hwActions').hidden = false;
+  }
+
+  document.getElementById('hwBuild').addEventListener('click', function () {
+    var id = document.getElementById('hwId').value.trim();
+    var fb = document.getElementById('hwFeedback');
+    if (id.length < 4) {
+      fb.className = 'feedback no';
+      fb.textContent = 'Enter your full student ID — at least four characters.';
+      return;
+    }
+    hwIdValue = id;
+    hwSeed = seedFrom('elec103ch3:' + id);
+    hwSet = buildHomework(id);
+    renderHomework();
+    fb.className = 'feedback';
+    fb.textContent = '';
+    document.getElementById('hwCodeWrap').hidden = true;
+    document.getElementById('hwStatus').textContent = 'Set built · 10 problems';
+    state.hwId = id;
+    saveState(state);
+  });
+
+  document.getElementById('hwGrade').addEventListener('click', function () {
+    if (!hwSet) return;
+    var score = 0;
+    hwSet.forEach(function (q, i) {
+      var box = document.querySelector('.hw-problem[data-i="' + i + '"]');
+      var val = parseFloat(document.getElementById('hw-' + i).value.replace(/,/g, '').trim());
+      var mark = box.querySelector('.hw-mark');
+      box.classList.remove('right', 'wrong');
+      var right;
+      if (q.zero) right = val === 0;
+      else right = !isNaN(val) && Math.abs(val - q.ans) / q.ans <= 0.02;
+      if (right) {
+        score++;
+        box.classList.add('right');
+        mark.className = 'hw-mark ok';
+        mark.textContent = 'Correct.';
+      } else {
+        box.classList.add('wrong');
+        mark.className = 'hw-mark no';
+        mark.textContent = 'Not correct. Set it up as ' + q.work + ' and try again.';
+      }
+    });
+    var fb = document.getElementById('hwFeedback');
+    fb.className = 'feedback ' + (score === 10 ? 'ok' : 'no');
+    fb.textContent = score + ' of 10 correct. ' + (score === 10
+      ? 'Submit the code below.'
+      : 'Fix the ones marked and check again, or submit as it stands.');
+    var check = (hwSeed ^ (score * 2654435761)) >>> 0;
+    document.getElementById('hwCode').textContent =
+      'VIR2-' + hwIdValue.toUpperCase() + '-' + score + '-' + check.toString(36).toUpperCase();
+    document.getElementById('hwCodeWrap').hidden = false;
+    document.getElementById('hwStatus').textContent = 'Scored ' + score + '/10';
+    state.hwScore = score;
+    saveState(state);
+  });
+
+  document.getElementById('hwPrint').addEventListener('click', function () { window.print(); });
+
+  if (state.hwId) {
+    document.getElementById('hwId').value = state.hwId;
+  }
+
+
+  /* ---------------- Display preferences ---------------- */
+
+  var SCALES = [0.85, 0.925, 1, 1.1, 1.2, 1.35];
+  var scaleIdx = typeof state.scale === 'number' ? state.scale : 2;
+  var THEMES = [
+    { key: 'system', icon: '\u25D0', label: 'System theme' },
+    { key: 'light', icon: '\u2600', label: 'Light' },
+    { key: 'dark', icon: '\u263D', label: 'Dark' }
+  ];
+  var themeIdx = 0;
+  for (var ti = 0; ti < THEMES.length; ti++) {
+    if (THEMES[ti].key === state.theme) themeIdx = ti;
+  }
+
+  function applyScale() {
+    scaleIdx = Math.max(0, Math.min(SCALES.length - 1, scaleIdx));
+    document.documentElement.style.setProperty('--ui-scale', SCALES[scaleIdx]);
+    document.getElementById('textSizeLabel').textContent = Math.round(SCALES[scaleIdx] * 100) + '%';
+    document.getElementById('textSmaller').disabled = scaleIdx === 0;
+    document.getElementById('textLarger').disabled = scaleIdx === SCALES.length - 1;
+    state.scale = scaleIdx;
+    saveState(state);
+  }
+
+  function applyTheme() {
+    var t = THEMES[themeIdx];
+    document.documentElement.setAttribute('data-theme', t.key);
+    document.getElementById('themeIcon').textContent = t.icon;
+    document.getElementById('themeLabel').textContent = t.label;
+    document.getElementById('themeBtn').setAttribute('aria-pressed', t.key === 'dark' ? 'true' : 'false');
+    state.theme = t.key;
+    saveState(state);
+  }
+
+  document.getElementById('textSmaller').addEventListener('click', function () { scaleIdx--; applyScale(); });
+  document.getElementById('textLarger').addEventListener('click', function () { scaleIdx++; applyScale(); });
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    themeIdx = (themeIdx + 1) % THEMES.length;
+    applyTheme();
+  });
+  applyScale();
+  applyTheme();
+
+
+  /* ============================================================
+     STUDENT NOTES MODULE — ported from the ENGI 216 chapter modules
+     Single global modal driven by:
+       (a) the floating action button (.notes-fab)
+       (b) the keyboard shortcut 'n' (when not typing in a field)
+       (c) the chip in the progress row
+     Notes are kept per section. The section is auto-selected from
+     whichever tab is open, and the student can override it.
+     ============================================================ */
+  (function NotesModule() {
+
+    /* ═══════════════════════════════════════════════════════════
+       CUSTOMIZE per chapter — these four constants are the only
+       things that change when porting this module to a new chapter.
+       ═══════════════════════════════════════════════════════════ */
+
+    // Unique storage prefix. Do NOT collide with other chapters.
+    var CHAPTER_KEY = 'elec103_ch2';
+
+    // Appears as the H1 in every export.
+    var CHAPTER_TITLE = 'Chapter 2 \u00B7 Voltage, Current, and Resistance';
+
+    // Same across every chapter of this course.
+    var CHAPTER_COURSE = 'ELEC 103 \u00B7 Electrical Skills and Techniques';
+
+    // One entry per section the student can write notes on. The id MUST
+    // match a panel id in the chapter HTML.
+    var NOTE_SECTIONS = [
+      { id: 'panel-0',  num: '\u00A7 2.1',  title: 'Where charge comes from' },
+      { id: 'panel-1',  num: '\u00A7 2.2',  title: 'Voltage' },
+      { id: 'panel-2',  num: '\u00A7 2.3',  title: 'Sources of voltage' },
+      { id: 'panel-3',  num: '\u00A7 2.4',  title: 'Current' },
+      { id: 'panel-4',  num: '\u00A7 2.5',  title: 'Resistance and conductance' },
+      { id: 'panel-5',  num: '\u00A7 2.6',  title: 'Reading a resistor' },
+      { id: 'panel-6',  num: '\u00A7 2.7',  title: 'Variable resistors' },
+      { id: 'panel-7',  num: '\u00A7 2.8',  title: 'The basic circuit' },
+      { id: 'panel-8',  num: '\u00A7 2.9',  title: 'The meter, and staying safe' },
+      { id: 'panel-9',  num: '\u00A7 2.10', title: 'Check yourself' },
+      { id: 'panel-10', num: 'Homework',    title: 'Homework set' },
+      { id: 'panel-11', num: 'Glossary',    title: 'Glossary' },
+      { id: 'panel-12', num: 'Resources',   title: 'Related resources' },
+      { id: 'panel-13', num: 'Quick Ref',   title: 'Cheat sheet' }
+    ];
+
+    /* ═══════════════════════════════════════════════════════════
+       END CUSTOMIZE block. Nothing below needs to change.
+       ═══════════════════════════════════════════════════════════ */
+
+    var GENERAL = { id: '_general', num: 'General', title: 'General notes (anywhere in the chapter)' };
+    var AUTOSAVE_DEBOUNCE_MS = 500;
+
+    /* ---------- Storage, with graceful fallback ---------- */
+    var storage = (function () {
+      var memStore = {};
+      try {
+        var testKey = '__ls_test__';
+        window.localStorage.setItem(testKey, '1');
+        window.localStorage.removeItem(testKey);
+        return {
+          get: function (k) { return window.localStorage.getItem(k); },
+          set: function (k, v) { try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+          remove: function (k) { try { window.localStorage.removeItem(k); } catch (e) {} },
+          isReal: true
+        };
+      } catch (e) {
+        return {
+          get: function (k) { return memStore.hasOwnProperty(k) ? memStore[k] : null; },
+          set: function (k, v) { memStore[k] = v; return true; },
+          remove: function (k) { delete memStore[k]; },
+          isReal: false
+        };
+      }
+    })();
+
+    function key(suffix) { return CHAPTER_KEY + '_' + suffix; }
+    function sectionKey(id) { return key('note_' + id); }
+    function nameKey() { return key('name'); }
+    function lastSavedKey() { return key('lastSaved'); }
+
+    function loadNote(id) { return storage.get(sectionKey(id)) || ''; }
+    function saveNote(id, text) {
+      if (text && text.length) storage.set(sectionKey(id), text);
+      else storage.remove(sectionKey(id));
+      storage.set(lastSavedKey(), new Date().toISOString());
+    }
+    function loadName() { return storage.get(nameKey()) || ''; }
+    function saveName(n) { if (n) storage.set(nameKey(), n); else storage.remove(nameKey()); }
+
+    /* ---------- Helpers ---------- */
+    function fmtTime(iso) {
+      if (!iso) return 'never';
+      var t = new Date(iso);
+      if (isNaN(t)) return 'never';
+      var diff = (new Date() - t) / 1000;
+      if (diff < 5) return 'just now';
+      if (diff < 60) return Math.floor(diff) + ' sec ago';
+      if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + ' hr ago';
+      return t.toLocaleDateString();
+    }
+    function debounce(fn, wait) {
+      var t = null;
+      return function () {
+        var args = arguments, ctx = this;
+        if (t) clearTimeout(t);
+        t = setTimeout(function () { fn.apply(ctx, args); }, wait);
+      };
+    }
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function findSection(id) {
+      if (id === GENERAL.id) return GENERAL;
+      for (var i = 0; i < NOTE_SECTIONS.length; i++) if (NOTE_SECTIONS[i].id === id) return NOTE_SECTIONS[i];
+      return null;
+    }
+    function allSectionsWithGeneral() { return [GENERAL].concat(NOTE_SECTIONS); }
+
+    /* ---------- Which section the student is reading ----------
+       The chapter is tabbed rather than one long scroll, so the open
+       tab is the answer — no scroll detection needed. */
+    function detectCurrentSection() {
+      var open = document.querySelector('[role="tabpanel"]:not([hidden])');
+      if (open && findSection(open.id)) return open.id;
+      return NOTE_SECTIONS[0].id;
+    }
+
+    /* ---------- Element refs ---------- */
+    var backdrop     = document.getElementById('notesBackdrop');
+    var picker       = document.getElementById('notesSectionPicker');
+    var autoTag      = document.getElementById('notesAutoTag');
+    var textarea     = document.getElementById('notesTextarea');
+    var metaCount    = document.getElementById('notesMetaCount');
+    var metaStatus   = document.getElementById('notesMetaStatus');
+    var clearSecBtn  = document.getElementById('notesClearSection');
+    var allListUl    = document.getElementById('notesAllList');
+    var allListEmpty = document.getElementById('notesAllEmpty');
+    var nameField    = document.getElementById('notesNameField');
+    var printBtn     = document.getElementById('notesPrint');
+    var mdBtn        = document.getElementById('notesMd');
+    var docBtn       = document.getElementById('notesDoc');
+    var clearAllBtn  = document.getElementById('notesClearAll');
+    var closeBtn     = document.getElementById('notesCloseBtn');
+    var fab          = document.getElementById('notesFab');
+    var fabCount     = document.getElementById('notesFabCount');
+    var chipBtn      = document.getElementById('notesChipBtn');
+    var chipStatus   = document.getElementById('notesChipStatus');
+
+    if (!backdrop || !picker || !textarea) return;
+
+    allSectionsWithGeneral().forEach(function (sec) {
+      var opt = document.createElement('option');
+      opt.value = sec.id;
+      opt.textContent = sec.num + ' \u2014 ' + sec.title;
+      picker.appendChild(opt);
+    });
+
+    /* ---------- Dots on tabs that hold notes ---------- */
+    function refreshTabDots() {
+      NOTE_SECTIONS.forEach(function (sec, i) {
+        var tab = document.getElementById('tab-' + sec.id.split('-')[1]);
+        if (!tab) return;
+        var existing = tab.querySelector('.tab-note-dot');
+        var has = loadNote(sec.id).length > 0 || (Img && Img.has(sec.id));
+        if (has && !existing) {
+          var dot = document.createElement('span');
+          dot.className = 'tab-note-dot';
+          dot.setAttribute('aria-label', 'has notes');
+          tab.appendChild(dot);
+        } else if (!has && existing) {
+          existing.parentNode.removeChild(existing);
+        }
+      });
+    }
+
+    /* ---------- Stats ---------- */
+    function collectNotes() {
+      var out = [];
+      allSectionsWithGeneral().forEach(function (sec) {
+        var v = loadNote(sec.id);
+        if (v && v.length) out.push({ sec: sec, text: v });
+      });
+      return out;
+    }
+
+    function refreshChip() {
+      var notes = collectNotes();
+      var imgTotal = Img ? Img.totalCount() : 0;
+      var secSet = Object.create(null);
+      notes.forEach(function (n) { secSet[n.sec.id] = true; });
+      if (Img) allSectionsWithGeneral().forEach(function (sec) { if (Img.has(sec.id)) secSet[sec.id] = true; });
+      var distinct = Object.keys(secSet).length;
+      if (chipStatus) {
+        if (distinct === 0) chipStatus.textContent = 'empty';
+        else {
+          var chars = 0;
+          notes.forEach(function (n) { chars += n.text.length; });
+          var parts = [distinct + ' section' + (distinct === 1 ? '' : 's'), chars + ' chars'];
+          if (imgTotal > 0) parts.push(imgTotal + ' img' + (imgTotal === 1 ? '' : 's'));
+          chipStatus.textContent = parts.join(' \u00B7 ');
+        }
+      }
+      if (fabCount) {
+        if (distinct === 0) fabCount.hidden = true;
+        else { fabCount.hidden = false; fabCount.textContent = String(distinct); }
+      }
+    }
+
+    /* ---------- "All my notes" list ---------- */
+    function refreshAllList() {
+      if (!allListUl) return;
+      while (allListUl.firstChild) allListUl.removeChild(allListUl.firstChild);
+      var notes = collectNotes();
+      if (notes.length === 0) {
+        allListUl.style.display = 'none';
+        if (allListEmpty) allListEmpty.hidden = false;
+        return;
+      }
+      allListUl.style.display = '';
+      if (allListEmpty) allListEmpty.hidden = true;
+      notes.forEach(function (n) {
+        var li = document.createElement('li');
+        if (n.sec.id === picker.value) li.className = 'active';
+        var title = document.createElement('span');
+        title.className = 'title';
+        title.textContent = n.sec.num + ' \u2014 ' + n.sec.title;
+        var meta = document.createElement('span');
+        meta.className = 'meta';
+        meta.textContent = n.text.length + ' chars';
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'open-btn';
+        btn.textContent = 'open';
+        btn.addEventListener('click', function () { switchToSection(n.sec.id, true); });
+        li.appendChild(title); li.appendChild(meta); li.appendChild(btn);
+        allListUl.appendChild(li);
+      });
+    }
+
+    /* ---------- Switching sections inside the modal ---------- */
+    function switchToSection(id, manual) {
+      flushSave();
+      if (picker.value !== id) picker.value = id;
+      var existing = loadNote(id);
+      textarea.value = existing;
+      metaCount.textContent = existing.length + ' characters';
+      metaStatus.textContent = existing.length ? ('Saved \u00B7 ' + fmtTime(storage.get(lastSavedKey()))) : '(empty)';
+      if (autoTag) autoTag.hidden = !!manual;
+      if (Img && Img.loadFor) Img.loadFor(id);
+      refreshAllList();
+      if (!backdrop.hidden) setTimeout(function () { textarea.focus(); }, 30);
+    }
+    picker.addEventListener('change', function () { switchToSection(picker.value, true); });
+
+    /* ---------- Save flow ---------- */
+    var pendingTimer = null;
+    function flushSave() {
+      if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null; doSaveNow(); }
+    }
+    function doSaveNow() {
+      saveNote(picker.value, textarea.value);
+      metaStatus.textContent = 'Saved \u00B7 ' + fmtTime(new Date().toISOString());
+      refreshChip(); refreshAllList(); refreshTabDots();
+    }
+    textarea.addEventListener('input', function () {
+      metaCount.textContent = textarea.value.length + ' characters';
+      metaStatus.textContent = 'Typing\u2026';
+      if (pendingTimer) clearTimeout(pendingTimer);
+      pendingTimer = setTimeout(function () { pendingTimer = null; doSaveNow(); }, AUTOSAVE_DEBOUNCE_MS);
+    });
+
+    clearSecBtn.addEventListener('click', function () {
+      var sec = findSection(picker.value);
+      var hasImgs = Img && Img.has(picker.value);
+      if (textarea.value.length === 0 && !hasImgs) return;
+      if (!window.confirm('Clear your notes' + (hasImgs ? ' and screenshots' : '') + ' for ' + sec.num +
+        '? This cannot be undone unless you have already exported them.')) return;
+      textarea.value = '';
+      saveNote(picker.value, '');
+      metaCount.textContent = '0 characters';
+      metaStatus.textContent = 'Cleared';
+      var after = function () { refreshChip(); refreshAllList(); refreshTabDots(); textarea.focus(); };
+      if (hasImgs) Img.clearSection(picker.value).then(after); else after();
+    });
+
+    clearAllBtn.addEventListener('click', function () {
+      var notes = collectNotes();
+      var imgTotal = Img ? Img.totalCount() : 0;
+      if (notes.length === 0 && imgTotal === 0) { window.alert('There are no notes to clear.'); return; }
+      var what = notes.length + ' section' + (notes.length === 1 ? '' : 's') + ' of notes';
+      if (imgTotal > 0) what += ' and ' + imgTotal + ' image' + (imgTotal === 1 ? '' : 's');
+      if (!window.confirm('Permanently delete ALL notes for this chapter? (' + what +
+        ') This cannot be undone unless you have already exported them.')) return;
+      allSectionsWithGeneral().forEach(function (sec) { storage.remove(sectionKey(sec.id)); });
+      storage.remove(lastSavedKey());
+      textarea.value = '';
+      metaCount.textContent = '0 characters';
+      metaStatus.textContent = 'Cleared';
+      var after = function () { refreshChip(); refreshAllList(); refreshTabDots(); };
+      if (Img) Img.clearAll().then(after); else after();
+    });
+
+    if (nameField) {
+      nameField.value = loadName();
+      nameField.addEventListener('input', debounce(function () { saveName(nameField.value.trim()); }, 400));
+    }
+
+    /* ============================================================
+       SCREENSHOTS — IndexedDB-backed image attachments per section.
+       Text notes stay in localStorage; only images live in IndexedDB,
+       stored as native blobs. A synchronous in-memory mirror keeps the
+       chip and tab dots fast.
+       ============================================================ */
+    var Img = (function () {
+      var DB_NAME = 'elec103_notes_images';
+      var DB_VERSION = 1;
+      var STORE = 'images';
+      var MAX_DIM = 1600;
+      var ENCODE_TYPE = 'image/webp';
+      var ENCODE_Q = 0.85;
+      var MAX_SOURCE_BYTES = 25 * 1024 * 1024;
+      var MAX_PER_SECTION = 30;
+
+      var available = !!(window.indexedDB);
+      var dbPromise = null;
+      var sectionsWithImages = Object.create(null);
+      var objectURLs = [];
+      var currentSection = null;
+      var wrap, dropzone, addBtn, fileInput, grid, statusEl;
+
+      function openDB() {
+        if (!available) return Promise.reject(new Error('no-indexeddb'));
+        if (dbPromise) return dbPromise;
+        dbPromise = new Promise(function (resolve, reject) {
+          var req = window.indexedDB.open(DB_NAME, DB_VERSION);
+          req.onupgradeneeded = function (e) {
+            var db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE)) {
+              var os = db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+              os.createIndex('by_section', ['chapter', 'section'], { unique: false });
+              os.createIndex('by_chapter', 'chapter', { unique: false });
+            }
+          };
+          req.onsuccess = function (e) { resolve(e.target.result); };
+          req.onerror = function () { reject(req.error || new Error('idb-open-failed')); };
+        });
+        return dbPromise;
+      }
+      function store(mode) {
+        return openDB().then(function (db) { return db.transaction(STORE, mode).objectStore(STORE); });
+      }
+      function addRecord(rec) {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var r = os.add(rec);
+            r.onsuccess = function () { rec.id = r.result; resolve(rec); };
+            r.onerror = function () { reject(r.error); };
+          });
+        });
+      }
+      function putRecord(rec) {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var r = os.put(rec);
+            r.onsuccess = function () { resolve(); };
+            r.onerror = function () { reject(r.error); };
+          });
+        });
+      }
+      function deleteRecord(id) {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var r = os.delete(id);
+            r.onsuccess = function () { resolve(); };
+            r.onerror = function () { reject(r.error); };
+          });
+        });
+      }
+      function listBySection(section) {
+        return store('readonly').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var out = [];
+            var cur = os.index('by_section').openCursor(window.IDBKeyRange.only([CHAPTER_KEY, section]));
+            cur.onsuccess = function (e) { var k = e.target.result; if (k) { out.push(k.value); k.continue(); } else resolve(out); };
+            cur.onerror = function () { reject(cur.error); };
+          });
+        });
+      }
+      function deleteChapter() {
+        return store('readwrite').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var cur = os.index('by_chapter').openCursor(window.IDBKeyRange.only(CHAPTER_KEY));
+            cur.onsuccess = function (e) { var k = e.target.result; if (k) { k.delete(); k.continue(); } else resolve(); };
+            cur.onerror = function () { reject(cur.error); };
+          });
+        });
+      }
+      function loadMirror() {
+        return store('readonly').then(function (os) {
+          return new Promise(function (resolve, reject) {
+            var cur = os.index('by_chapter').openCursor(window.IDBKeyRange.only(CHAPTER_KEY));
+            cur.onsuccess = function (e) {
+              var k = e.target.result;
+              if (k) { var sec = k.value.section; sectionsWithImages[sec] = (sectionsWithImages[sec] || 0) + 1; k.continue(); }
+              else resolve();
+            };
+            cur.onerror = function () { reject(cur.error); };
+          });
+        });
+      }
+      function bump(section, delta) {
+        var c = (sectionsWithImages[section] || 0) + delta;
+        if (c <= 0) delete sectionsWithImages[section]; else sectionsWithImages[section] = c;
+      }
+
+      function decode(blob) {
+        if (window.createImageBitmap) {
+          return window.createImageBitmap(blob).then(
+            function (bmp) { return { drawable: bmp, width: bmp.width, height: bmp.height, close: function () { try { bmp.close(); } catch (e) {} } }; },
+            function () { return decodeViaImg(blob); }
+          );
+        }
+        return decodeViaImg(blob);
+      }
+      function decodeViaImg(blob) {
+        return new Promise(function (resolve, reject) {
+          var url = URL.createObjectURL(blob);
+          var im = new Image();
+          im.onload = function () { resolve({ drawable: im, width: im.naturalWidth, height: im.naturalHeight, close: function () { URL.revokeObjectURL(url); } }); };
+          im.onerror = function () { URL.revokeObjectURL(url); reject(new Error('decode-failed')); };
+          im.src = url;
+        });
+      }
+      function dataURLtoBlob(durl) {
+        var parts = durl.split(','), mime = parts[0].match(/:(.*?);/)[1];
+        var bin = atob(parts[1]); var n = bin.length; var u8 = new Uint8Array(n);
+        while (n--) u8[n] = bin.charCodeAt(n);
+        return new Blob([u8], { type: mime });
+      }
+      function process(file) {
+        return decode(file).then(function (src) {
+          var scale = Math.min(1, MAX_DIM / Math.max(src.width, src.height));
+          var ow = Math.max(1, Math.round(src.width * scale));
+          var oh = Math.max(1, Math.round(src.height * scale));
+          var canvas = document.createElement('canvas');
+          canvas.width = ow; canvas.height = oh;
+          canvas.getContext('2d').drawImage(src.drawable, 0, 0, ow, oh);
+          if (src.close) src.close();
+          return new Promise(function (resolve) {
+            if (canvas.toBlob) {
+              canvas.toBlob(function (b) {
+                if (b && b.size) resolve({ blob: b, type: b.type || ENCODE_TYPE, w: ow, h: oh });
+                else canvas.toBlob(function (b2) {
+                  if (b2 && b2.size) resolve({ blob: b2, type: b2.type || 'image/jpeg', w: ow, h: oh });
+                  else { var du = canvas.toDataURL('image/jpeg', ENCODE_Q); resolve({ blob: dataURLtoBlob(du), type: 'image/jpeg', w: ow, h: oh }); }
+                }, 'image/jpeg', ENCODE_Q);
+              }, ENCODE_TYPE, ENCODE_Q);
+            } else {
+              var du = canvas.toDataURL('image/jpeg', ENCODE_Q);
+              resolve({ blob: dataURLtoBlob(du), type: 'image/jpeg', w: ow, h: oh });
+            }
+          });
+        });
+      }
+      function blobToDataURL(blob) {
+        return new Promise(function (resolve, reject) {
+          var fr = new FileReader();
+          fr.onload = function () { resolve(fr.result); };
+          fr.onerror = function () { reject(fr.error); };
+          fr.readAsDataURL(blob);
+        });
+      }
+      function fmtKB(bytes) {
+        return bytes < 1024 ? bytes + ' B' : (bytes / 1024 < 1024 ? Math.round(bytes / 1024) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB');
+      }
+      function setStatus(msg, warn) {
+        if (!statusEl) return;
+        statusEl.textContent = msg || '';
+        statusEl.className = 'notes-img-status' + (warn ? ' warn' : '');
+      }
+      function revokeURLs() { objectURLs.forEach(function (u) { try { URL.revokeObjectURL(u); } catch (e) {} }); objectURLs = []; }
+
+      function renderGrid(section) {
+        if (!grid) return Promise.resolve();
+        revokeURLs();
+        while (grid.firstChild) grid.removeChild(grid.firstChild);
+        if (!available) return Promise.resolve();
+        return listBySection(section).then(function (recs) {
+          recs.forEach(function (rec) {
+            var li = document.createElement('li');
+            li.className = 'notes-img-fig';
+            li.setAttribute('role', 'group');
+            var url = URL.createObjectURL(rec.blob);
+            objectURLs.push(url);
+            var im = document.createElement('img');
+            im.src = url;
+            im.alt = rec.alt && rec.alt.trim() ? rec.alt : ('Screenshot, ' + (rec.w || '?') + ' by ' + (rec.h || '?') + ' pixels');
+
+            var altRow = document.createElement('div');
+            altRow.className = 'alt-row';
+            var altId = 'imgalt_' + rec.id;
+            var lab = document.createElement('label');
+            lab.setAttribute('for', altId);
+            lab.textContent = 'Description (alt text)';
+            var altInput = document.createElement('input');
+            altInput.type = 'text'; altInput.id = altId; altInput.value = rec.alt || '';
+            altInput.placeholder = 'Describe this image';
+            altInput.maxLength = 250;
+            altInput.addEventListener('input', debounce(function () {
+              rec.alt = altInput.value;
+              putRecord(rec).then(function () { im.alt = rec.alt.trim() || im.alt; });
+            }, 400));
+            altRow.appendChild(lab); altRow.appendChild(altInput);
+
+            var foot = document.createElement('div');
+            foot.className = 'fig-foot';
+            var dims = document.createElement('span');
+            dims.className = 'dims';
+            dims.textContent = (rec.w || '?') + '\u00D7' + (rec.h || '?') + ' \u00B7 ' + fmtKB(rec.blob.size || 0);
+            var rm = document.createElement('button');
+            rm.type = 'button'; rm.className = 'notes-img-remove'; rm.textContent = 'Remove';
+            rm.setAttribute('aria-label', 'Remove this image');
+            rm.addEventListener('click', function () {
+              if (!window.confirm('Remove this image? This cannot be undone unless you have already exported it.')) return;
+              deleteRecord(rec.id).then(function () {
+                bump(section, -1);
+                setStatus('Image removed.');
+                renderGrid(section);
+                refreshChip(); refreshTabDots();
+              });
+            });
+            foot.appendChild(dims); foot.appendChild(rm);
+            li.appendChild(im); li.appendChild(altRow); li.appendChild(foot);
+            grid.appendChild(li);
+          });
+        }).catch(function () {});
+      }
+
+      function handleFiles(fileList) {
+        if (!available) { setStatus('Image storage is not available in this browser.', true); return; }
+        var files = Array.prototype.slice.call(fileList).filter(function (f) { return f && /^image\//.test(f.type); });
+        var skipped = fileList.length - files.length;
+        if (files.length === 0) { setStatus(skipped ? 'Those were not image files — nothing added.' : '', !!skipped); return; }
+        var have = sectionsWithImages[currentSection] || 0;
+        var room = Math.max(0, MAX_PER_SECTION - have);
+        if (room === 0) { setStatus('Limit is ' + MAX_PER_SECTION + ' images per section.', true); return; }
+        var overflow = files.length - room;
+        if (overflow > 0) files = files.slice(0, room);
+        setStatus('Processing ' + files.length + ' image' + (files.length === 1 ? '' : 's') + '\u2026');
+        var section = currentSection;
+        var chain = Promise.resolve();
+        var added = 0;
+        files.forEach(function (file) {
+          chain = chain.then(function () {
+            if (file.size > MAX_SOURCE_BYTES) return;
+            return process(file).then(function (out) {
+              return addRecord({
+                chapter: CHAPTER_KEY, section: section,
+                blob: out.blob, type: out.type, alt: '',
+                w: out.w, h: out.h, added: new Date().toISOString()
+              }).then(function () { added++; bump(section, 1); });
+            }).catch(function () {});
+          });
+        });
+        chain.then(function () {
+          var msg = 'Added ' + added + ' image' + (added === 1 ? '' : 's') + '.';
+          if (overflow > 0) msg += ' ' + overflow + ' skipped (per-section limit).';
+          setStatus(msg, added === 0);
+          if (section === currentSection) renderGrid(section);
+          refreshChip(); refreshTabDots();
+        });
+      }
+
+      function init() {
+        wrap = document.getElementById('notesImgWrap');
+        dropzone = document.getElementById('notesDropzone');
+        addBtn = document.getElementById('notesImgAddBtn');
+        fileInput = document.getElementById('notesImgInput');
+        grid = document.getElementById('notesImgGrid');
+        statusEl = document.getElementById('notesImgStatus');
+        if (!wrap) return Promise.resolve();
+        if (!available) {
+          if (dropzone) {
+            var msg = document.createElement('div');
+            msg.className = 'notes-img-disabled';
+            msg.textContent = 'Image attachments need IndexedDB, which this browser or mode has disabled. Your text notes still work normally.';
+            dropzone.parentNode.replaceChild(msg, dropzone);
+          }
+          return Promise.resolve();
+        }
+        if (addBtn && fileInput) {
+          addBtn.addEventListener('click', function () { fileInput.value = ''; fileInput.click(); });
+          fileInput.addEventListener('change', function () { if (fileInput.files && fileInput.files.length) handleFiles(fileInput.files); });
+        }
+        if (dropzone) {
+          ['dragenter', 'dragover'].forEach(function (ev) {
+            dropzone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); dropzone.classList.add('drag'); });
+          });
+          ['dragleave', 'dragend', 'drop'].forEach(function (ev) {
+            dropzone.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('drag'); });
+          });
+          dropzone.addEventListener('drop', function (e) {
+            var dt = e.dataTransfer;
+            if (dt && dt.files && dt.files.length) handleFiles(dt.files);
+          });
+        }
+        backdrop.addEventListener('paste', function (e) {
+          if (backdrop.hidden) return;
+          var items = e.clipboardData && e.clipboardData.items;
+          if (!items) return;
+          var imgs = [];
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].kind === 'file' && /^image\//.test(items[i].type)) {
+              var f = items[i].getAsFile();
+              if (f) imgs.push(f);
+            }
+          }
+          if (imgs.length) { e.preventDefault(); handleFiles(imgs); }
+        });
+        return loadMirror().catch(function () {});
+      }
+
+      return {
+        available: available,
+        init: init,
+        loadFor: function (section) { currentSection = section; setStatus(''); return renderGrid(section); },
+        has: function (section) { return !!sectionsWithImages[section]; },
+        totalCount: function () { var t = 0; for (var k in sectionsWithImages) t += sectionsWithImages[k]; return t; },
+        clearSection: function (section) {
+          if (!available) return Promise.resolve();
+          return listBySection(section).then(function (recs) {
+            return Promise.all(recs.map(function (r) { return deleteRecord(r.id); }));
+          }).then(function () { delete sectionsWithImages[section]; if (section === currentSection) renderGrid(section); });
+        },
+        clearAll: function () {
+          if (!available) return Promise.resolve();
+          return deleteChapter().then(function () { sectionsWithImages = Object.create(null); renderGrid(currentSection); });
+        },
+        getForPrint: function (section) {
+          if (!available) return Promise.resolve([]);
+          return listBySection(section).then(function (recs) {
+            return Promise.all(recs.map(function (r) {
+              return blobToDataURL(r.blob).then(function (durl) { return { dataURL: durl, alt: r.alt || '', w: r.w, h: r.h }; });
+            }));
+          }).catch(function () { return []; });
+        }
+      };
+    })();
+
+    /* ---------- Building the export body ---------- */
+    function exportHeader() {
+      var nm = loadName();
+      var meta = CHAPTER_COURSE;
+      if (nm) meta += ' \u00B7 Student: ' + nm;
+      meta += ' \u00B7 Exported: ' + new Date().toLocaleString();
+      return { title: CHAPTER_TITLE, meta: meta, name: nm };
+    }
+
+    function gatherForExport() {
+      var ordered = allSectionsWithGeneral();
+      var jobs = ordered.map(function (sec) {
+        var text = loadNote(sec.id);
+        var hasImgs = Img && Img.available && Img.has(sec.id);
+        if (!text && !hasImgs) return Promise.resolve(null);
+        var imgsP = hasImgs ? Img.getForPrint(sec.id) : Promise.resolve([]);
+        return imgsP.then(function (imgs) { return { sec: sec, text: text, imgs: imgs || [] }; })
+          .catch(function () { return { sec: sec, text: text, imgs: [] }; });
+      });
+      return Promise.all(jobs).then(function (r) { return r.filter(Boolean); });
+    }
+
+    function download(filename, text, mime) {
+      try {
+        var blob = new Blob([text], { type: mime });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        return true;
+      } catch (e) { return false; }
+    }
+
+    /* ---------- Print / Save as PDF (includes screenshots) ---------- */
+    function runPrint() {
+      flushSave();
+      var block = document.getElementById('notesPrintBlock');
+      if (!block) return;
+      var h = exportHeader();
+      gatherForExport().then(function (items) {
+        var inner = '<h1>' + escapeHtml(h.title) + '</h1>';
+        inner += '<div class="meta">' + escapeHtml(h.meta) + '</div>';
+        if (items.length === 0) {
+          inner += '<p><em>No notes recorded for this chapter yet.</em></p>';
+        } else {
+          items.forEach(function (it) {
+            inner += '<h2>' + escapeHtml(it.sec.num) + ' \u2014 ' + escapeHtml(it.sec.title) + '</h2>';
+            if (it.text) inner += '<div class="note-body">' + escapeHtml(it.text) + '</div>';
+            it.imgs.forEach(function (im, i) {
+              var hasAlt = im.alt && im.alt.trim();
+              var alt = hasAlt ? im.alt : ('Screenshot ' + (i + 1) + ' for ' + it.sec.title);
+              inner += '<figure class="note-fig"><img src="' + im.dataURL + '" alt="' + escapeHtml(alt) + '">';
+              if (hasAlt) inner += '<figcaption>' + escapeHtml(im.alt) + '</figcaption>';
+              inner += '</figure>';
+            });
+          });
+        }
+        block.innerHTML = inner;
+        var wasOpen = !backdrop.hidden;
+        if (wasOpen) closeModal(true);
+        document.body.classList.add('printing-notes');
+        setTimeout(function () {
+          window.print();
+          setTimeout(function () {
+            document.body.classList.remove('printing-notes');
+            block.innerHTML = '';
+            if (wasOpen) openModal();
+          }, 500);
+        }, 80);
+      });
+    }
+    printBtn.addEventListener('click', runPrint);
+
+    /* ---------- Markdown export ---------- */
+    mdBtn.addEventListener('click', function () {
+      flushSave();
+      var h = exportHeader();
+      gatherForExport().then(function (items) {
+        if (items.length === 0) { window.alert('There are no notes to export yet.'); return; }
+        var md = '# ' + h.title + '\n\n_' + h.meta + '_\n';
+        items.forEach(function (it) {
+          md += '\n## ' + it.sec.num + ' \u2014 ' + it.sec.title + '\n\n';
+          if (it.text) md += it.text + '\n';
+          if (it.imgs.length) {
+            md += '\n_' + it.imgs.length + ' screenshot' + (it.imgs.length === 1 ? '' : 's') +
+                  ' attached to this section — screenshots are included in the PDF and Word exports, not in Markdown._\n';
+          }
+        });
+        if (!download('elec103-ch2-notes.md', md, 'text/markdown;charset=utf-8'))
+          window.alert('The download was blocked. Use Print / Save as PDF instead.');
+      });
+    });
+
+    /* ---------- Word export (screenshots embedded) ---------- */
+    docBtn.addEventListener('click', function () {
+      flushSave();
+      var h = exportHeader();
+      gatherForExport().then(function (items) {
+        if (items.length === 0) { window.alert('There are no notes to export yet.'); return; }
+        var body = '<h1>' + escapeHtml(h.title) + '</h1><p><i>' + escapeHtml(h.meta) + '</i></p><hr>';
+        items.forEach(function (it) {
+          body += '<h2>' + escapeHtml(it.sec.num) + ' &mdash; ' + escapeHtml(it.sec.title) + '</h2>';
+          if (it.text) body += '<p style="white-space:pre-wrap">' + escapeHtml(it.text) + '</p>';
+          it.imgs.forEach(function (im, i) {
+            var hasAlt = im.alt && im.alt.trim();
+            var alt = hasAlt ? im.alt : ('Screenshot ' + (i + 1) + ' for ' + it.sec.title);
+            body += '<p><img src="' + im.dataURL + '" alt="' + escapeHtml(alt) + '" width="480"></p>';
+            if (hasAlt) body += '<p><i>' + escapeHtml(im.alt) + '</i></p>';
+          });
+        });
+        var doc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+          'xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+          '<head><meta charset="utf-8"><title>' + escapeHtml(h.title) + '</title></head><body>' +
+          body + '</body></html>';
+        if (!download('elec103-ch2-notes.doc', doc, 'application/msword'))
+          window.alert('The download was blocked. Use Print / Save as PDF instead.');
+      });
+    });
+
+    /* ---------- "Finished the chapter" export reminder ---------- */
+    var remindedThisSession = false;
+    var pendingReminder = false;
+    var reminderEl = null;
+
+    function notesExist() { return collectNotes().length > 0 || (Img && Img.totalCount() > 0); }
+    function buildReminder() {
+      if (reminderEl) return reminderEl;
+      var box = document.createElement('div');
+      box.className = 'notes-reminder';
+      box.setAttribute('role', 'region');
+      box.setAttribute('aria-label', 'Save your notes reminder');
+      box.hidden = true;
+      var msg = document.createElement('p');
+      msg.className = 'nr-msg';
+      msg.setAttribute('aria-live', 'polite');
+      msg.innerHTML = 'You have reached the end of the chapter. <strong>Export your notes</strong> before you leave — browser storage can be cleared at any time.';
+      var actions = document.createElement('div');
+      actions.className = 'nr-actions';
+      var save = document.createElement('button');
+      save.type = 'button'; save.textContent = 'Save as PDF';
+      save.addEventListener('click', function () { hideReminder(); runPrint(); });
+      var dismiss = document.createElement('button');
+      dismiss.type = 'button'; dismiss.className = 'nr-dismiss'; dismiss.textContent = 'Not now';
+      dismiss.addEventListener('click', hideReminder);
+      actions.appendChild(save); actions.appendChild(dismiss);
+      box.appendChild(msg); box.appendChild(actions);
+      document.body.appendChild(box);
+      reminderEl = box;
+      return box;
+    }
+    function showReminder() {
+      if (remindedThisSession || !notesExist()) return;
+      if (!backdrop.hidden) { pendingReminder = true; return; }
+      remindedThisSession = true;
+      pendingReminder = false;
+      buildReminder().hidden = false;
+    }
+    function hideReminder() { if (reminderEl) reminderEl.hidden = true; }
+
+    // The chapter is tabbed, so "the end" is the last numbered section being opened.
+    window.setInterval(function () {
+      var open = document.querySelector('[role="tabpanel"]:not([hidden])');
+      if (open && open.id === 'panel-9') showReminder();
+    }, 4000);
+
+    /* ---------- Modal open / close ---------- */
+    var lastFocusedBeforeOpen = null;
+
+    function openModal(opts) {
+      opts = opts || {};
+      lastFocusedBeforeOpen = document.activeElement;
+      var targetId = opts.section || detectCurrentSection();
+      switchToSection(targetId, false);
+      refreshAllList();
+      refreshChip();
+      backdrop.hidden = false;
+      document.body.classList.add('notes-modal-open');
+      setTimeout(function () { textarea.focus(); }, 30);
+    }
+
+    function closeModal(skipFocus) {
+      flushSave();
+      backdrop.hidden = true;
+      document.body.classList.remove('notes-modal-open');
+      if (!skipFocus && lastFocusedBeforeOpen && lastFocusedBeforeOpen.focus) {
+        try { lastFocusedBeforeOpen.focus(); } catch (e) {}
+      }
+      if (pendingReminder && !remindedThisSession) showReminder();
+    }
+
+    fab.addEventListener('click', function () { openModal(); });
+    if (chipBtn) chipBtn.addEventListener('click', function () { openModal(); });
+    closeBtn.addEventListener('click', function () { closeModal(); });
+
+    // ESC closes; clicking the backdrop does not.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && backdrop.hidden && reminderEl && !reminderEl.hidden) {
+        e.preventDefault(); hideReminder(); return;
+      }
+      if (e.key === 'Escape' && !backdrop.hidden) { e.preventDefault(); closeModal(); return; }
+      if ((e.key === 'n' || e.key === 'N') && backdrop.hidden && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        var t = e.target;
+        var tag = t && t.tagName ? t.tagName.toUpperCase() : '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    // Keep focus inside the dialog while it is open.
+    backdrop.addEventListener('keydown', function (e) {
+      if (backdrop.hidden || e.key !== 'Tab') return;
+      var focusables = backdrop.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      var visible = Array.prototype.filter.call(focusables, function (el) { return !el.disabled && el.offsetParent !== null; });
+      if (visible.length === 0) return;
+      var first = visible[0], last = visible[visible.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+
+    /* ---------- Initial pass ---------- */
+    Img.init().then(function () { refreshChip(); refreshTabDots(); });
+    refreshChip();
+    refreshTabDots();
+    refreshAllList();
+    switchToSection(detectCurrentSection(), false);
+
+    window.setInterval(function () {
+      if (backdrop.hidden) return;
+      var iso = storage.get(lastSavedKey());
+      if (iso && metaStatus.textContent.indexOf('Saved') === 0) {
+        metaStatus.textContent = 'Saved \u00B7 ' + fmtTime(iso);
+      }
+    }, 20000);
+
+    // Warn on unload only when storage fell back to memory.
+    if (!storage.isReal) {
+      window.addEventListener('beforeunload', function (e) {
+        if (collectNotes().length > 0) {
+          e.preventDefault();
+          e.returnValue = 'Your notes will be lost — export them first.';
+          return e.returnValue;
+        }
+      });
+    }
+  })();
+
+  /* ---------------- Restore ---------------- */
+
+  refreshProgress();
+  selectTab(validIndex(state.last) ? state.last : 0, false);
+  window.scrollTo(0, 0);
+})();
+</script>
+</body>
+</html>
