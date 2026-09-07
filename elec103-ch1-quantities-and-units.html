@@ -1218,7 +1218,97 @@ table.ct.wide thead th { color: var(--ink-faint); border-bottom: 1px solid var(-
 @media print { .chapter-links { display: none !important; } }
 body.printing-notes .chapter-links { display: none !important; }
 
+/* ---------- Guided problems: scaffolded disclosure ---------- */
+
+.gp {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: 1.1rem 1.2rem;
+  margin: 1.8rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.gp > h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--gold-text);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+}
+.gp > h4 .gp-status {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.gp .gp-ask { margin: 0 0 .9rem; }
+.gp figure { margin: 1rem 0; }
+.gp figure svg { display: block; width: 100%; height: auto; background: var(--bench); border-radius: var(--r-sm); }
+.gp figcaption {
+  font-family: var(--font-ui); font-size: .8rem; color: var(--ink-faint);
+  margin-top: .4rem;
+}
+
+.gp-scaffold { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.gp-scaffold button {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600;
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.gp-scaffold button:hover:not(:disabled) { border-color: var(--gold); background: var(--rule-soft); }
+.gp-scaffold button:disabled { opacity: .45; cursor: not-allowed; }
+.gp-scaffold .gp-check { background: var(--bench); border-color: var(--bench); color: #EAF1F6; }
+.gp-scaffold .gp-check:hover:not(:disabled) { background: var(--bench-soft); border-color: var(--bench-soft); }
+
+.gp-reveal { margin: 1rem 0 0; padding: 0; list-style: none; }
+.gp-reveal li {
+  display: none;
+  padding: .6rem .8rem .6rem 2.2rem;
+  margin-bottom: .4rem;
+  border-radius: var(--r-sm);
+  position: relative;
+  font-size: .95rem;
+}
+.gp-reveal li.shown { display: block; }
+.gp-reveal.hints li {
+  background: var(--rule-soft);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.gp-reveal.hints li::before {
+  content: "?";
+  position: absolute; left: .8rem; top: .6rem;
+  font-family: var(--font-num); font-weight: 700; color: var(--gold-text);
+}
+.gp-reveal.steps li {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.gp-reveal.steps li::before {
+  content: counter(gpstep);
+  counter-increment: gpstep;
+  position: absolute; left: .75rem; top: .6rem;
+  font-family: var(--font-num); font-size: .8rem; font-weight: 700;
+  color: var(--gold-text);
+}
+.gp-reveal.steps { counter-reset: gpstep; }
+.gp-reveal.steps li.final {
+  border-color: var(--ok-ink);
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+  font-weight: 600;
+}
+.gp .feedback { margin-top: .9rem; }
+
 /* ---------- Cheat sheet ---------- */
+
 
 .cheat {
   background: var(--surface);
@@ -1531,6 +1621,22 @@ footer.page {
       <p>Every scientific calculator can display in normal, scientific, or engineering mode. On a TI-84 the choice is under the MODE menu; pick ENG and the calculator will report every answer with an exponent that is a multiple of three. Set it once at the start of the semester and leave it. Use the EE or &times;10<sup>x</sup> key to enter exponents rather than typing "times ten to the" by hand, which introduces errors.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="47" data-unit="µA" data-tol="0.01">
+    <h4>Guided problem 1 &middot; engineering notation</h4>
+    <p class="gp-ask">A current is measured as 0.000 047 A. Express it in engineering notation, then state the value with its metric prefix. Enter just the coefficient.</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Engineering notation needs an exponent that is a multiple of three. Which multiples of three could work here?</li>
+        <li>Move the decimal point until one, two or three digits sit in front of it. Count the places as you go.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Start at 0.000 047 A. The point has to move right to make the number bigger than one.</li>
+        <li>It moves 6 places: 0.000 047 &rarr; 47. Six is a multiple of three, so this is a valid engineering exponent.</li>
+        <li>The number is therefore 47 &times; 10&#8315;&#8310; A.</li>
+        <li class="final">10&#8315;&#8310; is micro, so the reading is <strong>47 &micro;A</strong>.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1592,6 +1698,33 @@ footer.page {
       </div>
     </div>
   </div>
+
+  <div class="gp" data-answer="4700" data-unit="Ω" data-tol="0.005">
+    <h4>Guided problem 2 &middot; reading a prefixed value</h4>
+    <p class="gp-ask">The meter below is measuring a resistor. Express that resistance in ohms.</p>
+      <figure>
+        <svg viewBox="0 0 420 190" role="img" aria-label="A digital multimeter display reading 4.70 with a k ohm annunciator, on the resistance range.">
+          <rect x="20" y="20" width="380" height="150" rx="10" fill="#1B2A36" stroke="#8FA6B6" stroke-width="2"></rect>
+          <rect x="45" y="45" width="330" height="76" rx="6" fill="#101A16" stroke="#2C4A3B" stroke-width="2"></rect>
+          <text x="330" y="104" text-anchor="end" font-family="var(--font-num)" font-size="52" font-weight="700" fill="#7DE3A1">4.70</text>
+          <text x="352" y="104" font-family="var(--font-num)" font-size="26" fill="#7DE3A1">k&#937;</text>
+          <text x="62" y="70" font-family="var(--font-num)" font-size="15" fill="#6E9C83">AUTO</text>
+          <text x="210" y="150" text-anchor="middle" class="label-svg dim">function switch set to resistance</text>
+        </svg>
+        <figcaption>The meter is on its resistance range with autoranging on.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>The k on the display is a prefix, not part of the number.</li>
+        <li>Moving from a larger unit to a smaller one makes the number bigger, so the decimal point moves right.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>The display reads 4.70 k&#937;, which means 4.70 &times; 10&#179; &#937;.</li>
+        <li>Kilo is a factor of 1 000, so move the decimal point three places right.</li>
+        <li>4.70 &rarr; 4 700.</li>
+        <li class="final">The resistance is <strong>4 700 &#937;</strong>. Note the meter kept three significant figures, so it is 4 700 &#937; and not merely "about 5 k".</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1639,6 +1772,22 @@ footer.page {
       <p class="streak" style="margin-top:.9rem;">Answers within 1% are accepted.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="3.87" data-unit="kΩ" data-tol="0.01">
+    <h4>Guided problem 3 &middot; arithmetic across prefixes</h4>
+    <p class="gp-ask">Add 470 &#937;, 1.2 k&#937; and 0.0022 M&#937;. Give the total in kilohms.</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>These three values are in three different prefixes. You cannot add them as they stand.</li>
+        <li>The answer is asked for in kilohms, so convert everything to kilohms first.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>470 &#937; is smaller than a kilohm, so the number gets smaller: 470 &divide; 1 000 = 0.47 k&#937;.</li>
+        <li>1.2 k&#937; is already in kilohms, so it stays as it is.</li>
+        <li>0.0022 M&#937; is larger than a kilohm, so the number gets bigger: 0.0022 &times; 1 000 = 2.2 k&#937;.</li>
+        <li class="final">Now they can be added: 0.47 + 1.2 + 2.2 = <strong>3.87 k&#937;</strong>.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1692,6 +1841,22 @@ footer.page {
       <p>Never write that a measurement "matched" the calculation. Write the calculated value, the measured value, the percent difference, and one sentence on which source of uncertainty accounts for it. That sentence is what the Interpret Data outcome is asking for, and it is what separates a B report from an A.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="3.33" data-unit="%" data-tol="0.02">
+    <h4>Guided problem 4 &middot; percent difference</h4>
+    <p class="gp-ask">A circuit is calculated to draw 12.0 mA. The meter reads 11.6 mA. What is the percent difference between the measurement and the calculation?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>The calculated value is the reference — it goes on the bottom of the fraction.</li>
+        <li>Use the size of the difference. A percent difference is quoted as a positive number.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Find the difference: |11.6 &minus; 12.0| = 0.4 mA.</li>
+        <li>Divide by the calculated value: 0.4 &divide; 12.0 = 0.0333.</li>
+        <li>Multiply by 100 to express it as a percentage.</li>
+        <li class="final">The percent difference is <strong>3.33%</strong>, which is well inside what a 5% resistor and an ordinary meter can account for.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1742,6 +1907,22 @@ footer.page {
       </div>
     </div>
   </div>
+
+  <div class="gp" data-answer="10" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 5 &middot; significant figures in a result</h4>
+    <p class="gp-ask">A resistance is marked 4.7 k&#937;, known to two significant figures. A current of 2.15 mA is measured to three. The voltage is the product of the two. Report the voltage with the correct number of significant figures.</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Do the arithmetic first, then decide how much of the answer you are entitled to keep.</li>
+        <li>For multiplication, the answer takes the same number of significant figures as the <em>least</em> precise input.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Multiply: 2.15 mA &times; 4.7 k&#937; = 10.105 V. Milliamperes times kilohms gives volts directly.</li>
+        <li>Count the significant figures in each input: 4.7 has two, 2.15 has three.</li>
+        <li>The least precise input has two, so the answer may carry only two.</li>
+        <li class="final">Rounded to two significant figures, the voltage is <strong>10 V</strong>. Reporting 10.105 V would claim a precision the 4.7 k&#937; marking does not support.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1800,6 +1981,37 @@ footer.page {
       <li>Plotted points visible as points, not hidden under a line</li>
     </ul>
   </div>
+
+  <div class="gp" data-answer="500" data-unit="Ω" data-tol="0.02">
+    <h4>Guided problem 6 &middot; reading a value off a graph</h4>
+    <p class="gp-ask">The graph shows current measured through one resistor as the voltage was raised. Use the graph to find the resistance in ohms.</p>
+      <figure>
+        <svg viewBox="0 0 460 300" role="img" aria-labelledby="gpGraphTitle" aria-describedby="gpGraphDesc">
+          <title id="gpGraphTitle">Measured current against applied voltage for one resistor</title>
+          <desc id="gpGraphDesc">A straight line through the origin. Each 2 volt step raises the current by 4 milliamperes, so at 10 volts the current is 20 milliamperes.</desc>
+          <g stroke="#33485A" stroke-width="1"><line x1="70.0" y1="40" x2="70.0" y2="240"></line><line x1="132.4" y1="40" x2="132.4" y2="240"></line><line x1="194.8" y1="40" x2="194.8" y2="240"></line><line x1="257.2" y1="40" x2="257.2" y2="240"></line><line x1="319.6" y1="40" x2="319.6" y2="240"></line><line x1="382.0" y1="40" x2="382.0" y2="240"></line><line x1="70" y1="240.0" x2="382" y2="240.0"></line><line x1="70" y1="200.0" x2="382" y2="200.0"></line><line x1="70" y1="160.0" x2="382" y2="160.0"></line><line x1="70" y1="120.0" x2="382" y2="120.0"></line><line x1="70" y1="80.0" x2="382" y2="80.0"></line><line x1="70" y1="40.0" x2="382" y2="40.0"></line></g>
+          <line x1="70.0" y1="240.0" x2="382.0" y2="40.0" stroke="var(--gold-bright)" stroke-width="3"></line>
+          <g fill="var(--gold-bright)" stroke="#17242F" stroke-width="1.5"><circle cx="70.0" cy="240.0" r="5"></circle><circle cx="132.4" cy="200.0" r="5"></circle><circle cx="194.8" cy="160.0" r="5"></circle><circle cx="257.2" cy="120.0" r="5"></circle><circle cx="319.6" cy="80.0" r="5"></circle><circle cx="382.0" cy="40.0" r="5"></circle></g>
+          <line x1="70" y1="40" x2="70" y2="240" stroke="#8FA6B6" stroke-width="2.5"></line>
+          <line x1="70" y1="240" x2="382" y2="240" stroke="#8FA6B6" stroke-width="2.5"></line>
+          <g class="label-svg dim"><text x="70.0" y="264" text-anchor="middle">0</text><text x="132.4" y="264" text-anchor="middle">2</text><text x="194.8" y="264" text-anchor="middle">4</text><text x="257.2" y="264" text-anchor="middle">6</text><text x="319.6" y="264" text-anchor="middle">8</text><text x="382.0" y="264" text-anchor="middle">10</text><text x="58" y="246.0" text-anchor="end">0</text><text x="58" y="206.0" text-anchor="end">4</text><text x="58" y="166.0" text-anchor="end">8</text><text x="58" y="126.0" text-anchor="end">12</text><text x="58" y="86.0" text-anchor="end">16</text><text x="58" y="46.0" text-anchor="end">20</text></g>
+          <text x="226" y="288" text-anchor="middle" class="label-svg">Voltage (V)</text>
+          <text x="20" y="140" text-anchor="middle" class="label-svg" transform="rotate(-90 20 140)">Current (mA)</text>
+        </svg>
+        <figcaption>Current measured through one resistor as the applied voltage was raised in steps.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Pick two points that are far apart on the line. Points close together make the slope hard to read accurately.</li>
+        <li>The slope of a current-against-voltage line is 1/R, not R. You will need to invert it at the end.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Take the origin and the far end of the line: at 0 V the current is 0 mA, and at 10 V it is 20 mA.</li>
+        <li>Slope = rise &divide; run = 20 mA &divide; 10 V = 2 mA per volt.</li>
+        <li>In base units that is 0.002 A per volt.</li>
+        <li class="final">The slope is 1/R, so R = 1 &divide; 0.002 = <strong>500 &#937;</strong>.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -2190,12 +2402,12 @@ footer.page {
   var SECTIONS = [
     { n: '1.1', label: 'The parts', min: 7 },
     { n: '1.2', label: 'Units', min: 8 },
-    { n: '1.3', label: 'Notation', min: 12 },
-    { n: '1.4', label: 'Prefixes', min: 12 },
-    { n: '1.5', label: 'Prefix arithmetic', min: 11 },
-    { n: '1.6', label: 'Accuracy', min: 10 },
-    { n: '1.7', label: 'Significant figures', min: 11 },
-    { n: '1.8', label: 'Graphing data', min: 14 },
+    { n: '1.3', label: 'Notation', min: 16 },
+    { n: '1.4', label: 'Prefixes', min: 16 },
+    { n: '1.5', label: 'Prefix arithmetic', min: 16 },
+    { n: '1.6', label: 'Accuracy', min: 14 },
+    { n: '1.7', label: 'Significant figures', min: 15 },
+    { n: '1.8', label: 'Graphing data', min: 19 },
     { n: '1.9', label: 'Check yourself', min: 10 },
     { n: '', label: 'Homework', extra: true, min: 45 },
     { n: '', label: 'Glossary', extra: true },
@@ -3039,6 +3251,122 @@ footer.page {
   document.getElementById('quizReset').addEventListener('click', buildQuiz);
   buildQuiz();
 
+
+  /* ---------------- Guided problems: scaffolded disclosure ----------------
+     Each .gp block holds an answer box, a list of hints, and a list of steps.
+     Hints and steps are revealed one at a time on request, so a student who
+     is nearly there gets a nudge rather than the whole solution. How much
+     scaffolding was used is reported back, but never penalised. */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.gp'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit') || '';
+    var tol = parseFloat(box.getAttribute('data-tol') || '0.01');
+    var hints = box.querySelectorAll('.gp-reveal.hints li');
+    var steps = box.querySelectorAll('.gp-reveal.steps li');
+    var hintsShown = 0, stepsShown = 0, settled = false;
+
+    var status = document.createElement('span');
+    status.className = 'gp-status';
+    box.querySelector('h4').appendChild(status);
+
+    var row = document.createElement('div');
+    row.className = 'answer-row';
+    var id = 'gp-' + idx;
+    row.innerHTML = '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      (unit ? '<span class="unit-tag">' + unit + '</span>' : '');
+    var ask = box.querySelector('.gp-ask');
+    var fig = box.querySelector('figure');
+    (fig || ask).parentNode.insertBefore(row, (fig || ask).nextSibling);
+
+    var bar = document.createElement('div');
+    bar.className = 'gp-scaffold';
+    var checkBtn = document.createElement('button');
+    checkBtn.type = 'button'; checkBtn.className = 'gp-check'; checkBtn.textContent = 'Check my answer';
+    var hintBtn = document.createElement('button');
+    hintBtn.type = 'button'; hintBtn.textContent = hints.length ? 'Give me a hint' : '';
+    var stepBtn = document.createElement('button');
+    stepBtn.type = 'button'; stepBtn.textContent = 'Work a step';
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button'; allBtn.textContent = 'Show the full solution';
+    bar.appendChild(checkBtn);
+    if (hints.length) bar.appendChild(hintBtn);
+    bar.appendChild(stepBtn);
+    bar.appendChild(allBtn);
+    box.insertBefore(bar, box.querySelector('.gp-reveal'));
+
+    var fb = document.createElement('div');
+    fb.className = 'feedback';
+    fb.setAttribute('role', 'status');
+    fb.setAttribute('aria-live', 'polite');
+    box.appendChild(fb);
+
+    function report() {
+      var bits = [];
+      if (hintsShown) bits.push(hintsShown + ' hint' + (hintsShown === 1 ? '' : 's'));
+      if (stepsShown) bits.push(stepsShown + ' step' + (stepsShown === 1 ? '' : 's'));
+      status.textContent = bits.length ? bits.join(' \u00B7 ') + ' revealed' : '';
+      hintBtn.disabled = hintsShown >= hints.length;
+      stepBtn.disabled = stepsShown >= steps.length;
+      if (stepsShown >= steps.length) allBtn.disabled = true;
+    }
+    hintBtn.addEventListener('click', function () {
+      if (hintsShown < hints.length) { hints[hintsShown].classList.add('shown'); hintsShown++; }
+      report();
+    });
+    stepBtn.addEventListener('click', function () {
+      if (stepsShown < steps.length) { steps[stepsShown].classList.add('shown'); stepsShown++; }
+      report();
+    });
+    allBtn.addEventListener('click', function () {
+      Array.prototype.forEach.call(hints, function (h) { h.classList.add('shown'); });
+      Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+      hintsShown = hints.length; stepsShown = steps.length;
+      report();
+    });
+
+    function check() {
+      var given = parseFloat(row.querySelector('input').value.replace(/[,\s]/g, '').trim());
+      if (isNaN(given)) {
+        fb.className = 'feedback no';
+        fb.textContent = 'Enter a number' + (unit ? ' in ' + unit + '.' : '.');
+        return;
+      }
+      var err = Math.abs(given - answer) / Math.abs(answer);
+      if (err <= tol) {
+        fb.className = 'feedback ok';
+        if (!settled) {
+          settled = true;
+          if (!hintsShown && !stepsShown) {
+            var solo = (state.best.gpSolo || 0) + 1;
+            state.best.gpSolo = solo;
+            saveState(state);
+            fb.textContent = 'Correct, with no help at all. That is ' + solo + ' solved unaided in this chapter.';
+          } else {
+            fb.textContent = 'Correct. Using the scaffolding is exactly what it is there for \u2014 try the next one with one fewer step.';
+          }
+        } else {
+          fb.textContent = 'Correct.';
+        }
+        Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+        stepsShown = steps.length;
+        report();
+      } else {
+        fb.className = 'feedback no';
+        var nudge = '';
+        var ratio = given / answer;
+        if (Math.abs(ratio - 1000) < 20 || Math.abs(ratio - 0.001) < 0.00002) nudge = ' The digits look right but the size is off by a factor of 1000 \u2014 check the prefix.';
+        else if (Math.abs(ratio - 10) < 0.2 || Math.abs(ratio - 0.1) < 0.002) nudge = ' You are out by a factor of ten. Check where the decimal point landed.';
+        fb.textContent = 'Not yet.' + nudge + (hintsShown < hints.length ? ' Try a hint before working a step.' : ' Work through the next step.');
+      }
+    }
+    checkBtn.addEventListener('click', check);
+    row.querySelector('input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+    report();
+  });
 
   /* ---------------- Worked examples: attempt before reveal ---------------- */
 

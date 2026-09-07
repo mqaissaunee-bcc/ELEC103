@@ -1252,7 +1252,97 @@ table.ct.wide thead th { color: var(--ink-faint); border-bottom: 1px solid var(-
 @media print { .chapter-links { display: none !important; } }
 body.printing-notes .chapter-links { display: none !important; }
 
+/* ---------- Guided problems: scaffolded disclosure ---------- */
+
+.gp {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: 1.1rem 1.2rem;
+  margin: 1.8rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.gp > h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--gold-text);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+}
+.gp > h4 .gp-status {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.gp .gp-ask { margin: 0 0 .9rem; }
+.gp figure { margin: 1rem 0; }
+.gp figure svg { display: block; width: 100%; height: auto; background: var(--bench); border-radius: var(--r-sm); }
+.gp figcaption {
+  font-family: var(--font-ui); font-size: .8rem; color: var(--ink-faint);
+  margin-top: .4rem;
+}
+
+.gp-scaffold { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.gp-scaffold button {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600;
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.gp-scaffold button:hover:not(:disabled) { border-color: var(--gold); background: var(--rule-soft); }
+.gp-scaffold button:disabled { opacity: .45; cursor: not-allowed; }
+.gp-scaffold .gp-check { background: var(--bench); border-color: var(--bench); color: #EAF1F6; }
+.gp-scaffold .gp-check:hover:not(:disabled) { background: var(--bench-soft); border-color: var(--bench-soft); }
+
+.gp-reveal { margin: 1rem 0 0; padding: 0; list-style: none; }
+.gp-reveal li {
+  display: none;
+  padding: .6rem .8rem .6rem 2.2rem;
+  margin-bottom: .4rem;
+  border-radius: var(--r-sm);
+  position: relative;
+  font-size: .95rem;
+}
+.gp-reveal li.shown { display: block; }
+.gp-reveal.hints li {
+  background: var(--rule-soft);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.gp-reveal.hints li::before {
+  content: "?";
+  position: absolute; left: .8rem; top: .6rem;
+  font-family: var(--font-num); font-weight: 700; color: var(--gold-text);
+}
+.gp-reveal.steps li {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.gp-reveal.steps li::before {
+  content: counter(gpstep);
+  counter-increment: gpstep;
+  position: absolute; left: .75rem; top: .6rem;
+  font-family: var(--font-num); font-size: .8rem; font-weight: 700;
+  color: var(--gold-text);
+}
+.gp-reveal.steps { counter-reset: gpstep; }
+.gp-reveal.steps li.final {
+  border-color: var(--ok-ink);
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+  font-weight: 600;
+}
+.gp .feedback { margin-top: .9rem; }
+
 /* ---------- Cheat sheet ---------- */
+
 
 .cheat {
   background: var(--surface);
@@ -1475,6 +1565,22 @@ footer.page {
       <p>Silver conducts better than copper and gold resists corrosion better than either, so neither is chosen on physics alone. Copper wins on cost per unit of conductivity. Gold still appears where a connection must not corrode — the contacts on a circuit board edge connector, for instance — because a thin plating is cheap and a bad contact is not.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="25" data-unit="× 10¹⁸" data-tol="0.01">
+    <h4>Guided problem 1 &middot; counting charge</h4>
+    <p class="gp-ask">One coulomb is the charge carried by about 6.25 &times; 10&#185;&#8312; electrons. How many electrons make up 4.0 C of charge? Enter the coefficient, the number that multiplies 10&#185;&#8312;.</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>This is a straight proportion. Four coulombs is four times the charge of one coulomb.</li>
+        <li>Multiply the coefficient and leave the power of ten alone — nothing here changes the exponent.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>One coulomb is 6.25 &times; 10&#185;&#8312; electrons.</li>
+        <li>Four coulombs is 4.0 &times; that: 4.0 &times; 6.25 = 25.</li>
+        <li>The exponent does not change, so the answer is 25 &times; 10&#185;&#8312;.</li>
+        <li class="final">That is <strong>25 &times; 10&#185;&#8312; electrons</strong>, or 2.5 &times; 10&#185;&#8313; in strict scientific notation.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1505,6 +1611,22 @@ footer.page {
       <p>You will see voltage called <em>potential difference</em> and <em>electromotive force</em>, or emf. All three name the same quantity. Older texts and European sources prefer the letter E where this book uses V. If you meet <span class="eq">E = IR</span> in your reading, it is Ohm's law with different clothes on.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="12" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 2 &middot; voltage from energy and charge</h4>
+    <p class="gp-ask">Moving 2.5 C of charge through a component requires 30 J of energy. What is the voltage across it?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Voltage is energy per unit of charge. Which of the two given values is the energy?</li>
+        <li>V = W / Q. Put the joules on top and the coulombs underneath.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Write the definition: V = W / Q.</li>
+        <li>Substitute: V = 30 J &divide; 2.5 C.</li>
+        <li>Divide: 30 &divide; 2.5 = 12.</li>
+        <li class="final">The voltage is <strong>12 V</strong>. Every coulomb passing through gives up 12 joules.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1533,6 +1655,22 @@ footer.page {
       <p>Voltage sources in series add. Three 9 V batteries in series give 27 V. Reverse one of them and it subtracts instead: you get 9 V, not 27. In a battery holder, one cell inserted backwards is the most common reason a circuit reads roughly a third of what it should.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="3" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 3 &middot; sources in series</h4>
+    <p class="gp-ask">Four 1.5 V cells are placed in a holder, all facing the same way, and then one of them is reversed. What is the total voltage of the pack?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Sources in series add, but a reversed source subtracts rather than adding.</li>
+        <li>Three cells are pushing one way and one is pushing against them.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>With all four facing the same way the pack would give 4 &times; 1.5 = 6.0 V.</li>
+        <li>One cell reversed means three add and one subtracts: 1.5 + 1.5 + 1.5 &minus; 1.5.</li>
+        <li>That is 4.5 &minus; 1.5.</li>
+        <li class="final">The pack gives <strong>3.0 V</strong>, half of what it should. A reversed cell costs you twice its own voltage, because it stops adding <em>and</em> starts subtracting.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1565,6 +1703,22 @@ footer.page {
       <p>An LED indicator runs on 10 to 20 mA. A phone charger delivers 1 to 3 A. A car starter motor draws hundreds of amperes for a second or two. Anything above roughly 10 mA through a person is dangerous, which is a much smaller number than most of the ones above.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="24" data-unit="s" data-tol="0.01">
+    <h4>Guided problem 4 &middot; current, charge and time</h4>
+    <p class="gp-ask">A component carries a steady current of 250 mA. How long does it take for 6.0 C of charge to pass through it?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Start from I = Q / t and rearrange it for the quantity you actually want.</li>
+        <li>The current is given in milliamperes but the formula works in base units. Convert first.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>I = Q / t, so rearranged for time, t = Q / I.</li>
+        <li>Convert the current to base units: 250 mA = 0.250 A.</li>
+        <li>Substitute: t = 6.0 C &divide; 0.250 A.</li>
+        <li class="final">The time is <strong>24 s</strong>. Leaving the current in milliamperes would have given 0.024, wrong by a factor of 1 000.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1586,6 +1740,22 @@ footer.page {
     <h3>Resistors</h3>
     <p>A resistor is a component built to have a specific resistance on purpose. The ones on your bench are carbon film or metal film, rated in ohms and in watts, with a tolerance band that says how far from the marked value the real one is allowed to be. The next section is about reading those markings.</p>
   </div>
+
+  <div class="gp" data-answer="4" data-unit="mS" data-tol="0.01">
+    <h4>Guided problem 5 &middot; conductance</h4>
+    <p class="gp-ask">A component has a resistance of 250 &#937;. What is its conductance in millisiemens?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Conductance is simply the reciprocal of resistance.</li>
+        <li>The answer is asked for in millisiemens, so you will need to convert after taking the reciprocal.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>G = 1 / R, so G = 1 &divide; 250.</li>
+        <li>That gives 0.004 S.</li>
+        <li>Milli means 10&#8315;&#179;, so 0.004 S = 4 &times; 10&#8315;&#179; S.</li>
+        <li class="final">The conductance is <strong>4 mS</strong>. A large resistance always means a small conductance, and the reverse.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1664,6 +1834,36 @@ footer.page {
     </ul>
     <p>This scheme exists because a printed decimal point disappears on a photocopy or a worn label, and a misplaced one is a factor of ten. You will see it constantly on schematics from Chapter 5 onward.</p>
   </div>
+
+  <div class="gp" data-answer="10000" data-unit="Ω" data-tol="0.005">
+    <h4>Guided problem 6 &middot; reading the color code</h4>
+    <p class="gp-ask">Read the resistor below. What is its nominal resistance in ohms?</p>
+      <figure>
+        <svg viewBox="0 0 520 150" role="img" aria-label="A four-band resistor. Reading from the end furthest from the tolerance band the bands are brown, black and orange, with a gold tolerance band at the right-hand end.">
+          <path d="M 20 78 H 110" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <path d="M 410 78 H 500" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <rect x="110" y="48" width="300" height="60" rx="20" fill="#C9B08A" stroke="#8A7355" stroke-width="2"></rect>
+          <rect x="150" y="48" width="22" height="60" fill="#7B4A2D" stroke="#5C4A33"></rect>
+          <rect x="215" y="48" width="22" height="60" fill="#1A1A1A" stroke="#5C4A33"></rect>
+          <rect x="280" y="48" width="22" height="60" fill="#E8730C" stroke="#5C4A33"></rect>
+          <rect x="375" y="48" width="22" height="60" fill="#C9A227" stroke="#5C4A33"></rect>
+          <g class="band-label"><text x="161" y="130" text-anchor="middle">brown</text><text x="226" y="130" text-anchor="middle">black</text><text x="291" y="130" text-anchor="middle">orange</text><text x="386" y="130" text-anchor="middle">gold</text></g>
+          <text x="386" y="38" text-anchor="middle" class="label-svg dim">tolerance</text>
+        </svg>
+        <figcaption>A four-band resistor as it would sit in your hand, tolerance band to the right.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>The first two bands are digits and the third is a multiplier. The gold band on the right is the tolerance and takes no part in the value.</li>
+        <li>Black is 0 as a digit. Be careful: as a <em>multiplier</em> black would mean &times;1, but here it is in a digit position.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Brown in the first digit position is 1. Black in the second digit position is 0. Together they read 10.</li>
+        <li>Orange in the multiplier position means &times; 1 000.</li>
+        <li>10 &times; 1 000 = 10 000.</li>
+        <li class="final">The resistor is <strong>10 000 &#937;</strong>, which you would say aloud as 10 k. The gold band tells you it may measure anywhere from 9 500 to 10 500 &#937;.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1731,6 +1931,40 @@ footer.page {
     <p>A volume control is a potentiometer. A dimmer is a rheostat. On your bench, the trimmer on a circuit board is a potentiometer set once at the factory and not meant to be adjusted casually.</p>
     <p>Note that the resistance from A to B never changes no matter where the wiper sits. Only the split changes. Chapter 5 turns that fact into the voltage divider, which is one of the most useful circuits in the book.</p>
   </div>
+
+  <div class="gp" data-answer="7000" data-unit="Ω" data-tol="0.005">
+    <h4>Guided problem 7 &middot; a potentiometer split</h4>
+    <p class="gp-ask">The potentiometer below has a 10 k&#937; track and its wiper sits 30% of the way down from terminal A. What is the resistance between the wiper and terminal B?</p>
+      <figure>
+        <svg viewBox="0 0 460 210" role="img" aria-label="A potentiometer symbol. Terminal A is at the top, terminal B at the bottom, and the wiper W is arrowed into the track thirty percent of the way down from A. The track is ten kilohms.">
+          <rect x="196" y="40" width="46" height="130" fill="none" stroke="#C8D6E0" stroke-width="3"></rect>
+          <rect x="199" y="43" width="40" height="39" fill="var(--gold)" opacity=".45"></rect>
+          <path d="M 219 40 V 20 H 130" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <path d="M 219 170 V 190 H 130" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <path d="M 330 82 H 256" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <path d="M 256 74 L 242 82 L 256 90 Z" fill="#C8D6E0"></path>
+          <g class="label-svg">
+            <text x="116" y="26" text-anchor="end">A</text>
+            <text x="116" y="196" text-anchor="end">B</text>
+            <text x="342" y="88">W</text>
+          </g>
+          <text x="180" y="120" text-anchor="end" class="label-svg dim">10 k&#937; track</text>
+          <text x="256" y="132" class="label-svg dim">wiper at 30%</text>
+        </svg>
+        <figcaption>A 10 k&#937; potentiometer with its wiper set 30% of the way down from terminal A.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>The wiper divides the track into two parts that always add up to the full track resistance.</li>
+        <li>The wiper is 30% of the way from A, so the A-to-wiper part is 30% of the track. The question asks about the other part.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>The full track is 10 k&#937;, and the wiper splits it in two.</li>
+        <li>From A to the wiper is 30% of 10 k&#937; = 3 k&#937;.</li>
+        <li>The two parts must sum to 10 k&#937;, so wiper to B is 10 &minus; 3 = 7 k&#937;.</li>
+        <li class="final">The resistance from the wiper to B is <strong>7 000 &#937;</strong>. Note that A to B is still 10 k&#937; no matter where the wiper sits — only the split changes.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -2259,13 +2493,13 @@ footer.page {
   /* ---------------- Section navigation ---------------- */
 
   var SECTIONS = [
-    { n: '2.1', label: 'Charge', min: 11 },
-    { n: '2.2', label: 'Voltage', min: 9 },
-    { n: '2.3', label: 'Sources', min: 8 },
-    { n: '2.4', label: 'Current', min: 9 },
-    { n: '2.5', label: 'Resistance', min: 8 },
-    { n: '2.6', label: 'Color code', min: 16 },
-    { n: '2.7', label: 'Variable resistors', min: 10 },
+    { n: '2.1', label: 'Charge', min: 15 },
+    { n: '2.2', label: 'Voltage', min: 13 },
+    { n: '2.3', label: 'Sources', min: 12 },
+    { n: '2.4', label: 'Current', min: 13 },
+    { n: '2.5', label: 'Resistance', min: 12 },
+    { n: '2.6', label: 'Color code', min: 21 },
+    { n: '2.7', label: 'Variable resistors', min: 15 },
     { n: '2.8', label: 'The basic circuit', min: 12 },
     { n: '2.9', label: 'Meter and safety', min: 14 },
     { n: '2.10', label: 'Check yourself', min: 10 },
@@ -3147,6 +3381,122 @@ footer.page {
   document.getElementById('quizReset').addEventListener('click', buildQuiz);
   buildQuiz();
 
+
+  /* ---------------- Guided problems: scaffolded disclosure ----------------
+     Each .gp block holds an answer box, a list of hints, and a list of steps.
+     Hints and steps are revealed one at a time on request, so a student who
+     is nearly there gets a nudge rather than the whole solution. How much
+     scaffolding was used is reported back, but never penalised. */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.gp'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit') || '';
+    var tol = parseFloat(box.getAttribute('data-tol') || '0.01');
+    var hints = box.querySelectorAll('.gp-reveal.hints li');
+    var steps = box.querySelectorAll('.gp-reveal.steps li');
+    var hintsShown = 0, stepsShown = 0, settled = false;
+
+    var status = document.createElement('span');
+    status.className = 'gp-status';
+    box.querySelector('h4').appendChild(status);
+
+    var row = document.createElement('div');
+    row.className = 'answer-row';
+    var id = 'gp-' + idx;
+    row.innerHTML = '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      (unit ? '<span class="unit-tag">' + unit + '</span>' : '');
+    var ask = box.querySelector('.gp-ask');
+    var fig = box.querySelector('figure');
+    (fig || ask).parentNode.insertBefore(row, (fig || ask).nextSibling);
+
+    var bar = document.createElement('div');
+    bar.className = 'gp-scaffold';
+    var checkBtn = document.createElement('button');
+    checkBtn.type = 'button'; checkBtn.className = 'gp-check'; checkBtn.textContent = 'Check my answer';
+    var hintBtn = document.createElement('button');
+    hintBtn.type = 'button'; hintBtn.textContent = hints.length ? 'Give me a hint' : '';
+    var stepBtn = document.createElement('button');
+    stepBtn.type = 'button'; stepBtn.textContent = 'Work a step';
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button'; allBtn.textContent = 'Show the full solution';
+    bar.appendChild(checkBtn);
+    if (hints.length) bar.appendChild(hintBtn);
+    bar.appendChild(stepBtn);
+    bar.appendChild(allBtn);
+    box.insertBefore(bar, box.querySelector('.gp-reveal'));
+
+    var fb = document.createElement('div');
+    fb.className = 'feedback';
+    fb.setAttribute('role', 'status');
+    fb.setAttribute('aria-live', 'polite');
+    box.appendChild(fb);
+
+    function report() {
+      var bits = [];
+      if (hintsShown) bits.push(hintsShown + ' hint' + (hintsShown === 1 ? '' : 's'));
+      if (stepsShown) bits.push(stepsShown + ' step' + (stepsShown === 1 ? '' : 's'));
+      status.textContent = bits.length ? bits.join(' \u00B7 ') + ' revealed' : '';
+      hintBtn.disabled = hintsShown >= hints.length;
+      stepBtn.disabled = stepsShown >= steps.length;
+      if (stepsShown >= steps.length) allBtn.disabled = true;
+    }
+    hintBtn.addEventListener('click', function () {
+      if (hintsShown < hints.length) { hints[hintsShown].classList.add('shown'); hintsShown++; }
+      report();
+    });
+    stepBtn.addEventListener('click', function () {
+      if (stepsShown < steps.length) { steps[stepsShown].classList.add('shown'); stepsShown++; }
+      report();
+    });
+    allBtn.addEventListener('click', function () {
+      Array.prototype.forEach.call(hints, function (h) { h.classList.add('shown'); });
+      Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+      hintsShown = hints.length; stepsShown = steps.length;
+      report();
+    });
+
+    function check() {
+      var given = parseFloat(row.querySelector('input').value.replace(/[,\s]/g, '').trim());
+      if (isNaN(given)) {
+        fb.className = 'feedback no';
+        fb.textContent = 'Enter a number' + (unit ? ' in ' + unit + '.' : '.');
+        return;
+      }
+      var err = Math.abs(given - answer) / Math.abs(answer);
+      if (err <= tol) {
+        fb.className = 'feedback ok';
+        if (!settled) {
+          settled = true;
+          if (!hintsShown && !stepsShown) {
+            var solo = (state.best.gpSolo || 0) + 1;
+            state.best.gpSolo = solo;
+            saveState(state);
+            fb.textContent = 'Correct, with no help at all. That is ' + solo + ' solved unaided in this chapter.';
+          } else {
+            fb.textContent = 'Correct. Using the scaffolding is exactly what it is there for \u2014 try the next one with one fewer step.';
+          }
+        } else {
+          fb.textContent = 'Correct.';
+        }
+        Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+        stepsShown = steps.length;
+        report();
+      } else {
+        fb.className = 'feedback no';
+        var nudge = '';
+        var ratio = given / answer;
+        if (Math.abs(ratio - 1000) < 20 || Math.abs(ratio - 0.001) < 0.00002) nudge = ' The digits look right but the size is off by a factor of 1000 \u2014 check the prefix.';
+        else if (Math.abs(ratio - 10) < 0.2 || Math.abs(ratio - 0.1) < 0.002) nudge = ' You are out by a factor of ten. Check where the decimal point landed.';
+        fb.textContent = 'Not yet.' + nudge + (hintsShown < hints.length ? ' Try a hint before working a step.' : ' Work through the next step.');
+      }
+    }
+    checkBtn.addEventListener('click', check);
+    row.querySelector('input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+    report();
+  });
 
   /* ---------------- Worked examples: attempt before reveal ---------------- */
 
