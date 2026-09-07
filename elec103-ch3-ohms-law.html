@@ -1180,7 +1180,97 @@ body.notes-modal-open { overflow: hidden; }
 @media print { .chapter-links { display: none !important; } }
 body.printing-notes .chapter-links { display: none !important; }
 
+/* ---------- Guided problems: scaffolded disclosure ---------- */
+
+.gp {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: 1.1rem 1.2rem;
+  margin: 1.8rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.gp > h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--gold-text);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+}
+.gp > h4 .gp-status {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.gp .gp-ask { margin: 0 0 .9rem; }
+.gp figure { margin: 1rem 0; }
+.gp figure svg { display: block; width: 100%; height: auto; background: var(--bench); border-radius: var(--r-sm); }
+.gp figcaption {
+  font-family: var(--font-ui); font-size: .8rem; color: var(--ink-faint);
+  margin-top: .4rem;
+}
+
+.gp-scaffold { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.gp-scaffold button {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600;
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.gp-scaffold button:hover:not(:disabled) { border-color: var(--gold); background: var(--rule-soft); }
+.gp-scaffold button:disabled { opacity: .45; cursor: not-allowed; }
+.gp-scaffold .gp-check { background: var(--bench); border-color: var(--bench); color: #EAF1F6; }
+.gp-scaffold .gp-check:hover:not(:disabled) { background: var(--bench-soft); border-color: var(--bench-soft); }
+
+.gp-reveal { margin: 1rem 0 0; padding: 0; list-style: none; }
+.gp-reveal li {
+  display: none;
+  padding: .6rem .8rem .6rem 2.2rem;
+  margin-bottom: .4rem;
+  border-radius: var(--r-sm);
+  position: relative;
+  font-size: .95rem;
+}
+.gp-reveal li.shown { display: block; }
+.gp-reveal.hints li {
+  background: var(--rule-soft);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.gp-reveal.hints li::before {
+  content: "?";
+  position: absolute; left: .8rem; top: .6rem;
+  font-family: var(--font-num); font-weight: 700; color: var(--gold-text);
+}
+.gp-reveal.steps li {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.gp-reveal.steps li::before {
+  content: counter(gpstep);
+  counter-increment: gpstep;
+  position: absolute; left: .75rem; top: .6rem;
+  font-family: var(--font-num); font-size: .8rem; font-weight: 700;
+  color: var(--gold-text);
+}
+.gp-reveal.steps { counter-reset: gpstep; }
+.gp-reveal.steps li.final {
+  border-color: var(--ok-ink);
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+  font-weight: 600;
+}
+.gp .feedback { margin-top: .9rem; }
+
 /* ---------- Cheat sheet ---------- */
+
 
 .cheat {
   background: var(--surface);
@@ -1535,6 +1625,22 @@ footer.page {
     <h3>Units must match the formula</h3>
     <p>Ohm's law is written in base units: volts, amperes, ohms. If you feed it kilohms without converting, the answer comes out in milliamperes rather than amperes, which is convenient once you know it and a trap until then. Section 3.6 works through this in detail.</p>
   </div>
+
+  <div class="gp" data-answer="1600" data-unit="Ω" data-tol="0.01">
+    <h4>Guided problem 1 &middot; choosing the right form</h4>
+    <p class="gp-ask">A component has 8.0 V across it and 5.0 mA through it. Find its resistance.</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Name the quantity you are after first, then look at which two you were given.</li>
+        <li>You have voltage and current and you want resistance, so cover R in the triangle. What is left?</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>You want R, and you have V and I, so the form is R = V / I.</li>
+        <li>Convert the current to base units: 5.0 mA = 0.0050 A.</li>
+        <li>Substitute: R = 8.0 V &divide; 0.0050 A.</li>
+        <li class="final">The resistance is <strong>1 600 &#937;</strong>, or 1.6 k&#937;. Using the shortcut, volts divided by milliamperes gives kilohms directly: 8.0 &divide; 5.0 = 1.6 k&#937;.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1584,6 +1690,22 @@ footer.page {
       <p class="streak" style="margin-top:.9rem;">Answers within 1% are accepted. Round to three significant figures.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="4.55" data-unit="mA" data-tol="0.01">
+    <h4>Guided problem 2 &middot; finding current</h4>
+    <p class="gp-ask">A 3.3 k&#937; resistor is connected across a 15 V supply. How much current is in the circuit? Give your answer in milliamperes.</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>You want current, and you have voltage and resistance. Which form of Ohm’s law is that?</li>
+        <li>Volts divided by kilohms gives milliamperes directly — no conversion needed.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>You want I, so use I = V / R.</li>
+        <li>Both values are already convenient: 15 V and 3.3 k&#937;.</li>
+        <li>Volts &divide; kilohms = milliamperes, so 15 &divide; 3.3 = 4.545.</li>
+        <li class="final">The current is <strong>4.55 mA</strong>. In base units that is 0.00455 A, but nobody writes it that way.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1642,6 +1764,37 @@ footer.page {
       <div class="feedback" id="mixFeedback" role="status" aria-live="polite"></div>
     </div>
   </div>
+
+  <div class="gp" data-answer="6.15" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 3 &middot; finding voltage</h4>
+    <p class="gp-ask">A current of 7.5 mA is in an 820 &#937; resistor. What voltage appears across it?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>You want voltage and you have current and resistance, so this is V = I &times; R.</li>
+        <li>The resistance is in ohms, not kilohms, so the milliamperes-times-kilohms shortcut does not apply here. Convert to base units.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Use V = I &times; R.</li>
+        <li>Convert the current: 7.5 mA = 0.0075 A.</li>
+        <li>Multiply: 0.0075 A &times; 820 &#937; = 6.15.</li>
+        <li class="final">The voltage is <strong>6.15 V</strong>. If you had used the mA-times-k&#937; shortcut with 820 as if it were kilohms you would have got 6 150 V, wrong by a factor of 1 000.</li>
+      </ol>
+  </div>
+
+  <div class="gp" data-answer="48" data-unit="Ω" data-tol="0.01">
+    <h4>Guided problem 4 &middot; finding resistance</h4>
+    <p class="gp-ask">A lamp draws 250 mA when connected to a 12 V supply. What is its resistance while it is lit?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>You want R, and you have V and I. That is R = V / I.</li>
+        <li>Watch the prefix: 250 mA is a quarter of an ampere, not 250 amperes.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Use R = V / I.</li>
+        <li>Convert the current: 250 mA = 0.250 A.</li>
+        <li>Divide: 12 V &divide; 0.250 A = 48.</li>
+        <li class="final">The resistance is <strong>48 &#937;</strong> while lit. Measured cold with an ohmmeter it would read far lower, because a tungsten filament’s resistance climbs steeply as it heats.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1702,6 +1855,37 @@ footer.page {
       <p>Plot current against voltage for the lamp from section 3.5 and you will not get a straight line. It bends over as the voltage climbs, because the filament heats up and its resistance rises. Diodes, transistors, and thermistors all bend in their own characteristic ways. Reading the shape of an I–V curve is how you identify a device you cannot see.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="1500" data-unit="Ω" data-tol="0.02">
+    <h4>Guided problem 5 &middot; reading a resistance off a graph</h4>
+    <p class="gp-ask">The graph shows current measured through an unknown resistor as the voltage was raised. Use the graph to find its resistance in ohms.</p>
+      <figure>
+        <svg viewBox="0 0 480 300" role="img" aria-labelledby="ch3gT" aria-describedby="ch3gD">
+          <title id="ch3gT">Current against voltage for one resistor</title>
+          <desc id="ch3gD">A straight line through the origin. At 6 volts the current is 4 milliamperes, at 12 volts it is 8 milliamperes, and at 18 volts it is 12 milliamperes.</desc>
+          <g stroke="#33485A" stroke-width="1"><line x1="72.0" y1="40" x2="72.0" y2="240"></line><line x1="126.7" y1="40" x2="126.7" y2="240"></line><line x1="181.3" y1="40" x2="181.3" y2="240"></line><line x1="236.0" y1="40" x2="236.0" y2="240"></line><line x1="290.7" y1="40" x2="290.7" y2="240"></line><line x1="345.3" y1="40" x2="345.3" y2="240"></line><line x1="400.0" y1="40" x2="400.0" y2="240"></line><line x1="72" y1="240.0" x2="400" y2="240.0"></line><line x1="72" y1="206.7" x2="400" y2="206.7"></line><line x1="72" y1="173.3" x2="400" y2="173.3"></line><line x1="72" y1="140.0" x2="400" y2="140.0"></line><line x1="72" y1="106.7" x2="400" y2="106.7"></line><line x1="72" y1="73.3" x2="400" y2="73.3"></line><line x1="72" y1="40.0" x2="400" y2="40.0"></line></g>
+          <line x1="72.0" y1="240.0" x2="400.0" y2="40.0" stroke="var(--gold-bright)" stroke-width="3"></line>
+          <g fill="var(--gold-bright)" stroke="#17242F" stroke-width="1.5"><circle cx="72.0" cy="240.0" r="5"></circle><circle cx="126.7" cy="206.7" r="5"></circle><circle cx="181.3" cy="173.3" r="5"></circle><circle cx="236.0" cy="140.0" r="5"></circle><circle cx="290.7" cy="106.7" r="5"></circle><circle cx="345.3" cy="73.3" r="5"></circle><circle cx="400.0" cy="40.0" r="5"></circle></g>
+          <line x1="72" y1="40" x2="72" y2="240" stroke="#8FA6B6" stroke-width="2.5"></line>
+          <line x1="72" y1="240" x2="400" y2="240" stroke="#8FA6B6" stroke-width="2.5"></line>
+          <g class="label-svg dim"><text x="72.0" y="264" text-anchor="middle">0</text><text x="126.7" y="264" text-anchor="middle">3</text><text x="181.3" y="264" text-anchor="middle">6</text><text x="236.0" y="264" text-anchor="middle">9</text><text x="290.7" y="264" text-anchor="middle">12</text><text x="345.3" y="264" text-anchor="middle">15</text><text x="400.0" y="264" text-anchor="middle">18</text><text x="60" y="246.0" text-anchor="end">0</text><text x="60" y="212.7" text-anchor="end">2</text><text x="60" y="179.3" text-anchor="end">4</text><text x="60" y="146.0" text-anchor="end">6</text><text x="60" y="112.7" text-anchor="end">8</text><text x="60" y="79.3" text-anchor="end">10</text><text x="60" y="46.0" text-anchor="end">12</text></g>
+          <text x="236" y="288" text-anchor="middle" class="label-svg">Voltage (V)</text>
+          <text x="20" y="140" text-anchor="middle" class="label-svg" transform="rotate(-90 20 140)">Current (mA)</text>
+        </svg>
+        <figcaption>Current measured through one unknown resistor as the voltage was raised.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Pick two points far apart on the line so that any reading error matters less.</li>
+        <li>The slope of an I–V line is 1/R. You will have to invert it at the end to get the resistance.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Take the origin and the far end: at 0 V the current is 0 mA, and at 18 V it is 12 mA.</li>
+        <li>Slope = 12 mA &divide; 18 V = 0.667 mA per volt.</li>
+        <li>In base units that is 0.000667 A per volt.</li>
+        <li class="final">R = 1 &divide; slope = 1 &divide; 0.000667 = <strong>1 500 &#937;</strong>. You could also read any single point off the line and divide: 12 V &divide; 8 mA = 1.5 k&#937;.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1746,6 +1930,22 @@ footer.page {
       <p>The lab report outcome for this course asks you to interpret data, not just record it. The interpretation for this lab is one sentence: does the measured current agree with Ohm's law within the tolerance of the parts you used? Answer that explicitly and the rest of the report writes itself.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="2.54" data-unit="%" data-tol="0.02">
+    <h4>Guided problem 6 &middot; measured against calculated</h4>
+    <p class="gp-ask">You calculate that a circuit should draw 5.11 mA. Your meter reads 4.98 mA. What is the percent difference between the measurement and the calculation?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>The calculated value is the reference, so it belongs on the bottom of the fraction.</li>
+        <li>Take the size of the difference and ignore its sign.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Find the difference: |4.98 &minus; 5.11| = 0.13 mA.</li>
+        <li>Divide by the calculated value: 0.13 &divide; 5.11 = 0.02544.</li>
+        <li>Multiply by 100.</li>
+        <li class="final">The percent difference is <strong>2.54%</strong>. With a 5% resistor in the circuit this is well within what the part tolerance alone can explain, so nothing is wrong.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1835,6 +2035,50 @@ footer.page {
       </div>
     </div>
   </div>
+
+  <div class="gp" data-answer="12" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 7 &middot; reading a fault</h4>
+    <p class="gp-ask">In the circuit below, R2 has failed open. What will the voltmeter read across R2?</p>
+      <figure>
+        <svg viewBox="0 0 520 200" role="img" aria-label="A 12 volt source in series with three resistors R1, R2 and R3. A voltmeter is connected across R2, which is marked as open.">
+          <path d="M 60 55 H 460 V 150 H 60 Z" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <rect x="44" y="82" width="32" height="42" fill="var(--bench)"></rect>
+          <line x1="42" y1="92" x2="78" y2="92" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="51" y1="103" x2="69" y2="103" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="42" y1="114" x2="78" y2="114" stroke="#C8D6E0" stroke-width="3"></line>
+          <text x="60" y="175" text-anchor="middle" class="label-svg">12 V</text>
+          <g stroke="#C8D6E0" stroke-width="3" fill="none">
+            <path d="M 130 55 l 8 0 l 6 -12 l 12 24 l 12 -24 l 12 24 l 6 -12 l 8 0"></path>
+            <path d="M 380 55 l 8 0 l 6 -12 l 12 24 l 12 -24 l 12 24 l 6 -12 l 8 0"></path>
+          </g>
+          <text x="160" y="30" text-anchor="middle" class="label-svg">R1</text>
+          <text x="410" y="30" text-anchor="middle" class="label-svg">R3</text>
+          <path d="M 250 55 H 268" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <path d="M 312 55 H 330" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <circle cx="272" cy="55" r="4" fill="#E8695A"></circle>
+          <circle cx="308" cy="55" r="4" fill="#E8695A"></circle>
+          <text x="290" y="30" text-anchor="middle" class="label-svg">R2</text>
+          <text x="290" y="46" text-anchor="middle" class="label-svg dim" fill="#E8695A">open</text>
+          <path d="M 250 55 V 110 H 250" stroke="#8FA6B6" stroke-width="2" stroke-dasharray="4 5" fill="none"></path>
+          <path d="M 330 55 V 110" stroke="#8FA6B6" stroke-width="2" stroke-dasharray="4 5" fill="none"></path>
+          <path d="M 250 110 H 268 M 312 110 H 330" stroke="#8FA6B6" stroke-width="2" fill="none"></path>
+          <circle cx="290" cy="110" r="22" fill="none" stroke="var(--gold-bright)" stroke-width="3"></circle>
+          <text x="290" y="117" text-anchor="middle" class="label-svg" fill="var(--gold-bright)">V</text>
+        </svg>
+        <figcaption>Three resistors in series across a 12 V source. R2 has failed open, and a voltmeter is connected across it.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>With a break anywhere in a single-path circuit, what is the current everywhere in that circuit?</li>
+        <li>If no current flows, what voltage does Ohm’s law give across each <em>good</em> resistor?</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>R2 is open, so there is no complete path and the current is zero everywhere.</li>
+        <li>For each good resistor, V = I &times; R = 0 &times; R = 0 V. So R1 and R3 each drop nothing.</li>
+        <li>The source is still producing 12 V, and that voltage has to appear somewhere in the loop.</li>
+        <li class="final">It all appears across the break, so the meter reads <strong>12 V</strong>. The failed component shows the <em>highest</em> reading, not the lowest — which is the part that surprises people.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -2252,12 +2496,12 @@ footer.page {
   var SECTIONS = [
     { n: '3.1', label: 'The idea', min: 8 },
     { n: '3.2', label: 'V, I, and R', min: 6 },
-    { n: '3.3', label: 'Three forms', min: 7 },
-    { n: '3.4', label: 'Finding I', min: 12 },
-    { n: '3.5', label: 'Finding V and R', min: 14 },
-    { n: '3.6', label: 'Graphs', min: 12 },
-    { n: '3.7', label: 'At the bench', min: 9 },
-    { n: '3.8', label: 'Troubleshooting', min: 15 },
+    { n: '3.3', label: 'Three forms', min: 12 },
+    { n: '3.4', label: 'Finding I', min: 17 },
+    { n: '3.5', label: 'Finding V and R', min: 24 },
+    { n: '3.6', label: 'Graphs', min: 18 },
+    { n: '3.7', label: 'At the bench', min: 14 },
+    { n: '3.8', label: 'Troubleshooting', min: 21 },
     { n: '3.9', label: 'Check yourself', min: 10 },
     { n: '', label: 'Homework', extra: true, min: 45 },
     { n: '', label: 'Glossary', extra: true },
@@ -3093,6 +3337,122 @@ footer.page {
   document.getElementById('quizReset').addEventListener('click', buildQuiz);
   buildQuiz();
 
+
+  /* ---------------- Guided problems: scaffolded disclosure ----------------
+     Each .gp block holds an answer box, a list of hints, and a list of steps.
+     Hints and steps are revealed one at a time on request, so a student who
+     is nearly there gets a nudge rather than the whole solution. How much
+     scaffolding was used is reported back, but never penalised. */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.gp'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit') || '';
+    var tol = parseFloat(box.getAttribute('data-tol') || '0.01');
+    var hints = box.querySelectorAll('.gp-reveal.hints li');
+    var steps = box.querySelectorAll('.gp-reveal.steps li');
+    var hintsShown = 0, stepsShown = 0, settled = false;
+
+    var status = document.createElement('span');
+    status.className = 'gp-status';
+    box.querySelector('h4').appendChild(status);
+
+    var row = document.createElement('div');
+    row.className = 'answer-row';
+    var id = 'gp-' + idx;
+    row.innerHTML = '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      (unit ? '<span class="unit-tag">' + unit + '</span>' : '');
+    var ask = box.querySelector('.gp-ask');
+    var fig = box.querySelector('figure');
+    (fig || ask).parentNode.insertBefore(row, (fig || ask).nextSibling);
+
+    var bar = document.createElement('div');
+    bar.className = 'gp-scaffold';
+    var checkBtn = document.createElement('button');
+    checkBtn.type = 'button'; checkBtn.className = 'gp-check'; checkBtn.textContent = 'Check my answer';
+    var hintBtn = document.createElement('button');
+    hintBtn.type = 'button'; hintBtn.textContent = hints.length ? 'Give me a hint' : '';
+    var stepBtn = document.createElement('button');
+    stepBtn.type = 'button'; stepBtn.textContent = 'Work a step';
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button'; allBtn.textContent = 'Show the full solution';
+    bar.appendChild(checkBtn);
+    if (hints.length) bar.appendChild(hintBtn);
+    bar.appendChild(stepBtn);
+    bar.appendChild(allBtn);
+    box.insertBefore(bar, box.querySelector('.gp-reveal'));
+
+    var fb = document.createElement('div');
+    fb.className = 'feedback';
+    fb.setAttribute('role', 'status');
+    fb.setAttribute('aria-live', 'polite');
+    box.appendChild(fb);
+
+    function report() {
+      var bits = [];
+      if (hintsShown) bits.push(hintsShown + ' hint' + (hintsShown === 1 ? '' : 's'));
+      if (stepsShown) bits.push(stepsShown + ' step' + (stepsShown === 1 ? '' : 's'));
+      status.textContent = bits.length ? bits.join(' \u00B7 ') + ' revealed' : '';
+      hintBtn.disabled = hintsShown >= hints.length;
+      stepBtn.disabled = stepsShown >= steps.length;
+      if (stepsShown >= steps.length) allBtn.disabled = true;
+    }
+    hintBtn.addEventListener('click', function () {
+      if (hintsShown < hints.length) { hints[hintsShown].classList.add('shown'); hintsShown++; }
+      report();
+    });
+    stepBtn.addEventListener('click', function () {
+      if (stepsShown < steps.length) { steps[stepsShown].classList.add('shown'); stepsShown++; }
+      report();
+    });
+    allBtn.addEventListener('click', function () {
+      Array.prototype.forEach.call(hints, function (h) { h.classList.add('shown'); });
+      Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+      hintsShown = hints.length; stepsShown = steps.length;
+      report();
+    });
+
+    function check() {
+      var given = parseFloat(row.querySelector('input').value.replace(/[,\s]/g, '').trim());
+      if (isNaN(given)) {
+        fb.className = 'feedback no';
+        fb.textContent = 'Enter a number' + (unit ? ' in ' + unit + '.' : '.');
+        return;
+      }
+      var err = Math.abs(given - answer) / Math.abs(answer);
+      if (err <= tol) {
+        fb.className = 'feedback ok';
+        if (!settled) {
+          settled = true;
+          if (!hintsShown && !stepsShown) {
+            var solo = (state.best.gpSolo || 0) + 1;
+            state.best.gpSolo = solo;
+            saveState(state);
+            fb.textContent = 'Correct, with no help at all. That is ' + solo + ' solved unaided in this chapter.';
+          } else {
+            fb.textContent = 'Correct. Using the scaffolding is exactly what it is there for \u2014 try the next one with one fewer step.';
+          }
+        } else {
+          fb.textContent = 'Correct.';
+        }
+        Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+        stepsShown = steps.length;
+        report();
+      } else {
+        fb.className = 'feedback no';
+        var nudge = '';
+        var ratio = given / answer;
+        if (Math.abs(ratio - 1000) < 20 || Math.abs(ratio - 0.001) < 0.00002) nudge = ' The digits look right but the size is off by a factor of 1000 \u2014 check the prefix.';
+        else if (Math.abs(ratio - 10) < 0.2 || Math.abs(ratio - 0.1) < 0.002) nudge = ' You are out by a factor of ten. Check where the decimal point landed.';
+        fb.textContent = 'Not yet.' + nudge + (hintsShown < hints.length ? ' Try a hint before working a step.' : ' Work through the next step.');
+      }
+    }
+    checkBtn.addEventListener('click', check);
+    row.querySelector('input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+    report();
+  });
 
   /* ---------------- Worked examples: attempt before reveal ---------------- */
 
