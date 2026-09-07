@@ -1276,7 +1276,97 @@ table.ct.wide tr.total-row th, table.ct.wide tr.total-row td {
 @media print { .chapter-links { display: none !important; } }
 body.printing-notes .chapter-links { display: none !important; }
 
+/* ---------- Guided problems: scaffolded disclosure ---------- */
+
+.gp {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: 1.1rem 1.2rem;
+  margin: 1.8rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.gp > h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--gold-text);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+}
+.gp > h4 .gp-status {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.gp .gp-ask { margin: 0 0 .9rem; }
+.gp figure { margin: 1rem 0; }
+.gp figure svg { display: block; width: 100%; height: auto; background: var(--bench); border-radius: var(--r-sm); }
+.gp figcaption {
+  font-family: var(--font-ui); font-size: .8rem; color: var(--ink-faint);
+  margin-top: .4rem;
+}
+
+.gp-scaffold { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.gp-scaffold button {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600;
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.gp-scaffold button:hover:not(:disabled) { border-color: var(--gold); background: var(--rule-soft); }
+.gp-scaffold button:disabled { opacity: .45; cursor: not-allowed; }
+.gp-scaffold .gp-check { background: var(--bench); border-color: var(--bench); color: #EAF1F6; }
+.gp-scaffold .gp-check:hover:not(:disabled) { background: var(--bench-soft); border-color: var(--bench-soft); }
+
+.gp-reveal { margin: 1rem 0 0; padding: 0; list-style: none; }
+.gp-reveal li {
+  display: none;
+  padding: .6rem .8rem .6rem 2.2rem;
+  margin-bottom: .4rem;
+  border-radius: var(--r-sm);
+  position: relative;
+  font-size: .95rem;
+}
+.gp-reveal li.shown { display: block; }
+.gp-reveal.hints li {
+  background: var(--rule-soft);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.gp-reveal.hints li::before {
+  content: "?";
+  position: absolute; left: .8rem; top: .6rem;
+  font-family: var(--font-num); font-weight: 700; color: var(--gold-text);
+}
+.gp-reveal.steps li {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.gp-reveal.steps li::before {
+  content: counter(gpstep);
+  counter-increment: gpstep;
+  position: absolute; left: .75rem; top: .6rem;
+  font-family: var(--font-num); font-size: .8rem; font-weight: 700;
+  color: var(--gold-text);
+}
+.gp-reveal.steps { counter-reset: gpstep; }
+.gp-reveal.steps li.final {
+  border-color: var(--ok-ink);
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+  font-weight: 600;
+}
+.gp .feedback { margin-top: .9rem; }
+
 /* ---------- Cheat sheet ---------- */
+
 
 .cheat {
   background: var(--surface);
@@ -1493,6 +1583,22 @@ footer.page {
       <p>Calling two resistors parallel because they are drawn side by side, or series because they are drawn end to end. Neither drawing tells you anything. Two resistors are in parallel only if <em>both</em> ends land on the same two nodes, and in series only if no third component connects between them. Trace the wire every time until it becomes automatic.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="2320" data-unit="Ω" data-tol="0.01">
+    <h4>Guided problem 1 &middot; reading the structure</h4>
+    <p class="gp-ask">R1 is 1.0 k&#937;. It is in series with the parallel combination of R2 = 2.2 k&#937; and R3 = 3.3 k&#937;. What is the total resistance in ohms?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Do not add all three. Decide which pair belongs together first, and reduce that pair before touching R1.</li>
+        <li>R2 and R3 share both nodes, so they are the parallel pair. R1 is in series with whatever they combine to.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Combine the parallel pair first, using product over sum: (2 200 &times; 3 300) &divide; 5 500 = 1 320 &#937;.</li>
+        <li>Check it: 1 320 &#937; is below 2 200 &#937;, the smaller of the two, as a parallel result must be.</li>
+        <li>Now R1 is in series with that 1 320 &#937;, so add: 1 000 + 1 320.</li>
+        <li class="final">The total is <strong>2 320 &#937;</strong>. Adding all three straight off would have given 6 500 &#937; — nearly three times too large, and the most common error in this chapter.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1530,6 +1636,22 @@ footer.page {
       <p>The single most useful habit in this chapter is physically redrawing the simplified circuit after each reduction, rather than tracking it in your head. It takes ten seconds and it makes the next grouping obvious. Every worked solution you will ever read does this, and every student who skips it loses track by the second step.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="1170" data-unit="Ω" data-tol="0.01">
+    <h4>Guided problem 2 &middot; one reduction step</h4>
+    <p class="gp-ask">R3 = 1.5 k&#937; and R4 = 1.0 k&#937; sit end to end in one branch. That branch is in parallel with R2 = 2.2 k&#937;. What single resistance is equivalent to those three, in ohms?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Work from the inside out. R3 and R4 are the innermost group — combine them before anything else.</li>
+        <li>Once R3 and R4 become one resistance, the problem is just two resistors in parallel.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>R3 and R4 are end to end with nothing branching between them, so they are in series: 1 500 + 1 000 = 2 500 &#937;.</li>
+        <li>Call that Ra. Now Ra and R2 share both nodes, so they are in parallel.</li>
+        <li>Product over sum: (2 500 &times; 2 200) &divide; (2 500 + 2 200) = 5 500 000 &divide; 4 700.</li>
+        <li class="final">The equivalent is <strong>1 170 &#937;</strong>. Redraw at this point and the circuit has one resistor where three used to be.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1581,6 +1703,22 @@ footer.page {
       <p class="streak" id="solveNote" style="margin-top:.6rem;"></p>
     </div>
   </div>
+
+  <div class="gp" data-answer="12.9" data-unit="V" data-tol="0.02">
+    <h4>Guided problem 3 &middot; solving the whole circuit</h4>
+    <p class="gp-ask">A 24 V source drives R1 = 1.0 k&#937; in series with a parallel section made of R2 = 2.2 k&#937; and a branch of R3 = 1.5 k&#937; plus R4 = 1.0 k&#937;. What voltage appears across the parallel section?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Reduce all the way to a single resistance first, then find the total current, then work back outward.</li>
+        <li>Once you know the total current, the drop across R1 follows from Ohm’s law, and KVL gives you the rest.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>From the previous problem, the parallel section reduces to 1 170 &#937;. Total: R&#8348; = 1 000 + 1 170 = 2 170 &#937;.</li>
+        <li>Total current: I&#8348; = 24 V &divide; 2 170 &#937; = 11.06 mA.</li>
+        <li>That current passes through R1, dropping V&#8321; = 11.06 mA &times; 1.0 k&#937; = 11.06 V.</li>
+        <li class="final">By KVL the rest appears across the parallel section: 24 &minus; 11.06 = <strong>12.9 V</strong>. Check it directly: 11.06 mA &times; 1 170 &#937; = 12.9 V.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1639,6 +1777,22 @@ footer.page {
       <p style="margin:.8rem 0 0;font-size:.95rem;color:var(--ink-soft);">You do not need the internal structure at all for the total. You need it only to find how that power is distributed.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="122" data-unit="mW" data-tol="0.03">
+    <h4>Guided problem 4 &middot; power in the series element</h4>
+    <p class="gp-ask">In that same circuit — 24 V, R1 = 1.0 k&#937;, total resistance 2 170 &#937; — how much power does R1 dissipate, in milliwatts?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Every bit of the circuit’s current passes through R1, which makes P = I&sup2;R the natural form.</li>
+        <li>Find the total current first, then square it. Square only the current, not the whole product.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Total current: I = 24 &divide; 2 170 = 0.01106 A.</li>
+        <li>Square it: 0.01106&sup2; = 0.0001223.</li>
+        <li>Multiply by R1: 0.0001223 &times; 1 000 = 0.1223 W.</li>
+        <li class="final">R1 dissipates <strong>122 mW</strong>. It is the hottest component here because all the current goes through it, while the parallel branches each take only a share.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1708,6 +1862,43 @@ footer.page {
     <h3>The same idea, everywhere</h3>
     <p>An ammeter has the mirror problem: its small but non-zero resistance adds to the circuit and slightly reduces the current it is measuring. And in Chapter 5, a load connected across a divider output pulled that output down for exactly this reason. All three are one phenomenon — connecting something changes the thing you connected to.</p>
   </div>
+
+  <div class="gp" data-answer="4.76" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 5 &middot; what the meter actually reads</h4>
+    <p class="gp-ask">The divider below is built from two 100 k&#937; resistors across 10 V, so the true voltage across R2 is 5.00 V. A voltmeter with 1 M&#937; internal resistance is connected across R2. What will it read?</p>
+      <figure>
+        <svg viewBox="0 0 540 270" role="img" aria-label="A 10 volt source across two 100 kilohm resistors in series. A voltmeter with 1 megohm internal resistance is connected across the lower resistor.">
+          <path d="M 80 45 H 250 V 225 H 80 Z" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <rect x="64" y="112" width="32" height="44" fill="var(--bench)"></rect>
+          <line x1="62" y1="122" x2="98" y2="122" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="71" y1="134" x2="89" y2="134" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="62" y1="146" x2="98" y2="146" stroke="#C8D6E0" stroke-width="3"></line>
+          <text x="80" y="178" text-anchor="middle" class="label-svg">10 V</text>
+          <path d="M 250 60 L 238 64.6 L 262 73.8 L 238 82.9 L 262 92.1 L 238 101.2 L 262 110.4 L 250 115" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <path d="M 250 168 L 238 172.6 L 262 181.8 L 238 190.9 L 262 200.1 L 238 209.2 L 262 218.4 L 250 223" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <text x="226" y="88" text-anchor="end" class="label-svg">R1 100 k&#937;</text>
+          <text x="226" y="196" text-anchor="end" class="label-svg">R2 100 k&#937;</text>
+          <circle cx="250" cy="135" r="5" fill="var(--gold-bright)"></circle>
+          <path d="M 250 135 H 360 M 250 225 H 360" stroke="var(--gold-bright)" stroke-width="3" fill="none"></path>
+          <path d="M 360 135 V 158 M 360 202 V 225" stroke="var(--gold-bright)" stroke-width="3" fill="none"></path>
+          <circle cx="360" cy="180" r="22" fill="none" stroke="var(--gold-bright)" stroke-width="3"></circle>
+          <text x="360" y="187" text-anchor="middle" class="label-svg" fill="var(--gold-bright)">V</text>
+          <text x="392" y="187" class="label-svg dim">1 M&#937; internal</text>
+        </svg>
+        <figcaption>A voltmeter of 1 M&#937; internal resistance placed across the lower half of a 100 k&#937; divider.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>The meter’s resistance goes in parallel with R2 while it is connected. Work out that combination first.</li>
+        <li>Then treat the circuit as a fresh divider between R1 and the new, lower lower-half resistance.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>R2 in parallel with the meter: (100 k &times; 1 M) &divide; 1.1 M = 90.9 k&#937;.</li>
+        <li>The divider is now 100 k&#937; on top and 90.9 k&#937; underneath, total 190.9 k&#937;.</li>
+        <li>Apply the divider rule: 10 V &times; (90.9 &divide; 190.9).</li>
+        <li class="final">The meter reads <strong>4.76 V</strong>, not 5.00 V — an error of 4.8%. The meter is only ten times the resistance it is across, which is well inside the range where loading matters.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1784,6 +1975,46 @@ footer.page {
       <p>Two dividers in parallel across one source. Nothing in this circuit is beyond Chapters 5 and 6 — which is the point of the whole chapter. Combination circuits are not a new subject, they are the earlier subjects applied together.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="680" data-unit="Ω" data-tol="0.01">
+    <h4>Guided problem 6 &middot; measuring with a bridge</h4>
+    <p class="gp-ask">The bridge below is balanced, with R1 = 10 k&#937;, R2 = 1.0 k&#937; and R3 = 6.8 k&#937;. What is the unknown resistance R&#8339;, in ohms?</p>
+      <figure>
+        <svg viewBox="0 0 600 300" role="img" aria-label="A Wheatstone bridge. The left arm has R1 of 10 kilohms above R2 of 1 kilohm. The right arm has R3 of 6.8 kilohms above the unknown Rx. A null detector between the two midpoints reads zero.">
+          <path d="M 70 55 H 250 M 70 245 H 250 M 70 55 V 245" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <rect x="54" y="128" width="32" height="44" fill="var(--bench)"></rect>
+          <line x1="52" y1="138" x2="88" y2="138" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="61" y1="150" x2="79" y2="150" stroke="#C8D6E0" stroke-width="3"></line>
+          <line x1="52" y1="162" x2="88" y2="162" stroke="#C8D6E0" stroke-width="3"></line>
+          <text x="70" y="212" text-anchor="middle" class="label-svg">10 V</text>
+          <path d="M 250 55 H 430 M 250 245 H 430 M 430 55 V 90 M 430 210 V 245 M 250 55 V 90 M 250 210 V 245" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <path d="M 250 90 L 238 94.6 L 262 103.8 L 238 112.9 L 262 122.1 L 238 131.2 L 262 140.4 L 250 145" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <path d="M 250 155 L 238 159.6 L 262 168.8 L 238 177.9 L 262 187.1 L 238 196.2 L 262 205.4 L 250 210" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <path d="M 430 90 L 418 94.6 L 442 103.8 L 418 112.9 L 442 122.1 L 418 131.2 L 442 140.4 L 430 145" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <path d="M 430 155 L 418 159.6 L 442 168.8 L 418 177.9 L 442 187.1 L 418 196.2 L 442 205.4 L 430 210" stroke="#C8D6E0" stroke-width="3" fill="none"></path>
+          <text x="226" y="115" text-anchor="end" class="label-svg">R1 10 k&#937;</text>
+          <text x="226" y="205" text-anchor="end" class="label-svg">R2 1.0 k&#937;</text>
+          <text x="454" y="115" class="label-svg">R3 6.8 k&#937;</text>
+          <text x="454" y="205" class="label-svg">R&#8339; = ?</text>
+          <path d="M 250 150 H 318 M 362 150 H 430" stroke="#8FA6B6" stroke-width="3" fill="none"></path>
+          <circle cx="340" cy="150" r="22" fill="rgba(45,125,90,.25)" stroke="#5FBF8F" stroke-width="3"></circle>
+          <text x="340" y="157" text-anchor="middle" class="label-svg" fill="#5FBF8F">0</text>
+          <text x="340" y="196" text-anchor="middle" class="label-svg dim">balanced</text>
+        </svg>
+        <figcaption>The bridge at balance: the detector between the two midpoints reads zero.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>At balance the two dividers produce the same fraction, which gives R&#8339; = R&#8323; &times; (R&#8322; / R&#8321;).</li>
+        <li>R2 divided by R1 is a ratio less than one here, so expect R&#8339; to come out smaller than R&#8323;.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>At balance, R&#8339; = R&#8323; &times; (R&#8322; / R&#8321;).</li>
+        <li>The ratio arms give R&#8322; / R&#8321; = 1 000 &divide; 10 000 = 0.1.</li>
+        <li>So R&#8339; = 6 800 &times; 0.1.</li>
+        <li class="final">The unknown is <strong>680 &#937;</strong>. Note what the answer depends on: three known resistors and nothing else. The detector only had to tell zero from not-zero, so its own accuracy never entered the result.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -2162,13 +2393,13 @@ footer.page {
   /* ---------------- Section navigation ---------------- */
 
   var SECTIONS = [
-    { n: '7.1', label: 'Seeing the structure', min: 14 },
-    { n: '7.2', label: 'Reducing', min: 16 },
-    { n: '7.3', label: 'Solving it', min: 18 },
+    { n: '7.1', label: 'Seeing the structure', min: 19 },
+    { n: '7.2', label: 'Reducing', min: 21 },
+    { n: '7.3', label: 'Solving it', min: 24 },
     { n: '7.4', label: 'Kirchhoff checks', min: 12 },
-    { n: '7.5', label: 'Power', min: 10 },
-    { n: '7.6', label: 'Meter loading', min: 15 },
-    { n: '7.7', label: 'Wheatstone bridge', min: 15 },
+    { n: '7.5', label: 'Power', min: 15 },
+    { n: '7.6', label: 'Meter loading', min: 21 },
+    { n: '7.7', label: 'Wheatstone bridge', min: 21 },
     { n: '7.8', label: 'Check yourself', min: 12 },
     { n: '', label: 'Homework', extra: true, min: 45 },
     { n: '', label: 'Glossary', extra: true },
@@ -3129,6 +3360,122 @@ footer.page {
   document.getElementById('quizReset').addEventListener('click', buildQuiz);
   buildQuiz();
 
+
+  /* ---------------- Guided problems: scaffolded disclosure ----------------
+     Each .gp block holds an answer box, a list of hints, and a list of steps.
+     Hints and steps are revealed one at a time on request, so a student who
+     is nearly there gets a nudge rather than the whole solution. How much
+     scaffolding was used is reported back, but never penalised. */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.gp'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit') || '';
+    var tol = parseFloat(box.getAttribute('data-tol') || '0.01');
+    var hints = box.querySelectorAll('.gp-reveal.hints li');
+    var steps = box.querySelectorAll('.gp-reveal.steps li');
+    var hintsShown = 0, stepsShown = 0, settled = false;
+
+    var status = document.createElement('span');
+    status.className = 'gp-status';
+    box.querySelector('h4').appendChild(status);
+
+    var row = document.createElement('div');
+    row.className = 'answer-row';
+    var id = 'gp-' + idx;
+    row.innerHTML = '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      (unit ? '<span class="unit-tag">' + unit + '</span>' : '');
+    var ask = box.querySelector('.gp-ask');
+    var fig = box.querySelector('figure');
+    (fig || ask).parentNode.insertBefore(row, (fig || ask).nextSibling);
+
+    var bar = document.createElement('div');
+    bar.className = 'gp-scaffold';
+    var checkBtn = document.createElement('button');
+    checkBtn.type = 'button'; checkBtn.className = 'gp-check'; checkBtn.textContent = 'Check my answer';
+    var hintBtn = document.createElement('button');
+    hintBtn.type = 'button'; hintBtn.textContent = hints.length ? 'Give me a hint' : '';
+    var stepBtn = document.createElement('button');
+    stepBtn.type = 'button'; stepBtn.textContent = 'Work a step';
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button'; allBtn.textContent = 'Show the full solution';
+    bar.appendChild(checkBtn);
+    if (hints.length) bar.appendChild(hintBtn);
+    bar.appendChild(stepBtn);
+    bar.appendChild(allBtn);
+    box.insertBefore(bar, box.querySelector('.gp-reveal'));
+
+    var fb = document.createElement('div');
+    fb.className = 'feedback';
+    fb.setAttribute('role', 'status');
+    fb.setAttribute('aria-live', 'polite');
+    box.appendChild(fb);
+
+    function report() {
+      var bits = [];
+      if (hintsShown) bits.push(hintsShown + ' hint' + (hintsShown === 1 ? '' : 's'));
+      if (stepsShown) bits.push(stepsShown + ' step' + (stepsShown === 1 ? '' : 's'));
+      status.textContent = bits.length ? bits.join(' \u00B7 ') + ' revealed' : '';
+      hintBtn.disabled = hintsShown >= hints.length;
+      stepBtn.disabled = stepsShown >= steps.length;
+      if (stepsShown >= steps.length) allBtn.disabled = true;
+    }
+    hintBtn.addEventListener('click', function () {
+      if (hintsShown < hints.length) { hints[hintsShown].classList.add('shown'); hintsShown++; }
+      report();
+    });
+    stepBtn.addEventListener('click', function () {
+      if (stepsShown < steps.length) { steps[stepsShown].classList.add('shown'); stepsShown++; }
+      report();
+    });
+    allBtn.addEventListener('click', function () {
+      Array.prototype.forEach.call(hints, function (h) { h.classList.add('shown'); });
+      Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+      hintsShown = hints.length; stepsShown = steps.length;
+      report();
+    });
+
+    function check() {
+      var given = parseFloat(row.querySelector('input').value.replace(/[,\s]/g, '').trim());
+      if (isNaN(given)) {
+        fb.className = 'feedback no';
+        fb.textContent = 'Enter a number' + (unit ? ' in ' + unit + '.' : '.');
+        return;
+      }
+      var err = Math.abs(given - answer) / Math.abs(answer);
+      if (err <= tol) {
+        fb.className = 'feedback ok';
+        if (!settled) {
+          settled = true;
+          if (!hintsShown && !stepsShown) {
+            var solo = (state.best.gpSolo || 0) + 1;
+            state.best.gpSolo = solo;
+            saveState(state);
+            fb.textContent = 'Correct, with no help at all. That is ' + solo + ' solved unaided in this chapter.';
+          } else {
+            fb.textContent = 'Correct. Using the scaffolding is exactly what it is there for \u2014 try the next one with one fewer step.';
+          }
+        } else {
+          fb.textContent = 'Correct.';
+        }
+        Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+        stepsShown = steps.length;
+        report();
+      } else {
+        fb.className = 'feedback no';
+        var nudge = '';
+        var ratio = given / answer;
+        if (Math.abs(ratio - 1000) < 20 || Math.abs(ratio - 0.001) < 0.00002) nudge = ' The digits look right but the size is off by a factor of 1000 \u2014 check the prefix.';
+        else if (Math.abs(ratio - 10) < 0.2 || Math.abs(ratio - 0.1) < 0.002) nudge = ' You are out by a factor of ten. Check where the decimal point landed.';
+        fb.textContent = 'Not yet.' + nudge + (hintsShown < hints.length ? ' Try a hint before working a step.' : ' Work through the next step.');
+      }
+    }
+    checkBtn.addEventListener('click', check);
+    row.querySelector('input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+    report();
+  });
 
   /* ---------------- Worked examples: attempt before reveal ---------------- */
 
