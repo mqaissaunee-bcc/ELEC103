@@ -772,24 +772,35 @@ button.term {
   border: none;
   padding: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: help;
   border-bottom: 1.5px dotted var(--gold);
   min-height: 0;
 }
-button.term:hover { border-bottom-style: solid; }
-button.term[aria-expanded="true"] { background: var(--rule-soft); }
-.termdef {
-  display: block;
-  margin: .6rem 0 1rem;
-  padding: .6rem .8rem;
+button.term:hover, button.term:focus-visible { border-bottom-style: solid; background: var(--rule-soft); }
+
+.term-tip {
+  position: absolute;
+  z-index: 80;
+  max-width: 22rem;
+  background: var(--bench);
+  color: #E9F0F5;
+  border: 1px solid var(--bench-soft);
   border-left: 3px solid var(--gold);
-  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: .6rem .75rem;
   font-family: var(--font-ui);
-  font-size: .9rem;
-  color: var(--ink-soft);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: .86rem;
+  line-height: 1.5;
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
 }
-.termdef strong { color: var(--ink); }
+.term-tip[hidden] { display: none !important; }
+.term-tip.visible { opacity: 1; }
+.term-tip strong { color: var(--gold-bright); display: block; margin-bottom: .15rem; }
+.term-tip .tip-where { display: block; margin-top: .3rem; font-family: var(--font-num); font-size: .74rem; color: #9FB4C4; }
+@media (prefers-reduced-motion: reduce) { .term-tip { transition: none; } }
 
 /* ---------- Glossary panel ---------- */
 
@@ -1588,7 +1599,7 @@ footer.page {
     <h2><span class="sec-no">5.2</span>Total resistance adds</h2>
     <p>Resistors in series add. That is the whole rule:</p>
     <p style="text-align:center;font-family:var(--font-num);font-size:1.4rem;margin:1.3rem 0;"><em>R</em><sub>T</sub> = <em>R</em><sub>1</sub> + <em>R</em><sub>2</sub> + <em>R</em><sub>3</sub> + &hellip;</p>
-    <p>The reason is physical. Current has to pass through every resistor in turn, so each one adds its own opposition to the same single path. It is the same as making one long resistor out of several short ones.</p>
+    <p>The reason is physical. Current has to pass through every resistor in turn, so each one adds its own opposition to the same single path. It is the same as making one long resistor out of several <button class="term" data-term="short">short</button> ones.</p>
 
     <div class="worked" data-answer="4380" data-unit="&#937;" data-tol="0.01">
       <h4>Worked example 1</h4>
@@ -1690,7 +1701,7 @@ footer.page {
         <li>Volts divided by kilohms gives milliamperes directly, so you can work in kilohms throughout.</li>
       </ul>
       <ol class="gp-reveal steps" aria-label="Worked steps">
-        <li>Total resistance: 1.0 + 2.2 + 3.3 = 6.5 k&#937;.</li>
+        <li><button class="term" data-term="total-r">Total resistance</button>: 1.0 + 2.2 + 3.3 = 6.5 k&#937;.</li>
         <li>Apply Ohm’s law to the whole circuit: I = V&#8347; / R&#8348;.</li>
         <li>I = 18 V &divide; 6.5 k&#937; = 2.769 mA.</li>
         <li class="final">The current is <strong>2.77 mA</strong>, and it is the same at every point in the loop — through all three resistors and through the source.</li>
@@ -1849,7 +1860,7 @@ footer.page {
   </div>
 
   <div class="gp" data-answer="8.08" data-unit="V" data-tol="0.01">
-    <h4>Guided problem 4 &middot; a voltage divider</h4>
+    <h4>Guided problem 4 &middot; a <button class="term" data-term="divider">voltage divider</button></h4>
     <p class="gp-ask">In the divider below, what voltage appears across R2?</p>
       <figure>
         <svg viewBox="0 0 460 260" role="img" aria-label="A 12 volt source in series with R1 of 3.3 kilohms above R2 of 6.8 kilohms. The output is taken across R2.">
@@ -1932,7 +1943,7 @@ footer.page {
 
     <div class="callout caution">
       <h4>The catch that Chapter 7 will explain</h4>
-      <p>Connect a load across the output of a divider and the output voltage drops. The load is in parallel with the lower resistor, which changes the ratio. A divider built from large resistances is more affected than one built from small ones. For now, note that an unloaded divider and a loaded one behave differently — section 7 covers the arithmetic.</p>
+      <p>Connect a load across the output of a divider and the output voltage drops. The load is in parallel with the lower resistor, which changes the ratio. A divider built from large resistances is more affected than one built from small ones. For now, note that an unloaded divider and a <button class="term" data-term="rheostat-div">loaded one</button> behave differently — section 7 covers the arithmetic.</p>
     </div>
   </div>
   <div class="pager"></div>
@@ -1998,7 +2009,7 @@ footer.page {
   </div>
 
   <div class="col">
-    <h3>Subscript notation</h3>
+    <h3><button class="term" data-term="subscript">Subscript notation</button></h3>
     <ul>
       <li><strong>One subscript</strong> means with respect to ground. V<sub>A</sub> is the voltage at point A relative to the reference.</li>
       <li><strong>Two subscripts</strong> mean between those two points. V<sub>AB</sub> is the voltage at A relative to B, and it equals V<sub>A</sub> &minus; V<sub>B</sub>.</li>
@@ -2007,7 +2018,7 @@ footer.page {
 
     <div class="callout">
       <h4>Three meanings of the word</h4>
-      <p><em>Earth ground</em> is a physical connection to the earth, for safety. <em>Chassis ground</em> is the metal enclosure used as a common conductor. <em>Reference ground</em> is the circuit point everything is measured against. They are often connected, and they are often not. When a schematic says ground, it means the third one unless it says otherwise.</p>
+      <p><button class="term" data-term="earth-ground"><em>Earth ground</em></button> is a physical connection to the earth, for safety. <em>Chassis ground</em> is the metal enclosure used as a common conductor. <em>Reference ground</em> is the circuit point everything is measured against. They are often connected, and they are often not. When a schematic says ground, it means the third one unless it says otherwise.</p>
     </div>
   </div>
 
@@ -2066,7 +2077,7 @@ footer.page {
 <section class="panel" id="panel-9" role="tabpanel" aria-labelledby="tab-9" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">5.10</span>Faults in a series circuit</h2>
-    <p>Chapter 3 introduced open and short failures. A series circuit makes both of them easy to find, because the single path means a fault anywhere affects everything.</p>
+    <p>Chapter 3 introduced <button class="term" data-term="open">open</button> and short failures. A series circuit makes both of them easy to find, because the single path means a fault anywhere affects everything.</p>
 
     <h3>An open</h3>
     <p>Current stops everywhere. Every good resistor drops zero volts, because zero current through any resistance is zero volts. The entire source voltage appears across the break. The failed part shows the highest reading on the meter, not the lowest — which still surprises people the first several times.</p>
@@ -2117,7 +2128,7 @@ footer.page {
 
   <div class="col">
     <div class="callout">
-      <h4>Half-splitting still applies</h4>
+      <h4><button class="term" data-term="half-splitting">Half-splitting</button> still applies</h4>
       <p>With four resistors, measuring across two of them at once tells you which half the fault is in. Two more measurements find it exactly. Guessing component by component takes twice as long on average and much longer on a string of eight.</p>
     </div>
   </div>
@@ -3766,31 +3777,76 @@ footer.page {
   });
   renderGlossary('');
 
-  // inline dotted terms reveal their definition after the paragraph they sit in
-  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
-    var key = btn.getAttribute('data-term');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.type = 'button';
-    btn.addEventListener('click', function () {
-      var host = btn.closest('p, li');
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
-      if (open && existing) {
-        existing.parentNode.removeChild(existing);
-        btn.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      var g = glossIndex[key];
+  /* Inline dotted terms show their definition on hover. Hover alone would leave
+     out keyboard and touch users, so the same tooltip opens on focus and on tap,
+     and Escape dismisses it. */
+  (function wireTermTooltips() {
+    var tip = document.createElement('div');
+    tip.className = 'term-tip';
+    tip.id = 'termTip';
+    tip.setAttribute('role', 'tooltip');
+    tip.hidden = true;
+    document.body.appendChild(tip);
+    var current = null;
+
+    function place(btn) {
+      var r = btn.getBoundingClientRect();
+      var sx = window.pageXOffset, sy = window.pageYOffset;
+      tip.style.left = '0px';
+      tip.style.top = '0px';
+      tip.hidden = false;
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var left = r.left + sx + r.width / 2 - tw / 2;
+      var maxLeft = sx + document.documentElement.clientWidth - tw - 10;
+      if (left > maxLeft) left = maxLeft;
+      if (left < sx + 10) left = sx + 10;
+      var top = r.top + sy - th - 10;
+      if (r.top - th - 10 < 0) top = r.bottom + sy + 10;   // flip below when it would clip
+      tip.style.left = left.toFixed(0) + 'px';
+      tip.style.top = top.toFixed(0) + 'px';
+    }
+
+    function show(btn) {
+      var g = glossIndex[btn.getAttribute('data-term')];
       if (!g) return;
-      var span = document.createElement('span');
-      span.className = 'termdef';
-      span.setAttribute('data-for', key);
-      span.setAttribute('role', 'note');
-      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
-      host.parentNode.insertBefore(span, host.nextSibling);
-      btn.setAttribute('aria-expanded', 'true');
+      tip.innerHTML = '<strong>' + g.term + '</strong>' + g.def +
+        '<span class="tip-where">defined in ' + g.where + '</span>';
+      place(btn);
+      tip.classList.add('visible');
+      btn.setAttribute('aria-describedby', 'termTip');
+      current = btn;
+    }
+    function hide() {
+      tip.classList.remove('visible');
+      tip.hidden = true;
+      if (current) current.removeAttribute('aria-describedby');
+      current = null;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+      btn.type = 'button';
+      btn.addEventListener('pointerenter', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') show(btn);
+      });
+      btn.addEventListener('pointerleave', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') hide();
+      });
+      btn.addEventListener('focus', function () { show(btn); });
+      btn.addEventListener('blur', hide);
+      // On touch, focus fires before click, so a toggle here would close what
+      // focus just opened. Always show; tapping elsewhere or Escape dismisses.
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(btn);
+      });
     });
-  });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+    document.addEventListener('click', function (e) {
+      if (current && !e.target.closest('button.term')) hide();
+    });
+    window.addEventListener('scroll', function () { if (current) place(current); }, true);
+    window.addEventListener('resize', hide);
+  })();
 
   /* ---------------- Homework set ---------------- */
 

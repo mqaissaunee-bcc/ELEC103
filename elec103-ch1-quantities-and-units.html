@@ -772,24 +772,35 @@ button.term {
   border: none;
   padding: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: help;
   border-bottom: 1.5px dotted var(--gold);
   min-height: 0;
 }
-button.term:hover { border-bottom-style: solid; }
-button.term[aria-expanded="true"] { background: var(--rule-soft); }
-.termdef {
-  display: block;
-  margin: .6rem 0 1rem;
-  padding: .6rem .8rem;
+button.term:hover, button.term:focus-visible { border-bottom-style: solid; background: var(--rule-soft); }
+
+.term-tip {
+  position: absolute;
+  z-index: 80;
+  max-width: 22rem;
+  background: var(--bench);
+  color: #E9F0F5;
+  border: 1px solid var(--bench-soft);
   border-left: 3px solid var(--gold);
-  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: .6rem .75rem;
   font-family: var(--font-ui);
-  font-size: .9rem;
-  color: var(--ink-soft);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: .86rem;
+  line-height: 1.5;
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
 }
-.termdef strong { color: var(--ink); }
+.term-tip[hidden] { display: none !important; }
+.term-tip.visible { opacity: 1; }
+.term-tip strong { color: var(--gold-bright); display: block; margin-bottom: .15rem; }
+.term-tip .tip-where { display: block; margin-top: .3rem; font-family: var(--font-num); font-size: .74rem; color: #9FB4C4; }
+@media (prefers-reduced-motion: reduce) { .term-tip { transition: none; } }
 
 /* ---------- Glossary panel ---------- */
 
@@ -1520,7 +1531,7 @@ footer.page {
     <p>Every measurement has two parts: a number and a unit. Drop the unit and the number means nothing. This is not pedantry — it is the single most common way to lose points on an exam and the most common way to blow a fuse in lab.</p>
 
     <h3>The SI base units</h3>
-    <p>Seven units are defined independently; everything else is derived from them. Only four come up regularly in this course.</p>
+    <p>Seven units are defined independently; everything else is <button class="term" data-term="derived">derived</button> from them. Only four come up regularly in this course.</p>
   </div>
 
   <div class="tool">
@@ -1544,7 +1555,7 @@ footer.page {
   <div class="col">
     <div class="callout">
       <h4>Current is the odd one out</h4>
-      <p>Of all the electrical quantities, only current is an SI base unit. Everything else — voltage, resistance, power, charge — is derived from it and from the mechanical base units. One ampere is one coulomb per second, which makes current the bridge between electricity and the rest of physics.</p>
+      <p>Of all the electrical quantities, only current is an <button class="term" data-term="si">SI base unit</button>. Everything else — voltage, resistance, power, charge — is derived from it and from the mechanical base units. One ampere is one coulomb per second, which makes current the bridge between electricity and the rest of physics.</p>
     </div>
 
     <h3>Writing units correctly</h3>
@@ -1626,7 +1637,7 @@ footer.page {
     <h4>Guided problem 1 &middot; engineering notation</h4>
     <p class="gp-ask">A current is measured as 0.000 047 A. Express it in engineering notation, then state the value with its metric prefix. Enter just the coefficient.</p>
       <ul class="gp-reveal hints" aria-label="Hints">
-        <li>Engineering notation needs an exponent that is a multiple of three. Which multiples of three could work here?</li>
+        <li><button class="term" data-term="engineering">Engineering notation</button> needs an exponent that is a multiple of three. Which multiples of three could work here?</li>
         <li>Move the decimal point until one, two or three digits sit in front of it. Count the places as you go.</li>
       </ul>
       <ol class="gp-reveal steps" aria-label="Worked steps">
@@ -1831,14 +1842,14 @@ footer.page {
     <h3>Where the uncertainty comes from</h3>
     <p>Three sources account for most of it in this lab, and a good report names which one dominates.</p>
     <ul>
-      <li><strong>The instrument.</strong> A meter is specified to a tolerance, often something like 0.5% of reading plus one digit. That last digit is never trustworthy.</li>
+      <li><strong>The instrument.</strong> A meter is specified to a <button class="term" data-term="tolerance">tolerance</button>, often something like 0.5% of reading plus one digit. That last digit is never trustworthy.</li>
       <li><strong>The component.</strong> A 5% resistor marked 1.0 k&#937; may legitimately measure 950 &#937;.</li>
       <li><strong>The method.</strong> Inserting a meter changes the circuit slightly, and reading an analog scale from an angle introduces parallax.</li>
     </ul>
 
     <div class="callout">
       <h4>What this means for your lab reports</h4>
-      <p>Never write that a measurement "matched" the calculation. Write the calculated value, the measured value, the percent difference, and one sentence on which source of uncertainty accounts for it. That sentence is what the Interpret Data outcome is asking for, and it is what separates a B report from an A.</p>
+      <p>Never write that a measurement "matched" the calculation. Write the calculated value, the measured value, the <button class="term" data-term="percent-difference">percent difference</button>, and one sentence on which source of uncertainty accounts for it. That sentence is what the Interpret Data outcome is asking for, and it is what separates a B report from an A.</p>
     </div>
   </div>
 
@@ -1939,7 +1950,7 @@ footer.page {
     <p>The quantity you control goes on the horizontal axis; the quantity you measure goes on the vertical. If you set the supply voltage and read the resulting current, voltage is horizontal and current is vertical. Say it as "current against voltage" and the order is already right.</p>
 
     <h3>Choosing the scale</h3>
-    <p>Pick a scale where the data fills most of the plot. A graph where every point huddles in one corner wastes the page and hides the trend. But when your values span more than about two powers of ten, a linear axis stops working, and a logarithmic one is the honest choice.</p>
+    <p>Pick a scale where the data fills most of the plot. A graph where every point huddles in one corner wastes the page and hides the trend. But when your values span more than about two powers of ten, a <button class="term" data-term="linear-axis">linear axis</button> stops working, and a <button class="term" data-term="log-axis">logarithmic one</button> is the honest choice.</p>
   </div>
 
   <div class="tool">
@@ -1965,7 +1976,7 @@ footer.page {
 
   <div class="col">
     <h3>Drawing the line</h3>
-    <p>If the relationship should be a straight line, draw one straight line that passes as near as possible to all the points. Do not connect the dots. Connecting the dots claims that every wiggle between measurements is real, when almost always it is measurement error.</p>
+    <p>If the relationship should be a straight line, draw <button class="term" data-term="best-fit">one straight line</button> that passes as near as possible to all the points. Do not connect the dots. Connecting the dots claims that every wiggle between measurements is real, when almost always it is measurement error.</p>
     <p>Points that sit far off the line are worth a sentence in your report. Sometimes they are mistakes worth repeating; sometimes they are the most interesting thing you found.</p>
 
     <div class="callout">
@@ -2147,7 +2158,7 @@ footer.page {
         <div class="rmeta">free · open textbook · opens in a new tab</div>
       </a>
       <a class="res" href="https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:rational-exponents-radicals/x2f8bb11595b61c86:scientific-notation-intro/a/scientific-notation-review" target="_blank" rel="noopener noreferrer">
-        <div class="rt">Khan Academy — Scientific notation review</div>
+        <div class="rt">Khan Academy — <button class="term" data-term="scientific">Scientific notation</button> review</div>
         <div class="rd">Written from the algebra side rather than the electronics side. Useful if the exponent arithmetic itself is the sticking point.</div>
         <div class="rmeta">free · video and text · opens in a new tab</div>
       </a>
@@ -3466,31 +3477,76 @@ footer.page {
   });
   renderGlossary('');
 
-  // inline dotted terms reveal their definition after the paragraph they sit in
-  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
-    var key = btn.getAttribute('data-term');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.type = 'button';
-    btn.addEventListener('click', function () {
-      var host = btn.closest('p, li');
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
-      if (open && existing) {
-        existing.parentNode.removeChild(existing);
-        btn.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      var g = glossIndex[key];
+  /* Inline dotted terms show their definition on hover. Hover alone would leave
+     out keyboard and touch users, so the same tooltip opens on focus and on tap,
+     and Escape dismisses it. */
+  (function wireTermTooltips() {
+    var tip = document.createElement('div');
+    tip.className = 'term-tip';
+    tip.id = 'termTip';
+    tip.setAttribute('role', 'tooltip');
+    tip.hidden = true;
+    document.body.appendChild(tip);
+    var current = null;
+
+    function place(btn) {
+      var r = btn.getBoundingClientRect();
+      var sx = window.pageXOffset, sy = window.pageYOffset;
+      tip.style.left = '0px';
+      tip.style.top = '0px';
+      tip.hidden = false;
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var left = r.left + sx + r.width / 2 - tw / 2;
+      var maxLeft = sx + document.documentElement.clientWidth - tw - 10;
+      if (left > maxLeft) left = maxLeft;
+      if (left < sx + 10) left = sx + 10;
+      var top = r.top + sy - th - 10;
+      if (r.top - th - 10 < 0) top = r.bottom + sy + 10;   // flip below when it would clip
+      tip.style.left = left.toFixed(0) + 'px';
+      tip.style.top = top.toFixed(0) + 'px';
+    }
+
+    function show(btn) {
+      var g = glossIndex[btn.getAttribute('data-term')];
       if (!g) return;
-      var span = document.createElement('span');
-      span.className = 'termdef';
-      span.setAttribute('data-for', key);
-      span.setAttribute('role', 'note');
-      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
-      host.parentNode.insertBefore(span, host.nextSibling);
-      btn.setAttribute('aria-expanded', 'true');
+      tip.innerHTML = '<strong>' + g.term + '</strong>' + g.def +
+        '<span class="tip-where">defined in ' + g.where + '</span>';
+      place(btn);
+      tip.classList.add('visible');
+      btn.setAttribute('aria-describedby', 'termTip');
+      current = btn;
+    }
+    function hide() {
+      tip.classList.remove('visible');
+      tip.hidden = true;
+      if (current) current.removeAttribute('aria-describedby');
+      current = null;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+      btn.type = 'button';
+      btn.addEventListener('pointerenter', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') show(btn);
+      });
+      btn.addEventListener('pointerleave', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') hide();
+      });
+      btn.addEventListener('focus', function () { show(btn); });
+      btn.addEventListener('blur', hide);
+      // On touch, focus fires before click, so a toggle here would close what
+      // focus just opened. Always show; tapping elsewhere or Escape dismisses.
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(btn);
+      });
     });
-  });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+    document.addEventListener('click', function (e) {
+      if (current && !e.target.closest('button.term')) hide();
+    });
+    window.addEventListener('scroll', function () { if (current) place(current); }, true);
+    window.addEventListener('resize', hide);
+  })();
 
   /* ---------------- Homework set ---------------- */
 

@@ -772,24 +772,35 @@ button.term {
   border: none;
   padding: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: help;
   border-bottom: 1.5px dotted var(--gold);
   min-height: 0;
 }
-button.term:hover { border-bottom-style: solid; }
-button.term[aria-expanded="true"] { background: var(--rule-soft); }
-.termdef {
-  display: block;
-  margin: .6rem 0 1rem;
-  padding: .6rem .8rem;
+button.term:hover, button.term:focus-visible { border-bottom-style: solid; background: var(--rule-soft); }
+
+.term-tip {
+  position: absolute;
+  z-index: 80;
+  max-width: 22rem;
+  background: var(--bench);
+  color: #E9F0F5;
+  border: 1px solid var(--bench-soft);
   border-left: 3px solid var(--gold);
-  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: .6rem .75rem;
   font-family: var(--font-ui);
-  font-size: .9rem;
-  color: var(--ink-soft);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: .86rem;
+  line-height: 1.5;
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
 }
-.termdef strong { color: var(--ink); }
+.term-tip[hidden] { display: none !important; }
+.term-tip.visible { opacity: 1; }
+.term-tip strong { color: var(--gold-bright); display: block; margin-bottom: .15rem; }
+.term-tip .tip-where { display: block; margin-top: .3rem; font-family: var(--font-num); font-size: .74rem; color: #9FB4C4; }
+@media (prefers-reduced-motion: reduce) { .term-tip { transition: none; } }
 
 /* ---------- Glossary panel ---------- */
 
@@ -1580,7 +1591,7 @@ footer.page {
   <div class="col">
     <div class="callout caution">
       <h4>The mistake that ruins the whole problem</h4>
-      <p>Calling two resistors parallel because they are drawn side by side, or series because they are drawn end to end. Neither drawing tells you anything. Two resistors are in parallel only if <em>both</em> ends land on the same two nodes, and in series only if no third component connects between them. Trace the wire every time until it becomes automatic.</p>
+      <p>Calling two resistors parallel because they are drawn side by side, or series because they are drawn end to end. Neither drawing tells you anything. Two resistors are in parallel only if <em>both</em> ends land on the same two <button class="term" data-term="node">nodes</button>, and in series only if no third component connects between them. Trace the wire every time until it becomes automatic.</p>
     </div>
   </div>
 
@@ -1607,7 +1618,7 @@ footer.page {
   <div class="col">
     <h2><span class="sec-no">7.2</span>Reducing to an equivalent</h2>
     <p>An <button class="term" data-term="equivalent">equivalent circuit</button> is one that behaves identically at its terminals but is simpler inside. No measurement made from outside can tell the difference — that is what equivalent means, and it is why the substitution is legitimate.</p>
-    <p>Reduction works from the inside out: start furthest from the source, collapse one group at a time, and stop when a single resistance remains. Then work back outward to find the individual voltages and currents.</p>
+    <p><button class="term" data-term="reduction">Reduction</button> works from the inside out: start furthest from the source, collapse one group at a time, and stop when a single resistance remains. Then work back outward to find the individual voltages and currents.</p>
   </div>
 
   <div class="tool">
@@ -1666,7 +1677,7 @@ footer.page {
       <li>Reduce to a single equivalent resistance, R<sub>T</sub>.</li>
       <li>Total current from the source: I<sub>T</sub> = V<sub>S</sub> / R<sub>T</sub>.</li>
       <li>Work outward. Series elements carry the current you already know; parallel groups share the voltage you already know.</li>
-      <li>Check with KVL around a loop and KCL at a node.</li>
+      <li>Check with <button class="term" data-term="kvl">KVL</button> around a loop and KCL at a node.</li>
     </ol>
   </div>
 
@@ -1747,7 +1758,7 @@ footer.page {
 
     <div class="callout">
       <h4>Why checking matters more here</h4>
-      <p>A wrong reduction usually still produces plausible-looking numbers. The circuit does not complain, the units work out, and the answer is simply wrong. KVL and KCL are the only inexpensive way to catch that before it reaches your lab report or an exam page.</p>
+      <p>A wrong reduction usually still produces plausible-looking numbers. The circuit does not complain, the units work out, and the answer is simply wrong. KVL and <button class="term" data-term="kcl">KCL</button> are the only inexpensive way to catch that before it reaches your lab report or an exam page.</p>
     </div>
   </div>
   <div class="pager"></div>
@@ -1856,7 +1867,7 @@ footer.page {
 
     <div class="callout caution">
       <h4>Analog meters load much harder</h4>
-      <p>An analog meter's input resistance is given in ohms per volt and depends on the range you select. At 20 k&#937;/V on a 10 V range it presents 200 k&#937; — a thousand times worse than a typical digital meter, and enough to noticeably disturb a high-resistance circuit. Your lab has both kinds. Know which one you are holding.</p>
+      <p>An analog meter's input resistance is given in <button class="term" data-term="ohms-per-volt">ohms per volt</button> and depends on the range you select. At 20 k&#937;/V on a 10 V range it presents 200 k&#937; — a thousand times worse than a typical digital meter, and enough to noticeably disturb a high-resistance circuit. Your lab has both kinds. Know which one you are holding.</p>
     </div>
 
     <h3>The same idea, everywhere</h3>
@@ -1906,7 +1917,7 @@ footer.page {
 <section class="panel" id="panel-6" role="tabpanel" aria-labelledby="tab-6" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">7.7</span>The Wheatstone bridge</h2>
-    <p>A <button class="term" data-term="bridge">Wheatstone bridge</button> is two voltage dividers connected across the same source, with the measurement taken between their outputs. It is the most useful series-parallel circuit ever devised, and it works on a principle worth understanding.</p>
+    <p>A <button class="term" data-term="bridge">Wheatstone bridge</button> is two voltage dividers connected across the same source, with the measurement taken between their outputs. It is the most useful <button class="term" data-term="series-parallel">series-parallel</button> circuit ever devised, and it works on a principle worth understanding.</p>
     <p>When the two dividers produce the same fraction, the voltage between their outputs is zero. The bridge is then <button class="term" data-term="balanced">balanced</button>, and at balance:</p>
     <p style="text-align:center;font-family:var(--font-num);font-size:1.3rem;margin:1.3rem 0;"><em>R</em><sub>X</sub> = <em>R</em><sub>3</sub> &times; (<em>R</em><sub>2</sub> / <em>R</em><sub>1</sub>)</p>
   </div>
@@ -2239,7 +2250,7 @@ footer.page {
       <div class="card">
         <h4>Wheatstone bridge</h4>
         <p style="font-family:var(--font-num);">At balance: R&#8339; = R&#8323; &times; (R&#8322; / R&#8321;)</p>
-        <p class="fine">Two dividers across one source, measured between their outputs. At null the detector's accuracy does not affect the answer &mdash; only the known resistors do.</p>
+        <p class="fine">Two dividers across one source, measured between their outputs. At <button class="term" data-term="null">null</button> the detector's accuracy does not affect the answer &mdash; only the known resistors do.</p>
       </div>
 
       <div class="card">
@@ -3575,31 +3586,76 @@ footer.page {
   });
   renderGlossary('');
 
-  // inline dotted terms reveal their definition after the paragraph they sit in
-  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
-    var key = btn.getAttribute('data-term');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.type = 'button';
-    btn.addEventListener('click', function () {
-      var host = btn.closest('p, li');
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
-      if (open && existing) {
-        existing.parentNode.removeChild(existing);
-        btn.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      var g = glossIndex[key];
+  /* Inline dotted terms show their definition on hover. Hover alone would leave
+     out keyboard and touch users, so the same tooltip opens on focus and on tap,
+     and Escape dismisses it. */
+  (function wireTermTooltips() {
+    var tip = document.createElement('div');
+    tip.className = 'term-tip';
+    tip.id = 'termTip';
+    tip.setAttribute('role', 'tooltip');
+    tip.hidden = true;
+    document.body.appendChild(tip);
+    var current = null;
+
+    function place(btn) {
+      var r = btn.getBoundingClientRect();
+      var sx = window.pageXOffset, sy = window.pageYOffset;
+      tip.style.left = '0px';
+      tip.style.top = '0px';
+      tip.hidden = false;
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var left = r.left + sx + r.width / 2 - tw / 2;
+      var maxLeft = sx + document.documentElement.clientWidth - tw - 10;
+      if (left > maxLeft) left = maxLeft;
+      if (left < sx + 10) left = sx + 10;
+      var top = r.top + sy - th - 10;
+      if (r.top - th - 10 < 0) top = r.bottom + sy + 10;   // flip below when it would clip
+      tip.style.left = left.toFixed(0) + 'px';
+      tip.style.top = top.toFixed(0) + 'px';
+    }
+
+    function show(btn) {
+      var g = glossIndex[btn.getAttribute('data-term')];
       if (!g) return;
-      var span = document.createElement('span');
-      span.className = 'termdef';
-      span.setAttribute('data-for', key);
-      span.setAttribute('role', 'note');
-      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
-      host.parentNode.insertBefore(span, host.nextSibling);
-      btn.setAttribute('aria-expanded', 'true');
+      tip.innerHTML = '<strong>' + g.term + '</strong>' + g.def +
+        '<span class="tip-where">defined in ' + g.where + '</span>';
+      place(btn);
+      tip.classList.add('visible');
+      btn.setAttribute('aria-describedby', 'termTip');
+      current = btn;
+    }
+    function hide() {
+      tip.classList.remove('visible');
+      tip.hidden = true;
+      if (current) current.removeAttribute('aria-describedby');
+      current = null;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+      btn.type = 'button';
+      btn.addEventListener('pointerenter', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') show(btn);
+      });
+      btn.addEventListener('pointerleave', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') hide();
+      });
+      btn.addEventListener('focus', function () { show(btn); });
+      btn.addEventListener('blur', hide);
+      // On touch, focus fires before click, so a toggle here would close what
+      // focus just opened. Always show; tapping elsewhere or Escape dismisses.
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(btn);
+      });
     });
-  });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+    document.addEventListener('click', function (e) {
+      if (current && !e.target.closest('button.term')) hide();
+    });
+    window.addEventListener('scroll', function () { if (current) place(current); }, true);
+    window.addEventListener('resize', hide);
+  })();
 
   /* ---------------- Homework set ---------------- */
 

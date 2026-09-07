@@ -772,24 +772,35 @@ button.term {
   border: none;
   padding: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: help;
   border-bottom: 1.5px dotted var(--gold);
   min-height: 0;
 }
-button.term:hover { border-bottom-style: solid; }
-button.term[aria-expanded="true"] { background: var(--rule-soft); }
-.termdef {
-  display: block;
-  margin: .6rem 0 1rem;
-  padding: .6rem .8rem;
+button.term:hover, button.term:focus-visible { border-bottom-style: solid; background: var(--rule-soft); }
+
+.term-tip {
+  position: absolute;
+  z-index: 80;
+  max-width: 22rem;
+  background: var(--bench);
+  color: #E9F0F5;
+  border: 1px solid var(--bench-soft);
   border-left: 3px solid var(--gold);
-  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: .6rem .75rem;
   font-family: var(--font-ui);
-  font-size: .9rem;
-  color: var(--ink-soft);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: .86rem;
+  line-height: 1.5;
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
 }
-.termdef strong { color: var(--ink); }
+.term-tip[hidden] { display: none !important; }
+.term-tip.visible { opacity: 1; }
+.term-tip strong { color: var(--gold-bright); display: block; margin-bottom: .15rem; }
+.term-tip .tip-where { display: block; margin-top: .3rem; font-family: var(--font-num); font-size: .74rem; color: #9FB4C4; }
+@media (prefers-reduced-motion: reduce) { .term-tip { transition: none; } }
 
 /* ---------- Glossary panel ---------- */
 
@@ -1267,7 +1278,97 @@ table.ct.wide thead th { color: var(--ink-faint); border-bottom: 1px solid var(-
 @media print { .chapter-links { display: none !important; } }
 body.printing-notes .chapter-links { display: none !important; }
 
+/* ---------- Guided problems: scaffolded disclosure ---------- */
+
+.gp {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: 1.1rem 1.2rem;
+  margin: 1.8rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.gp > h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--gold-text);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+}
+.gp > h4 .gp-status {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.gp .gp-ask { margin: 0 0 .9rem; }
+.gp figure { margin: 1rem 0; }
+.gp figure svg { display: block; width: 100%; height: auto; background: var(--bench); border-radius: var(--r-sm); }
+.gp figcaption {
+  font-family: var(--font-ui); font-size: .8rem; color: var(--ink-faint);
+  margin-top: .4rem;
+}
+
+.gp-scaffold { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.gp-scaffold button {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600;
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.gp-scaffold button:hover:not(:disabled) { border-color: var(--gold); background: var(--rule-soft); }
+.gp-scaffold button:disabled { opacity: .45; cursor: not-allowed; }
+.gp-scaffold .gp-check { background: var(--bench); border-color: var(--bench); color: #EAF1F6; }
+.gp-scaffold .gp-check:hover:not(:disabled) { background: var(--bench-soft); border-color: var(--bench-soft); }
+
+.gp-reveal { margin: 1rem 0 0; padding: 0; list-style: none; }
+.gp-reveal li {
+  display: none;
+  padding: .6rem .8rem .6rem 2.2rem;
+  margin-bottom: .4rem;
+  border-radius: var(--r-sm);
+  position: relative;
+  font-size: .95rem;
+}
+.gp-reveal li.shown { display: block; }
+.gp-reveal.hints li {
+  background: var(--rule-soft);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.gp-reveal.hints li::before {
+  content: "?";
+  position: absolute; left: .8rem; top: .6rem;
+  font-family: var(--font-num); font-weight: 700; color: var(--gold-text);
+}
+.gp-reveal.steps li {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.gp-reveal.steps li::before {
+  content: counter(gpstep);
+  counter-increment: gpstep;
+  position: absolute; left: .75rem; top: .6rem;
+  font-family: var(--font-num); font-size: .8rem; font-weight: 700;
+  color: var(--gold-text);
+}
+.gp-reveal.steps { counter-reset: gpstep; }
+.gp-reveal.steps li.final {
+  border-color: var(--ok-ink);
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+  font-weight: 600;
+}
+.gp .feedback { margin-top: .9rem; }
+
 /* ---------- Cheat sheet ---------- */
+
 
 .cheat {
   background: var(--surface);
@@ -1454,7 +1555,7 @@ footer.page {
     </div>
 
     <h3>The sine wave</h3>
-    <p>The fundamental AC waveform is the sine wave. It is what a rotating generator naturally produces, and it has a property no other waveform shares: pass a sine wave through any combination of resistors, capacitors, and inductors and what comes out is still a sine wave, possibly shifted or scaled but never reshaped. Every other waveform can be built from sine waves added together.</p>
+    <p>The fundamental AC waveform is the <button class="term" data-term="sine">sine wave</button>. It is what a rotating generator naturally produces, and it has a property no other waveform shares: pass a sine wave through any combination of resistors, capacitors, and inductors and what comes out is still a sine wave, possibly shifted or scaled but never reshaped. Every other waveform can be built from sine waves added together.</p>
   </div>
 
   <div class="tool">
@@ -1542,6 +1643,37 @@ footer.page {
       <div class="feedback" id="ftDrillFeedback" role="status" aria-live="polite"></div>
     </div>
   </div>
+
+  <div class="gp" data-answer="25000" data-unit="Hz" data-tol="0.01">
+    <h4>Guided problem 1 &middot; period to frequency</h4>
+    <p class="gp-ask">A waveform has a period of 40 &#181;s. What is its frequency in hertz?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Period and frequency are reciprocals, so one is simply 1 divided by the other.</li>
+        <li>Convert the period to seconds before taking the reciprocal, or the answer will be out by a large factor.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Convert first: 40 &#181;s = 40 &times; 10&#8315;&#8310; s = 0.000 040 s.</li>
+        <li>Take the reciprocal: f = 1 &divide; 0.000 040.</li>
+        <li>That gives 25 000.</li>
+        <li class="final">The frequency is <strong>25 000 Hz</strong>, or 25 kHz. Note the pairing: microseconds and megahertz, milliseconds and kilohertz — 40 &#181;s sits between, at 25 kHz.</li>
+      </ol>
+  </div>
+
+  <div class="gp" data-answer="400" data-unit="µs" data-tol="0.01">
+    <h4>Guided problem 2 &middot; frequency to period</h4>
+    <p class="gp-ask">A function generator is set to 2.5 kHz. What is the period of its output in microseconds?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Start from T = 1/f and work in base units, then convert the answer at the end.</li>
+        <li>A period in the hundreds of microseconds corresponds to a frequency in the low kilohertz.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Convert the frequency: 2.5 kHz = 2 500 Hz.</li>
+        <li>T = 1 &divide; 2 500 = 0.0004 s.</li>
+        <li>Convert to microseconds: 0.0004 s &times; 10&#8310; = 400.</li>
+        <li class="final">The period is <strong>400 &#181;s</strong>. As a check, 400 &#181;s is 0.4 ms, and 1 ms pairs with 1 kHz, so 0.4 ms should pair with 2.5 kHz — it does.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1606,6 +1738,37 @@ footer.page {
       <p>A DMM on its AC range reports RMS. An oscilloscope shows you the waveform, from which you naturally read peak-to-peak. Measure the same signal with both and the numbers differ by a factor of about 2.83 — that is 2 &times; 0.707 upside down, not an instrument fault. Students lose a lot of lab time to this. Note which quantity each instrument gave you, every time.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="4.24" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 3 &middot; peak to RMS</h4>
+    <p class="gp-ask">A sine wave has a peak value of 6.0 V. What is its RMS value?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>For a sine wave, the RMS value is a fixed fraction of the peak.</li>
+        <li>That fraction is 0.707. Multiply, do not divide.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>RMS = 0.707 &times; peak.</li>
+        <li>Substitute: 0.707 &times; 6.0.</li>
+        <li>That gives 4.242.</li>
+        <li class="final">The RMS value is <strong>4.24 V</strong>. This is the DC voltage that would heat a resistor by the same amount, and it is what a DMM on its AC range would display.</li>
+      </ol>
+  </div>
+
+  <div class="gp" data-answer="33.9" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 4 &middot; RMS back to peak-to-peak</h4>
+    <p class="gp-ask">A DMM on its AC range reads 12.0 V RMS on a sine wave. If you put the same signal on an oscilloscope, what peak-to-peak voltage would you measure?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>You are going backwards here: from RMS to peak, and then from peak to peak-to-peak. Two steps, not one.</li>
+        <li>Going from RMS to peak means dividing by 0.707, which makes the number bigger.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>First find the peak: peak = RMS &divide; 0.707 = 12.0 &divide; 0.707 = 16.97 V.</li>
+        <li>Peak-to-peak is twice the peak.</li>
+        <li>2 &times; 16.97 = 33.94.</li>
+        <li class="final">The scope would show <strong>33.9 V peak-to-peak</strong>. The two instruments differ by a factor of about 2.83 on the same signal, and neither is wrong.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1613,7 +1776,7 @@ footer.page {
 <section class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">11.4</span>The function generator</h2>
-    <p>The <button class="term" data-term="funcgen">function generator</button> is your source of AC signals. It produces a waveform whose shape, frequency, and amplitude you set independently, and on most models it can add a DC offset as well.</p>
+    <p>The <button class="term" data-term="funcgen">function generator</button> is your source of AC signals. It produces a waveform whose shape, frequency, and amplitude you set independently, and on most models it can add a <button class="term" data-term="offset">DC offset</button> as well.</p>
 
     <h3>The controls you will actually use</h3>
     <ul>
@@ -1635,6 +1798,22 @@ footer.page {
     <h3>Reading a frequency counter</h3>
     <p>A frequency counter counts cycles over a known time window and displays the result directly. It is far more accurate than reading a period off a scope screen and dividing. If the lab has one, use it for the frequency and use the scope for the amplitude — each instrument to its strength.</p>
   </div>
+
+  <div class="gp" data-answer="3.54" data-unit="V" data-tol="0.01">
+    <h4>Guided problem 5 &middot; what the generator means by its setting</h4>
+    <p class="gp-ask">A function generator is set to produce a 10.0 V peak-to-peak sine wave. You connect a DMM on its AC range across the output. What voltage will the meter display?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>The generator is quoting peak-to-peak. The meter reports RMS. Convert between them.</li>
+        <li>Get from peak-to-peak to peak first, then apply the 0.707 factor.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Peak = peak-to-peak &divide; 2 = 10.0 &divide; 2 = 5.0 V.</li>
+        <li>RMS = 0.707 &times; peak = 0.707 &times; 5.0.</li>
+        <li>That gives 3.535.</li>
+        <li class="final">The meter will read <strong>3.54 V</strong>. This mismatch is why you should always check which quantity your generator’s display is quoting before recording anything.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1672,16 +1851,46 @@ footer.page {
     <h3>Pulse vocabulary</h3>
     <p>A pulse waveform spends part of each period high and the rest low. The fraction of the period spent high is the <button class="term" data-term="duty">duty cycle</button>, expressed as a percentage:</p>
     <p style="text-align:center;font-family:var(--font-num);font-size:1.25rem;margin:1.2rem 0;">duty cycle = (pulse width &divide; period) &times; 100%</p>
-    <p>A square wave is the special case of a 50% duty cycle. Real pulses do not switch instantly, so two more terms describe the edges: <strong>rise time</strong> is how long the leading edge takes to go from 10% to 90% of its full height, and <strong>fall time</strong> is the same measurement on the trailing edge.</p>
+    <p>A square wave is the special case of a 50% duty cycle. Real pulses do not switch instantly, so two more terms describe the edges: <button class="term" data-term="rise-time"><strong>rise time</strong></button> is how long the leading edge takes to go from 10% to 90% of its full height, and <strong>fall time</strong> is the same measurement on the trailing edge.</p>
 
     <h3>Superimposed DC</h3>
     <p>An AC waveform can ride on top of a DC level. Add 5 V of DC offset to a 2 V peak sine wave and the result swings between 3 V and 7 V, never going negative at all. This is extremely common in real circuits — the signal inside an amplifier is usually an AC waveform sitting on a DC operating point.</p>
 
     <div class="callout">
       <h4>This is what AC coupling is for</h4>
-      <p>Your oscilloscope has a coupling switch. On DC coupling it shows the whole signal, offset and all. On AC coupling it blocks the DC and shows only the varying part, which lets you look at a small ripple riding on a large DC level without the trace flying off the screen. Section 11.6 lets you try it.</p>
+      <p>Your oscilloscope has a <button class="term" data-term="coupling">coupling switch</button>. On DC coupling it shows the whole signal, offset and all. On AC coupling it blocks the DC and shows only the varying part, which lets you look at a small ripple riding on a large DC level without the trace flying off the screen. Section 11.6 lets you try it.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="25" data-unit="%" data-tol="0.01">
+    <h4>Guided problem 6 &middot; duty cycle from a waveform</h4>
+    <p class="gp-ask">The pulse waveform below is displayed with the timebase at 1 ms per division. What is its duty cycle as a percentage?</p>
+      <figure>
+        <svg viewBox="0 0 640 300" role="img" aria-labelledby="puT" aria-describedby="puD">
+          <title id="puT">A pulse waveform</title>
+          <desc id="puD">A repeating pulse. Each cycle occupies four divisions, and the waveform is high for the first one of those four divisions. The timebase is set to 1 millisecond per division.</desc>
+          <rect x="70" y="30" width="500" height="200" fill="#0B1712" stroke="#2C4A3B" stroke-width="2"></rect>
+          <g stroke="#1F3A2C" stroke-width="1"><line x1="70.0" y1="30" x2="70.0" y2="230"></line><line x1="120.0" y1="30" x2="120.0" y2="230"></line><line x1="170.0" y1="30" x2="170.0" y2="230"></line><line x1="220.0" y1="30" x2="220.0" y2="230"></line><line x1="270.0" y1="30" x2="270.0" y2="230"></line><line x1="320.0" y1="30" x2="320.0" y2="230"></line><line x1="370.0" y1="30" x2="370.0" y2="230"></line><line x1="420.0" y1="30" x2="420.0" y2="230"></line><line x1="470.0" y1="30" x2="470.0" y2="230"></line><line x1="520.0" y1="30" x2="520.0" y2="230"></line><line x1="570.0" y1="30" x2="570.0" y2="230"></line></g>
+          <path d="M 70.0 200.0 L 70.0 60.0 L 120.0 60.0 L 120.0 200.0 L 270.0 200.0 L 270.0 60.0 L 320.0 60.0 L 320.0 200.0 L 470.0 200.0 L 470.0 60.0 L 520.0 60.0 L 520.0 200.0 L 570.0 200.0" fill="none" stroke="#7DE3A1" stroke-width="2.5" stroke-linejoin="round"></path>
+          <path d="M 70.0 262 H 270.0" stroke="var(--gold-bright)" stroke-width="2"></path>
+          <path d="M 70.0 258 V 266 M 270.0 258 V 266" stroke="var(--gold-bright)" stroke-width="2"></path>
+          <text x="170.0" y="284" text-anchor="middle" class="label-svg" fill="var(--gold-bright)">one full cycle</text>
+          <text x="288" y="252" class="label-svg">1 ms / division</text>
+        </svg>
+        <figcaption>A pulse waveform with the timebase set to 1 ms per division.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Duty cycle is the fraction of each period that the waveform spends high, expressed as a percentage.</li>
+        <li>Count divisions rather than trying to judge time by eye. How many divisions is one full cycle, and how many of those is the pulse high?</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>One complete cycle occupies 4 divisions, so the period is 4 &times; 1 ms = 4 ms.</li>
+        <li>The waveform is high for 1 division, so the pulse width is 1 ms.</li>
+        <li>Duty cycle = width &divide; period &times; 100 = 1 &divide; 4 &times; 100.</li>
+        <li class="final">The duty cycle is <strong>25%</strong>. A square wave would be the special case of 50%.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1781,6 +1990,65 @@ footer.page {
       <p>Most scope probes have a switch marked 1&times; and 10&times;. On 10&times; the probe divides the signal by ten before it reaches the scope, which improves the measurement but means every voltage you read must be multiplied by ten — unless the scope has been told which probe is fitted. Check the probe switch and the scope's probe setting agree before you trust a number. A reading off by exactly ten is almost always this.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="3" data-unit="V" data-tol="0.02">
+    <h4>Guided problem 7 &middot; reading amplitude off the screen</h4>
+    <p class="gp-ask">The oscilloscope below is set as marked. What is the peak-to-peak voltage of the displayed signal?</p>
+      <figure>
+        <svg viewBox="0 0 640 420" role="img" aria-labelledby="scAT" aria-describedby="scAD">
+          <title id="scAT">Oscilloscope screen</title>
+          <desc id="scAD">The trace as it appears with the volts per division and time per division set as shown.</desc>
+          <rect x="70" y="25" width="500" height="320" fill="#0B1712" stroke="#2C4A3B" stroke-width="2"></rect>
+          <g stroke="#1F3A2C" stroke-width="1"><line x1="70.0" y1="25" x2="70.0" y2="345"></line><line x1="120.0" y1="25" x2="120.0" y2="345"></line><line x1="170.0" y1="25" x2="170.0" y2="345"></line><line x1="220.0" y1="25" x2="220.0" y2="345"></line><line x1="270.0" y1="25" x2="270.0" y2="345"></line><line x1="320.0" y1="25" x2="320.0" y2="345"></line><line x1="370.0" y1="25" x2="370.0" y2="345"></line><line x1="420.0" y1="25" x2="420.0" y2="345"></line><line x1="470.0" y1="25" x2="470.0" y2="345"></line><line x1="520.0" y1="25" x2="520.0" y2="345"></line><line x1="570.0" y1="25" x2="570.0" y2="345"></line><line x1="70" y1="25.0" x2="570" y2="25.0"></line><line x1="70" y1="65.0" x2="570" y2="65.0"></line><line x1="70" y1="105.0" x2="570" y2="105.0"></line><line x1="70" y1="145.0" x2="570" y2="145.0"></line><line x1="70" y1="185.0" x2="570" y2="185.0"></line><line x1="70" y1="225.0" x2="570" y2="225.0"></line><line x1="70" y1="265.0" x2="570" y2="265.0"></line><line x1="70" y1="305.0" x2="570" y2="305.0"></line><line x1="70" y1="345.0" x2="570" y2="345.0"></line></g>
+          <line x1="70" y1="185.0" x2="570" y2="185.0" stroke="#3E6B57" stroke-width="1" stroke-dasharray="4 6"></line>
+          <path d="M 70.0 185.0 L 71.2 180.3 L 72.5 175.6 L 73.8 170.9 L 75.0 166.2 L 76.2 161.6 L 77.5 157.0 L 78.8 152.4 L 80.0 147.9 L 81.2 143.5 L 82.5 139.1 L 83.8 134.8 L 85.0 130.5 L 86.2 126.4 L 87.5 122.3 L 88.8 118.3 L 90.0 114.5 L 91.2 110.7 L 92.5 107.1 L 93.8 103.5 L 95.0 100.1 L 96.2 96.9 L 97.5 93.8 L 98.8 90.8 L 100.0 87.9 L 101.2 85.2 L 102.5 82.7 L 103.8 80.3 L 105.0 78.1 L 106.2 76.0 L 107.5 74.1 L 108.8 72.4 L 110.0 70.9 L 111.2 69.5 L 112.5 68.3 L 113.8 67.3 L 115.0 66.5 L 116.2 65.8 L 117.5 65.4 L 118.8 65.1 L 120.0 65.0 L 121.2 65.1 L 122.5 65.4 L 123.8 65.8 L 125.0 66.5 L 126.2 67.3 L 127.5 68.3 L 128.8 69.5 L 130.0 70.9 L 131.2 72.4 L 132.5 74.1 L 133.8 76.0 L 135.0 78.1 L 136.2 80.3 L 137.5 82.7 L 138.8 85.2 L 140.0 87.9 L 141.2 90.8 L 142.5 93.8 L 143.8 96.9 L 145.0 100.1 L 146.2 103.5 L 147.5 107.1 L 148.8 110.7 L 150.0 114.5 L 151.2 118.3 L 152.5 122.3 L 153.8 126.4 L 155.0 130.5 L 156.2 134.8 L 157.5 139.1 L 158.8 143.5 L 160.0 147.9 L 161.2 152.4 L 162.5 157.0 L 163.8 161.6 L 165.0 166.2 L 166.2 170.9 L 167.5 175.6 L 168.8 180.3 L 170.0 185.0 L 171.2 189.7 L 172.5 194.4 L 173.8 199.1 L 175.0 203.8 L 176.2 208.4 L 177.5 213.0 L 178.8 217.6 L 180.0 222.1 L 181.2 226.5 L 182.5 230.9 L 183.8 235.2 L 185.0 239.5 L 186.2 243.6 L 187.5 247.7 L 188.8 251.7 L 190.0 255.5 L 191.2 259.3 L 192.5 262.9 L 193.8 266.5 L 195.0 269.9 L 196.2 273.1 L 197.5 276.2 L 198.8 279.2 L 200.0 282.1 L 201.2 284.8 L 202.5 287.3 L 203.8 289.7 L 205.0 291.9 L 206.2 294.0 L 207.5 295.9 L 208.8 297.6 L 210.0 299.1 L 211.2 300.5 L 212.5 301.7 L 213.8 302.7 L 215.0 303.5 L 216.2 304.2 L 217.5 304.6 L 218.8 304.9 L 220.0 305.0 L 221.2 304.9 L 222.5 304.6 L 223.8 304.2 L 225.0 303.5 L 226.2 302.7 L 227.5 301.7 L 228.8 300.5 L 230.0 299.1 L 231.2 297.6 L 232.5 295.9 L 233.8 294.0 L 235.0 291.9 L 236.2 289.7 L 237.5 287.3 L 238.8 284.8 L 240.0 282.1 L 241.2 279.2 L 242.5 276.2 L 243.8 273.1 L 245.0 269.9 L 246.2 266.5 L 247.5 262.9 L 248.8 259.3 L 250.0 255.5 L 251.2 251.7 L 252.5 247.7 L 253.8 243.6 L 255.0 239.5 L 256.2 235.2 L 257.5 230.9 L 258.8 226.5 L 260.0 222.1 L 261.2 217.6 L 262.5 213.0 L 263.8 208.4 L 265.0 203.8 L 266.2 199.1 L 267.5 194.4 L 268.8 189.7 L 270.0 185.0 L 271.2 180.3 L 272.5 175.6 L 273.8 170.9 L 275.0 166.2 L 276.2 161.6 L 277.5 157.0 L 278.8 152.4 L 280.0 147.9 L 281.2 143.5 L 282.5 139.1 L 283.8 134.8 L 285.0 130.5 L 286.2 126.4 L 287.5 122.3 L 288.8 118.3 L 290.0 114.5 L 291.2 110.7 L 292.5 107.1 L 293.8 103.5 L 295.0 100.1 L 296.2 96.9 L 297.5 93.8 L 298.8 90.8 L 300.0 87.9 L 301.2 85.2 L 302.5 82.7 L 303.8 80.3 L 305.0 78.1 L 306.2 76.0 L 307.5 74.1 L 308.8 72.4 L 310.0 70.9 L 311.2 69.5 L 312.5 68.3 L 313.8 67.3 L 315.0 66.5 L 316.2 65.8 L 317.5 65.4 L 318.8 65.1 L 320.0 65.0 L 321.2 65.1 L 322.5 65.4 L 323.8 65.8 L 325.0 66.5 L 326.2 67.3 L 327.5 68.3 L 328.8 69.5 L 330.0 70.9 L 331.2 72.4 L 332.5 74.1 L 333.8 76.0 L 335.0 78.1 L 336.2 80.3 L 337.5 82.7 L 338.8 85.2 L 340.0 87.9 L 341.2 90.8 L 342.5 93.8 L 343.8 96.9 L 345.0 100.1 L 346.2 103.5 L 347.5 107.1 L 348.8 110.7 L 350.0 114.5 L 351.2 118.3 L 352.5 122.3 L 353.8 126.4 L 355.0 130.5 L 356.2 134.8 L 357.5 139.1 L 358.8 143.5 L 360.0 147.9 L 361.2 152.4 L 362.5 157.0 L 363.8 161.6 L 365.0 166.2 L 366.2 170.9 L 367.5 175.6 L 368.8 180.3 L 370.0 185.0 L 371.2 189.7 L 372.5 194.4 L 373.8 199.1 L 375.0 203.8 L 376.2 208.4 L 377.5 213.0 L 378.8 217.6 L 380.0 222.1 L 381.2 226.5 L 382.5 230.9 L 383.8 235.2 L 385.0 239.5 L 386.2 243.6 L 387.5 247.7 L 388.8 251.7 L 390.0 255.5 L 391.2 259.3 L 392.5 262.9 L 393.8 266.5 L 395.0 269.9 L 396.2 273.1 L 397.5 276.2 L 398.8 279.2 L 400.0 282.1 L 401.2 284.8 L 402.5 287.3 L 403.8 289.7 L 405.0 291.9 L 406.2 294.0 L 407.5 295.9 L 408.8 297.6 L 410.0 299.1 L 411.2 300.5 L 412.5 301.7 L 413.8 302.7 L 415.0 303.5 L 416.2 304.2 L 417.5 304.6 L 418.8 304.9 L 420.0 305.0 L 421.2 304.9 L 422.5 304.6 L 423.8 304.2 L 425.0 303.5 L 426.2 302.7 L 427.5 301.7 L 428.8 300.5 L 430.0 299.1 L 431.2 297.6 L 432.5 295.9 L 433.8 294.0 L 435.0 291.9 L 436.2 289.7 L 437.5 287.3 L 438.8 284.8 L 440.0 282.1 L 441.2 279.2 L 442.5 276.2 L 443.8 273.1 L 445.0 269.9 L 446.2 266.5 L 447.5 262.9 L 448.8 259.3 L 450.0 255.5 L 451.2 251.7 L 452.5 247.7 L 453.8 243.6 L 455.0 239.5 L 456.2 235.2 L 457.5 230.9 L 458.8 226.5 L 460.0 222.1 L 461.2 217.6 L 462.5 213.0 L 463.8 208.4 L 465.0 203.8 L 466.2 199.1 L 467.5 194.4 L 468.8 189.7 L 470.0 185.0 L 471.2 180.3 L 472.5 175.6 L 473.8 170.9 L 475.0 166.2 L 476.2 161.6 L 477.5 157.0 L 478.8 152.4 L 480.0 147.9 L 481.2 143.5 L 482.5 139.1 L 483.8 134.8 L 485.0 130.5 L 486.2 126.4 L 487.5 122.3 L 488.8 118.3 L 490.0 114.5 L 491.2 110.7 L 492.5 107.1 L 493.8 103.5 L 495.0 100.1 L 496.2 96.9 L 497.5 93.8 L 498.8 90.8 L 500.0 87.9 L 501.2 85.2 L 502.5 82.7 L 503.8 80.3 L 505.0 78.1 L 506.2 76.0 L 507.5 74.1 L 508.8 72.4 L 510.0 70.9 L 511.2 69.5 L 512.5 68.3 L 513.8 67.3 L 515.0 66.5 L 516.2 65.8 L 517.5 65.4 L 518.8 65.1 L 520.0 65.0 L 521.2 65.1 L 522.5 65.4 L 523.8 65.8 L 525.0 66.5 L 526.2 67.3 L 527.5 68.3 L 528.8 69.5 L 530.0 70.9 L 531.2 72.4 L 532.5 74.1 L 533.8 76.0 L 535.0 78.1 L 536.2 80.3 L 537.5 82.7 L 538.8 85.2 L 540.0 87.9 L 541.2 90.8 L 542.5 93.8 L 543.8 96.9 L 545.0 100.1 L 546.2 103.5 L 547.5 107.1 L 548.8 110.7 L 550.0 114.5 L 551.2 118.3 L 552.5 122.3 L 553.8 126.4 L 555.0 130.5 L 556.2 134.8 L 557.5 139.1 L 558.8 143.5 L 560.0 147.9 L 561.2 152.4 L 562.5 157.0 L 563.8 161.6 L 565.0 166.2 L 566.2 170.9 L 567.5 175.6 L 568.8 180.3 L 570.0 185.0" fill="none" stroke="#7DE3A1" stroke-width="2.5"></path>
+          <text x="70" y="380" class="label-svg">0.5 V / division</text>
+          <text x="320" y="380" class="label-svg">0.2 ms / division</text>
+          <text x="320" y="405" text-anchor="middle" class="label-svg dim">10 divisions across, 8 high</text>
+        </svg>
+        <figcaption>A sine wave centred on the middle line. It spans six divisions from its lowest point to its highest, and one complete cycle occupies four divisions horizontally.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Count divisions from the lowest point of the trace to the highest, then multiply by the volts per division setting.</li>
+        <li>The trace spans six divisions vertically. The vertical control is at 0.5 V per division.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Count vertically: the trace runs 3 divisions above the centre line and 3 below, so 6 divisions peak-to-peak.</li>
+        <li>The vertical setting is 0.5 V per division.</li>
+        <li>Volts = divisions &times; volts/div = 6 &times; 0.5.</li>
+        <li class="final">The signal is <strong>3.0 V peak-to-peak</strong>. Its RMS value would be 0.707 &times; 1.5 = 1.06 V, since the peak is half the peak-to-peak.</li>
+      </ol>
+  </div>
+
+  <div class="gp" data-answer="4000" data-unit="Hz" data-tol="0.02">
+    <h4>Guided problem 8 &middot; reading frequency off the screen</h4>
+    <p class="gp-ask">A different signal is shown below, with the controls set as marked. What is its frequency in hertz?</p>
+      <figure>
+        <svg viewBox="0 0 640 420" role="img" aria-labelledby="scBT" aria-describedby="scBD">
+          <title id="scBT">Oscilloscope screen</title>
+          <desc id="scBD">A different signal, with the timebase and vertical sensitivity set as shown.</desc>
+          <rect x="70" y="25" width="500" height="320" fill="#0B1712" stroke="#2C4A3B" stroke-width="2"></rect>
+          <g stroke="#1F3A2C" stroke-width="1"><line x1="70.0" y1="25" x2="70.0" y2="345"></line><line x1="120.0" y1="25" x2="120.0" y2="345"></line><line x1="170.0" y1="25" x2="170.0" y2="345"></line><line x1="220.0" y1="25" x2="220.0" y2="345"></line><line x1="270.0" y1="25" x2="270.0" y2="345"></line><line x1="320.0" y1="25" x2="320.0" y2="345"></line><line x1="370.0" y1="25" x2="370.0" y2="345"></line><line x1="420.0" y1="25" x2="420.0" y2="345"></line><line x1="470.0" y1="25" x2="470.0" y2="345"></line><line x1="520.0" y1="25" x2="520.0" y2="345"></line><line x1="570.0" y1="25" x2="570.0" y2="345"></line><line x1="70" y1="25.0" x2="570" y2="25.0"></line><line x1="70" y1="65.0" x2="570" y2="65.0"></line><line x1="70" y1="105.0" x2="570" y2="105.0"></line><line x1="70" y1="145.0" x2="570" y2="145.0"></line><line x1="70" y1="185.0" x2="570" y2="185.0"></line><line x1="70" y1="225.0" x2="570" y2="225.0"></line><line x1="70" y1="265.0" x2="570" y2="265.0"></line><line x1="70" y1="305.0" x2="570" y2="305.0"></line><line x1="70" y1="345.0" x2="570" y2="345.0"></line></g>
+          <line x1="70" y1="185.0" x2="570" y2="185.0" stroke="#3E6B57" stroke-width="1" stroke-dasharray="4 6"></line>
+          <path d="M 70.0 185.0 L 71.2 181.9 L 72.5 178.7 L 73.8 175.6 L 75.0 172.5 L 76.2 169.4 L 77.5 166.3 L 78.8 163.2 L 80.0 160.1 L 81.2 157.1 L 82.5 154.1 L 83.8 151.1 L 85.0 148.2 L 86.2 145.3 L 87.5 142.4 L 88.8 139.6 L 90.0 136.8 L 91.2 134.1 L 92.5 131.4 L 93.8 128.8 L 95.0 126.2 L 96.2 123.7 L 97.5 121.3 L 98.8 118.9 L 100.0 116.5 L 101.2 114.3 L 102.5 112.1 L 103.8 110.0 L 105.0 107.9 L 106.2 106.0 L 107.5 104.1 L 108.8 102.3 L 110.0 100.6 L 111.2 98.9 L 112.5 97.4 L 113.8 95.9 L 115.0 94.5 L 116.2 93.2 L 117.5 92.0 L 118.8 90.9 L 120.0 89.9 L 121.2 89.0 L 122.5 88.1 L 123.8 87.4 L 125.0 86.8 L 126.2 86.2 L 127.5 85.8 L 128.8 85.4 L 130.0 85.2 L 131.2 85.0 L 132.5 85.0 L 133.8 85.0 L 135.0 85.2 L 136.2 85.4 L 137.5 85.8 L 138.8 86.2 L 140.0 86.8 L 141.2 87.4 L 142.5 88.1 L 143.8 89.0 L 145.0 89.9 L 146.2 90.9 L 147.5 92.0 L 148.8 93.2 L 150.0 94.5 L 151.2 95.9 L 152.5 97.4 L 153.8 98.9 L 155.0 100.6 L 156.2 102.3 L 157.5 104.1 L 158.8 106.0 L 160.0 107.9 L 161.2 110.0 L 162.5 112.1 L 163.8 114.3 L 165.0 116.5 L 166.2 118.9 L 167.5 121.3 L 168.8 123.7 L 170.0 126.2 L 171.2 128.8 L 172.5 131.4 L 173.8 134.1 L 175.0 136.8 L 176.2 139.6 L 177.5 142.4 L 178.8 145.3 L 180.0 148.2 L 181.2 151.1 L 182.5 154.1 L 183.8 157.1 L 185.0 160.1 L 186.2 163.2 L 187.5 166.3 L 188.8 169.4 L 190.0 172.5 L 191.2 175.6 L 192.5 178.7 L 193.8 181.9 L 195.0 185.0 L 196.2 188.1 L 197.5 191.3 L 198.8 194.4 L 200.0 197.5 L 201.2 200.6 L 202.5 203.7 L 203.8 206.8 L 205.0 209.9 L 206.2 212.9 L 207.5 215.9 L 208.8 218.9 L 210.0 221.8 L 211.2 224.7 L 212.5 227.6 L 213.8 230.4 L 215.0 233.2 L 216.2 235.9 L 217.5 238.6 L 218.8 241.2 L 220.0 243.8 L 221.2 246.3 L 222.5 248.7 L 223.8 251.1 L 225.0 253.5 L 226.2 255.7 L 227.5 257.9 L 228.8 260.0 L 230.0 262.1 L 231.2 264.0 L 232.5 265.9 L 233.8 267.7 L 235.0 269.4 L 236.2 271.1 L 237.5 272.6 L 238.8 274.1 L 240.0 275.5 L 241.2 276.8 L 242.5 278.0 L 243.8 279.1 L 245.0 280.1 L 246.2 281.0 L 247.5 281.9 L 248.8 282.6 L 250.0 283.2 L 251.2 283.8 L 252.5 284.2 L 253.8 284.6 L 255.0 284.8 L 256.2 285.0 L 257.5 285.0 L 258.8 285.0 L 260.0 284.8 L 261.2 284.6 L 262.5 284.2 L 263.8 283.8 L 265.0 283.2 L 266.2 282.6 L 267.5 281.9 L 268.8 281.0 L 270.0 280.1 L 271.2 279.1 L 272.5 278.0 L 273.8 276.8 L 275.0 275.5 L 276.2 274.1 L 277.5 272.6 L 278.8 271.1 L 280.0 269.4 L 281.2 267.7 L 282.5 265.9 L 283.8 264.0 L 285.0 262.1 L 286.2 260.0 L 287.5 257.9 L 288.8 255.7 L 290.0 253.5 L 291.2 251.1 L 292.5 248.7 L 293.8 246.3 L 295.0 243.8 L 296.2 241.2 L 297.5 238.6 L 298.8 235.9 L 300.0 233.2 L 301.2 230.4 L 302.5 227.6 L 303.8 224.7 L 305.0 221.8 L 306.2 218.9 L 307.5 215.9 L 308.8 212.9 L 310.0 209.9 L 311.2 206.8 L 312.5 203.7 L 313.8 200.6 L 315.0 197.5 L 316.2 194.4 L 317.5 191.3 L 318.8 188.1 L 320.0 185.0 L 321.2 181.9 L 322.5 178.7 L 323.8 175.6 L 325.0 172.5 L 326.2 169.4 L 327.5 166.3 L 328.8 163.2 L 330.0 160.1 L 331.2 157.1 L 332.5 154.1 L 333.8 151.1 L 335.0 148.2 L 336.2 145.3 L 337.5 142.4 L 338.8 139.6 L 340.0 136.8 L 341.2 134.1 L 342.5 131.4 L 343.8 128.8 L 345.0 126.2 L 346.2 123.7 L 347.5 121.3 L 348.8 118.9 L 350.0 116.5 L 351.2 114.3 L 352.5 112.1 L 353.8 110.0 L 355.0 107.9 L 356.2 106.0 L 357.5 104.1 L 358.8 102.3 L 360.0 100.6 L 361.2 98.9 L 362.5 97.4 L 363.8 95.9 L 365.0 94.5 L 366.2 93.2 L 367.5 92.0 L 368.8 90.9 L 370.0 89.9 L 371.2 89.0 L 372.5 88.1 L 373.8 87.4 L 375.0 86.8 L 376.2 86.2 L 377.5 85.8 L 378.8 85.4 L 380.0 85.2 L 381.2 85.0 L 382.5 85.0 L 383.8 85.0 L 385.0 85.2 L 386.2 85.4 L 387.5 85.8 L 388.8 86.2 L 390.0 86.8 L 391.2 87.4 L 392.5 88.1 L 393.8 89.0 L 395.0 89.9 L 396.2 90.9 L 397.5 92.0 L 398.8 93.2 L 400.0 94.5 L 401.2 95.9 L 402.5 97.4 L 403.8 98.9 L 405.0 100.6 L 406.2 102.3 L 407.5 104.1 L 408.8 106.0 L 410.0 107.9 L 411.2 110.0 L 412.5 112.1 L 413.8 114.3 L 415.0 116.5 L 416.2 118.9 L 417.5 121.3 L 418.8 123.7 L 420.0 126.2 L 421.2 128.8 L 422.5 131.4 L 423.8 134.1 L 425.0 136.8 L 426.2 139.6 L 427.5 142.4 L 428.8 145.3 L 430.0 148.2 L 431.2 151.1 L 432.5 154.1 L 433.8 157.1 L 435.0 160.1 L 436.2 163.2 L 437.5 166.3 L 438.8 169.4 L 440.0 172.5 L 441.2 175.6 L 442.5 178.7 L 443.8 181.9 L 445.0 185.0 L 446.2 188.1 L 447.5 191.3 L 448.8 194.4 L 450.0 197.5 L 451.2 200.6 L 452.5 203.7 L 453.8 206.8 L 455.0 209.9 L 456.2 212.9 L 457.5 215.9 L 458.8 218.9 L 460.0 221.8 L 461.2 224.7 L 462.5 227.6 L 463.8 230.4 L 465.0 233.2 L 466.2 235.9 L 467.5 238.6 L 468.8 241.2 L 470.0 243.8 L 471.2 246.3 L 472.5 248.7 L 473.8 251.1 L 475.0 253.5 L 476.2 255.7 L 477.5 257.9 L 478.8 260.0 L 480.0 262.1 L 481.2 264.0 L 482.5 265.9 L 483.8 267.7 L 485.0 269.4 L 486.2 271.1 L 487.5 272.6 L 488.8 274.1 L 490.0 275.5 L 491.2 276.8 L 492.5 278.0 L 493.8 279.1 L 495.0 280.1 L 496.2 281.0 L 497.5 281.9 L 498.8 282.6 L 500.0 283.2 L 501.2 283.8 L 502.5 284.2 L 503.8 284.6 L 505.0 284.8 L 506.2 285.0 L 507.5 285.0 L 508.8 285.0 L 510.0 284.8 L 511.2 284.6 L 512.5 284.2 L 513.8 283.8 L 515.0 283.2 L 516.2 282.6 L 517.5 281.9 L 518.8 281.0 L 520.0 280.1 L 521.2 279.1 L 522.5 278.0 L 523.8 276.8 L 525.0 275.5 L 526.2 274.1 L 527.5 272.6 L 528.8 271.1 L 530.0 269.4 L 531.2 267.7 L 532.5 265.9 L 533.8 264.0 L 535.0 262.1 L 536.2 260.0 L 537.5 257.9 L 538.8 255.7 L 540.0 253.5 L 541.2 251.1 L 542.5 248.7 L 543.8 246.3 L 545.0 243.8 L 546.2 241.2 L 547.5 238.6 L 548.8 235.9 L 550.0 233.2 L 551.2 230.4 L 552.5 227.6 L 553.8 224.7 L 555.0 221.8 L 556.2 218.9 L 557.5 215.9 L 558.8 212.9 L 560.0 209.9 L 561.2 206.8 L 562.5 203.7 L 563.8 200.6 L 565.0 197.5 L 566.2 194.4 L 567.5 191.3 L 568.8 188.1 L 570.0 185.0" fill="none" stroke="#7DE3A1" stroke-width="2.5"></path>
+          <text x="70" y="380" class="label-svg">2 V / division</text>
+          <text x="320" y="380" class="label-svg">50 &#181;s / division</text>
+          <text x="320" y="405" text-anchor="middle" class="label-svg dim">10 divisions across, 8 high</text>
+        </svg>
+        <figcaption>A sine wave centred on the middle line. It spans five divisions from its lowest point to its highest, and one complete cycle occupies five divisions horizontally.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Find the period first by counting the divisions in one complete cycle, then take the reciprocal.</li>
+        <li>One full cycle spans five divisions and the timebase is at 50 &#181;s per division.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Count one complete cycle: it occupies 5 divisions.</li>
+        <li>Period = divisions &times; time/div = 5 &times; 50 &#181;s = 250 &#181;s.</li>
+        <li>Convert to seconds: 250 &#181;s = 0.000 250 s.</li>
+        <li class="final">f = 1 &divide; T = 1 &divide; 0.000250 = <strong>4 000 Hz</strong>, or 4 kHz.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -2160,11 +2428,11 @@ footer.page {
 
   var SECTIONS = [
     { n: '11.1', label: 'Alternating current', min: 11 },
-    { n: '11.2', label: 'Period and frequency', min: 13 },
-    { n: '11.3', label: 'Peak, RMS, average', min: 15 },
-    { n: '11.4', label: 'Function generator', min: 9 },
-    { n: '11.5', label: 'Other waveforms', min: 12 },
-    { n: '11.6', label: 'The oscilloscope', min: 20 },
+    { n: '11.2', label: 'Period and frequency', min: 21 },
+    { n: '11.3', label: 'Peak, RMS, average', min: 23 },
+    { n: '11.4', label: 'Function generator', min: 14 },
+    { n: '11.5', label: 'Other waveforms', min: 18 },
+    { n: '11.6', label: 'The oscilloscope', min: 32 },
     { n: '11.7', label: 'Check yourself', min: 10 },
     { n: '', label: 'Homework', extra: true, min: 40 },
     { n: '', label: 'Glossary', extra: true },
@@ -2977,6 +3245,122 @@ footer.page {
   buildQuiz();
 
 
+  /* ---------------- Guided problems: scaffolded disclosure ----------------
+     Each .gp block holds an answer box, a list of hints, and a list of steps.
+     Hints and steps are revealed one at a time on request, so a student who
+     is nearly there gets a nudge rather than the whole solution. How much
+     scaffolding was used is reported back, but never penalised. */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.gp'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit') || '';
+    var tol = parseFloat(box.getAttribute('data-tol') || '0.01');
+    var hints = box.querySelectorAll('.gp-reveal.hints li');
+    var steps = box.querySelectorAll('.gp-reveal.steps li');
+    var hintsShown = 0, stepsShown = 0, settled = false;
+
+    var status = document.createElement('span');
+    status.className = 'gp-status';
+    box.querySelector('h4').appendChild(status);
+
+    var row = document.createElement('div');
+    row.className = 'answer-row';
+    var id = 'gp-' + idx;
+    row.innerHTML = '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      (unit ? '<span class="unit-tag">' + unit + '</span>' : '');
+    var ask = box.querySelector('.gp-ask');
+    var fig = box.querySelector('figure');
+    (fig || ask).parentNode.insertBefore(row, (fig || ask).nextSibling);
+
+    var bar = document.createElement('div');
+    bar.className = 'gp-scaffold';
+    var checkBtn = document.createElement('button');
+    checkBtn.type = 'button'; checkBtn.className = 'gp-check'; checkBtn.textContent = 'Check my answer';
+    var hintBtn = document.createElement('button');
+    hintBtn.type = 'button'; hintBtn.textContent = hints.length ? 'Give me a hint' : '';
+    var stepBtn = document.createElement('button');
+    stepBtn.type = 'button'; stepBtn.textContent = 'Work a step';
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button'; allBtn.textContent = 'Show the full solution';
+    bar.appendChild(checkBtn);
+    if (hints.length) bar.appendChild(hintBtn);
+    bar.appendChild(stepBtn);
+    bar.appendChild(allBtn);
+    box.insertBefore(bar, box.querySelector('.gp-reveal'));
+
+    var fb = document.createElement('div');
+    fb.className = 'feedback';
+    fb.setAttribute('role', 'status');
+    fb.setAttribute('aria-live', 'polite');
+    box.appendChild(fb);
+
+    function report() {
+      var bits = [];
+      if (hintsShown) bits.push(hintsShown + ' hint' + (hintsShown === 1 ? '' : 's'));
+      if (stepsShown) bits.push(stepsShown + ' step' + (stepsShown === 1 ? '' : 's'));
+      status.textContent = bits.length ? bits.join(' \u00B7 ') + ' revealed' : '';
+      hintBtn.disabled = hintsShown >= hints.length;
+      stepBtn.disabled = stepsShown >= steps.length;
+      if (stepsShown >= steps.length) allBtn.disabled = true;
+    }
+    hintBtn.addEventListener('click', function () {
+      if (hintsShown < hints.length) { hints[hintsShown].classList.add('shown'); hintsShown++; }
+      report();
+    });
+    stepBtn.addEventListener('click', function () {
+      if (stepsShown < steps.length) { steps[stepsShown].classList.add('shown'); stepsShown++; }
+      report();
+    });
+    allBtn.addEventListener('click', function () {
+      Array.prototype.forEach.call(hints, function (h) { h.classList.add('shown'); });
+      Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+      hintsShown = hints.length; stepsShown = steps.length;
+      report();
+    });
+
+    function check() {
+      var given = parseFloat(row.querySelector('input').value.replace(/[,\s]/g, '').trim());
+      if (isNaN(given)) {
+        fb.className = 'feedback no';
+        fb.textContent = 'Enter a number' + (unit ? ' in ' + unit + '.' : '.');
+        return;
+      }
+      var err = Math.abs(given - answer) / Math.abs(answer);
+      if (err <= tol) {
+        fb.className = 'feedback ok';
+        if (!settled) {
+          settled = true;
+          if (!hintsShown && !stepsShown) {
+            var solo = (state.best.gpSolo || 0) + 1;
+            state.best.gpSolo = solo;
+            saveState(state);
+            fb.textContent = 'Correct, with no help at all. That is ' + solo + ' solved unaided in this chapter.';
+          } else {
+            fb.textContent = 'Correct. Using the scaffolding is exactly what it is there for \u2014 try the next one with one fewer step.';
+          }
+        } else {
+          fb.textContent = 'Correct.';
+        }
+        Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+        stepsShown = steps.length;
+        report();
+      } else {
+        fb.className = 'feedback no';
+        var nudge = '';
+        var ratio = given / answer;
+        if (Math.abs(ratio - 1000) < 20 || Math.abs(ratio - 0.001) < 0.00002) nudge = ' The digits look right but the size is off by a factor of 1000 \u2014 check the prefix.';
+        else if (Math.abs(ratio - 10) < 0.2 || Math.abs(ratio - 0.1) < 0.002) nudge = ' You are out by a factor of ten. Check where the decimal point landed.';
+        fb.textContent = 'Not yet.' + nudge + (hintsShown < hints.length ? ' Try a hint before working a step.' : ' Work through the next step.');
+      }
+    }
+    checkBtn.addEventListener('click', check);
+    row.querySelector('input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+    report();
+  });
+
   /* ---------------- Worked examples: attempt before reveal ---------------- */
 
   Array.prototype.forEach.call(document.querySelectorAll('.worked[data-answer]'), function (box, idx) {
@@ -3075,31 +3459,76 @@ footer.page {
   });
   renderGlossary('');
 
-  // inline dotted terms reveal their definition after the paragraph they sit in
-  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
-    var key = btn.getAttribute('data-term');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.type = 'button';
-    btn.addEventListener('click', function () {
-      var host = btn.closest('p, li');
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
-      if (open && existing) {
-        existing.parentNode.removeChild(existing);
-        btn.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      var g = glossIndex[key];
+  /* Inline dotted terms show their definition on hover. Hover alone would leave
+     out keyboard and touch users, so the same tooltip opens on focus and on tap,
+     and Escape dismisses it. */
+  (function wireTermTooltips() {
+    var tip = document.createElement('div');
+    tip.className = 'term-tip';
+    tip.id = 'termTip';
+    tip.setAttribute('role', 'tooltip');
+    tip.hidden = true;
+    document.body.appendChild(tip);
+    var current = null;
+
+    function place(btn) {
+      var r = btn.getBoundingClientRect();
+      var sx = window.pageXOffset, sy = window.pageYOffset;
+      tip.style.left = '0px';
+      tip.style.top = '0px';
+      tip.hidden = false;
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var left = r.left + sx + r.width / 2 - tw / 2;
+      var maxLeft = sx + document.documentElement.clientWidth - tw - 10;
+      if (left > maxLeft) left = maxLeft;
+      if (left < sx + 10) left = sx + 10;
+      var top = r.top + sy - th - 10;
+      if (r.top - th - 10 < 0) top = r.bottom + sy + 10;   // flip below when it would clip
+      tip.style.left = left.toFixed(0) + 'px';
+      tip.style.top = top.toFixed(0) + 'px';
+    }
+
+    function show(btn) {
+      var g = glossIndex[btn.getAttribute('data-term')];
       if (!g) return;
-      var span = document.createElement('span');
-      span.className = 'termdef';
-      span.setAttribute('data-for', key);
-      span.setAttribute('role', 'note');
-      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
-      host.parentNode.insertBefore(span, host.nextSibling);
-      btn.setAttribute('aria-expanded', 'true');
+      tip.innerHTML = '<strong>' + g.term + '</strong>' + g.def +
+        '<span class="tip-where">defined in ' + g.where + '</span>';
+      place(btn);
+      tip.classList.add('visible');
+      btn.setAttribute('aria-describedby', 'termTip');
+      current = btn;
+    }
+    function hide() {
+      tip.classList.remove('visible');
+      tip.hidden = true;
+      if (current) current.removeAttribute('aria-describedby');
+      current = null;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+      btn.type = 'button';
+      btn.addEventListener('pointerenter', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') show(btn);
+      });
+      btn.addEventListener('pointerleave', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') hide();
+      });
+      btn.addEventListener('focus', function () { show(btn); });
+      btn.addEventListener('blur', hide);
+      // On touch, focus fires before click, so a toggle here would close what
+      // focus just opened. Always show; tapping elsewhere or Escape dismisses.
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(btn);
+      });
     });
-  });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+    document.addEventListener('click', function (e) {
+      if (current && !e.target.closest('button.term')) hide();
+    });
+    window.addEventListener('scroll', function () { if (current) place(current); }, true);
+    window.addEventListener('resize', hide);
+  })();
 
   /* ---------------- Homework set ---------------- */
 

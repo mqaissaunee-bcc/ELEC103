@@ -772,24 +772,35 @@ button.term {
   border: none;
   padding: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: help;
   border-bottom: 1.5px dotted var(--gold);
   min-height: 0;
 }
-button.term:hover { border-bottom-style: solid; }
-button.term[aria-expanded="true"] { background: var(--rule-soft); }
-.termdef {
-  display: block;
-  margin: .6rem 0 1rem;
-  padding: .6rem .8rem;
+button.term:hover, button.term:focus-visible { border-bottom-style: solid; background: var(--rule-soft); }
+
+.term-tip {
+  position: absolute;
+  z-index: 80;
+  max-width: 22rem;
+  background: var(--bench);
+  color: #E9F0F5;
+  border: 1px solid var(--bench-soft);
   border-left: 3px solid var(--gold);
-  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: .6rem .75rem;
   font-family: var(--font-ui);
-  font-size: .9rem;
-  color: var(--ink-soft);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: .86rem;
+  line-height: 1.5;
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
 }
-.termdef strong { color: var(--ink); }
+.term-tip[hidden] { display: none !important; }
+.term-tip.visible { opacity: 1; }
+.term-tip strong { color: var(--gold-bright); display: block; margin-bottom: .15rem; }
+.term-tip .tip-where { display: block; margin-top: .3rem; font-family: var(--font-num); font-size: .74rem; color: #9FB4C4; }
+@media (prefers-reduced-motion: reduce) { .term-tip { transition: none; } }
 
 /* ---------- Glossary panel ---------- */
 
@@ -1537,8 +1548,8 @@ footer.page {
     <h2><span class="sec-no">4.1</span>Energy and power are not the same thing</h2>
     <p>People use the two words interchangeably in ordinary speech. In this course they are separate quantities with separate units, and confusing them is the source of most of the errors in this chapter.</p>
     <ul>
-      <li><button class="term" data-term="energy">Energy</button> is the capacity to do work, measured in joules.</li>
-      <li><button class="term" data-term="power">Power</button> is the rate at which energy is used, measured in watts.</li>
+      <li><button class="term" data-term="energy">Energy</button> is the capacity to do work, measured in <button class="term" data-term="joule">joules</button>.</li>
+      <li><button class="term" data-term="power">Power</button> is the rate at which energy is used, measured in <button class="term" data-term="watt">watts</button>.</li>
     </ul>
     <p style="text-align:center;font-family:var(--font-num);font-size:1.45rem;margin:1.4rem 0;"><em>P</em> = <em>W</em> / <em>t</em></p>
     <p>One watt is one joule per second. A 60 W lamp does not contain 60 of anything; it consumes 60 joules every second it is on. Leave it on longer and it uses more energy at the same power.</p>
@@ -1652,7 +1663,7 @@ footer.page {
 
     <div class="worked" data-answer="0.6" data-unit="W" data-tol="0.02">
       <h4>Worked example 2</h4>
-      <p>A resistor has 12 V across it and 50 mA through it. What power does it dissipate?</p>
+      <p>A resistor has 12 V across it and 50 mA through it. What power does it <button class="term" data-term="dissipation">dissipate</button>?</p>
       <div class="steps">
         <span>P = V &times; I</span>
         <span>P = 12 V &times; 0.050 A</span>
@@ -1714,7 +1725,7 @@ footer.page {
         <li>Use P = V&sup2; / R.</li>
         <li>Square the voltage: 9.0&sup2; = 81.</li>
         <li>Divide by the resistance: 81 &divide; 470 = 0.1723 W.</li>
-        <li class="final">The resistor dissipates <strong>172 mW</strong>. A quarter-watt part handles this with a safety factor of about 1.45 — workable, but section 4.4 will ask for better.</li>
+        <li class="final">The resistor dissipates <strong>172 mW</strong>. A quarter-watt part handles this with a <button class="term" data-term="safety-factor">safety factor</button> of about 1.45 — workable, but section 4.4 will ask for better.</li>
       </ol>
   </div>
 
@@ -1795,7 +1806,7 @@ footer.page {
 
     <div class="callout caution">
       <h4>Ratings assume the part can breathe</h4>
-      <p>The number on the datasheet is measured in free air at room temperature. Pack a resistor inside a sealed box next to three others and its real capacity is lower. Manufacturers publish derating curves for exactly this reason. In this lab, on an open breadboard, the free-air figure is fair — but do not carry that assumption into a product.</p>
+      <p>The number on the datasheet is measured in free air at room temperature. Pack a resistor inside a sealed box next to three others and its real capacity is lower. Manufacturers publish <button class="term" data-term="derating">derating curves</button> for exactly this reason. In this lab, on an <button class="term" data-term="open">open</button> breadboard, the free-air figure is fair — but do not carry that assumption into a product.</p>
     </div>
   </div>
 
@@ -3255,31 +3266,76 @@ footer.page {
   });
   renderGlossary('');
 
-  // inline dotted terms reveal their definition after the paragraph they sit in
-  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
-    var key = btn.getAttribute('data-term');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.type = 'button';
-    btn.addEventListener('click', function () {
-      var host = btn.closest('p, li');
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
-      if (open && existing) {
-        existing.parentNode.removeChild(existing);
-        btn.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      var g = glossIndex[key];
+  /* Inline dotted terms show their definition on hover. Hover alone would leave
+     out keyboard and touch users, so the same tooltip opens on focus and on tap,
+     and Escape dismisses it. */
+  (function wireTermTooltips() {
+    var tip = document.createElement('div');
+    tip.className = 'term-tip';
+    tip.id = 'termTip';
+    tip.setAttribute('role', 'tooltip');
+    tip.hidden = true;
+    document.body.appendChild(tip);
+    var current = null;
+
+    function place(btn) {
+      var r = btn.getBoundingClientRect();
+      var sx = window.pageXOffset, sy = window.pageYOffset;
+      tip.style.left = '0px';
+      tip.style.top = '0px';
+      tip.hidden = false;
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var left = r.left + sx + r.width / 2 - tw / 2;
+      var maxLeft = sx + document.documentElement.clientWidth - tw - 10;
+      if (left > maxLeft) left = maxLeft;
+      if (left < sx + 10) left = sx + 10;
+      var top = r.top + sy - th - 10;
+      if (r.top - th - 10 < 0) top = r.bottom + sy + 10;   // flip below when it would clip
+      tip.style.left = left.toFixed(0) + 'px';
+      tip.style.top = top.toFixed(0) + 'px';
+    }
+
+    function show(btn) {
+      var g = glossIndex[btn.getAttribute('data-term')];
       if (!g) return;
-      var span = document.createElement('span');
-      span.className = 'termdef';
-      span.setAttribute('data-for', key);
-      span.setAttribute('role', 'note');
-      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
-      host.parentNode.insertBefore(span, host.nextSibling);
-      btn.setAttribute('aria-expanded', 'true');
+      tip.innerHTML = '<strong>' + g.term + '</strong>' + g.def +
+        '<span class="tip-where">defined in ' + g.where + '</span>';
+      place(btn);
+      tip.classList.add('visible');
+      btn.setAttribute('aria-describedby', 'termTip');
+      current = btn;
+    }
+    function hide() {
+      tip.classList.remove('visible');
+      tip.hidden = true;
+      if (current) current.removeAttribute('aria-describedby');
+      current = null;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+      btn.type = 'button';
+      btn.addEventListener('pointerenter', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') show(btn);
+      });
+      btn.addEventListener('pointerleave', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') hide();
+      });
+      btn.addEventListener('focus', function () { show(btn); });
+      btn.addEventListener('blur', hide);
+      // On touch, focus fires before click, so a toggle here would close what
+      // focus just opened. Always show; tapping elsewhere or Escape dismisses.
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(btn);
+      });
     });
-  });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+    document.addEventListener('click', function (e) {
+      if (current && !e.target.closest('button.term')) hide();
+    });
+    window.addEventListener('scroll', function () { if (current) place(current); }, true);
+    window.addEventListener('resize', hide);
+  })();
 
   /* ---------------- Homework set ---------------- */
 

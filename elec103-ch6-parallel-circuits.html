@@ -772,24 +772,35 @@ button.term {
   border: none;
   padding: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: help;
   border-bottom: 1.5px dotted var(--gold);
   min-height: 0;
 }
-button.term:hover { border-bottom-style: solid; }
-button.term[aria-expanded="true"] { background: var(--rule-soft); }
-.termdef {
-  display: block;
-  margin: .6rem 0 1rem;
-  padding: .6rem .8rem;
+button.term:hover, button.term:focus-visible { border-bottom-style: solid; background: var(--rule-soft); }
+
+.term-tip {
+  position: absolute;
+  z-index: 80;
+  max-width: 22rem;
+  background: var(--bench);
+  color: #E9F0F5;
+  border: 1px solid var(--bench-soft);
   border-left: 3px solid var(--gold);
-  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: .6rem .75rem;
   font-family: var(--font-ui);
-  font-size: .9rem;
-  color: var(--ink-soft);
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: .86rem;
+  line-height: 1.5;
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
 }
-.termdef strong { color: var(--ink); }
+.term-tip[hidden] { display: none !important; }
+.term-tip.visible { opacity: 1; }
+.term-tip strong { color: var(--gold-bright); display: block; margin-bottom: .15rem; }
+.term-tip .tip-where { display: block; margin-top: .3rem; font-family: var(--font-num); font-size: .74rem; color: #9FB4C4; }
+@media (prefers-reduced-motion: reduce) { .term-tip { transition: none; } }
 
 /* ---------- Glossary panel ---------- */
 
@@ -1587,7 +1598,7 @@ footer.page {
 <section class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">6.2</span>Voltage is common</h2>
-    <p>In a parallel circuit the voltage across every branch is the same. It has to be: each branch connects to the same two nodes, and the voltage between two points is one number.</p>
+    <p>In a parallel circuit the voltage across every <button class="term" data-term="branch">branch</button> is the same. It has to be: each branch connects to the same two nodes, and the voltage between two points is one number.</p>
     <p>This is the exact mirror of the series rule. In series the current was common and the voltage divided. In parallel the voltage is common and the current divides. Nearly everything else in this chapter follows from that swap.</p>
 
     <div class="callout">
@@ -1695,7 +1706,7 @@ footer.page {
 <section class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">6.4</span>Total resistance falls</h2>
-    <p>Adding a resistor in parallel gives current another route, so the total opposition goes down. The general formula uses reciprocals:</p>
+    <p>Adding a resistor in parallel gives current another route, so the total opposition goes down. Because <button class="term" data-term="conductance">conductance</button> adds in parallel, the general formula uses reciprocals:</p>
     <p style="text-align:center;font-family:var(--font-num);font-size:1.25rem;margin:1.3rem 0;">1 / <em>R</em><sub>T</sub> = 1/<em>R</em><sub>1</sub> + 1/<em>R</em><sub>2</sub> + 1/<em>R</em><sub>3</sub> + &hellip;</p>
     <p>The step everyone forgets is the last one. That expression gives you <em>one over</em> the total, so you must invert the sum at the end. An answer that comes out larger than your smallest resistor is the signature of this mistake.</p>
 
@@ -1776,7 +1787,7 @@ footer.page {
     <p>Four 1 k&#937; resistors in parallel are 250 &#937;. This comes up constantly, because equal resistors in parallel is how you build a resistance you do not have in the drawer, and how you spread power across several parts.</p>
 
     <h3>Exactly two branches</h3>
-    <p>For two resistors, the reciprocal formula collapses into the <button class="term" data-term="product-sum">product over sum</button> rule:</p>
+    <p>For two resistors, the <button class="term" data-term="reciprocal">reciprocal formula</button> collapses into the <button class="term" data-term="product-sum">product over sum</button> rule:</p>
     <p style="text-align:center;font-family:var(--font-num);font-size:1.25rem;margin:1.2rem 0;"><em>R</em><sub>T</sub> = (<em>R</em><sub>1</sub> &times; <em>R</em><sub>2</sub>) / (<em>R</em><sub>1</sub> + <em>R</em><sub>2</sub>)</p>
     <p>It only works for two at a time. For three resistors you can apply it twice — combine two, then combine that result with the third — or use the reciprocal formula directly.</p>
 
@@ -1835,7 +1846,7 @@ footer.page {
     <h2><span class="sec-no">6.6</span>The current divider rule</h2>
     <p>Just as a series circuit divides voltage in proportion to resistance, a parallel circuit divides current in <em>inverse</em> proportion to it:</p>
     <p style="text-align:center;font-family:var(--font-num);font-size:1.3rem;margin:1.3rem 0;"><em>I</em><sub>x</sub> = (<em>R</em><sub>T</sub> / <em>R</em><sub>x</sub>) &times; <em>I</em><sub>T</sub></p>
-    <p>The smallest resistance takes the largest current, because it offers the easiest route. That inversion is the single most common source of error in this chapter — the voltage divider puts R<sub>x</sub> on top, and the current divider puts it underneath.</p>
+    <p>The smallest resistance takes the largest current, because it offers the easiest route. That inversion is the single most common source of error in this chapter — the voltage divider puts R<sub>x</sub> on top, and the <button class="term" data-term="current-divider">current divider</button> puts it underneath.</p>
   </div>
 
   <div class="tool">
@@ -1998,7 +2009,7 @@ footer.page {
     <p>So a voltmeter tells you nothing. Every branch still reads the full source voltage, including the open one. You have to measure current, or lift the component and measure its resistance out of circuit.</p>
 
     <h3>A shorted branch</h3>
-    <p>Now the opposite. A short across one branch is a short across all of them, because they share the same two nodes. Total resistance collapses toward zero, current spikes, and the supply either current-limits, blows a fuse, or damages something. Every branch reads zero volts.</p>
+    <p>Now the opposite. A <button class="term" data-term="short-branch">short across one branch</button> is a short across all of them, because they share the same two nodes. Total resistance collapses toward zero, current spikes, and the supply either current-limits, blows a fuse, or damages something. Every branch reads zero volts.</p>
   </div>
 
   <div class="tool">
@@ -2047,7 +2058,7 @@ footer.page {
   </div>
 
   <div class="gp" data-answer="15.6" data-unit="mA" data-tol="0.02">
-    <h4>Guided problem 7 &middot; what an open branch does</h4>
+    <h4>Guided problem 7 &middot; what an <button class="term" data-term="open-branch">open branch</button> does</h4>
     <p class="gp-ask">In the circuit below, the 2.2 k&#937; branch has gone open. What is the new total current drawn from the source, in milliamperes?</p>
       <figure>
         <svg viewBox="0 0 560 290" role="img" aria-label="A 12 volt source across three parallel branches of 1 kilohm, 2.2 kilohms and 3.3 kilohms. The middle 2.2 kilohm branch is broken open.">
@@ -3774,31 +3785,76 @@ footer.page {
   });
   renderGlossary('');
 
-  // inline dotted terms reveal their definition after the paragraph they sit in
-  Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
-    var key = btn.getAttribute('data-term');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.type = 'button';
-    btn.addEventListener('click', function () {
-      var host = btn.closest('p, li');
-      var open = btn.getAttribute('aria-expanded') === 'true';
-      var existing = host.parentNode.querySelector('.termdef[data-for="' + key + '"]');
-      if (open && existing) {
-        existing.parentNode.removeChild(existing);
-        btn.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      var g = glossIndex[key];
+  /* Inline dotted terms show their definition on hover. Hover alone would leave
+     out keyboard and touch users, so the same tooltip opens on focus and on tap,
+     and Escape dismisses it. */
+  (function wireTermTooltips() {
+    var tip = document.createElement('div');
+    tip.className = 'term-tip';
+    tip.id = 'termTip';
+    tip.setAttribute('role', 'tooltip');
+    tip.hidden = true;
+    document.body.appendChild(tip);
+    var current = null;
+
+    function place(btn) {
+      var r = btn.getBoundingClientRect();
+      var sx = window.pageXOffset, sy = window.pageYOffset;
+      tip.style.left = '0px';
+      tip.style.top = '0px';
+      tip.hidden = false;
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var left = r.left + sx + r.width / 2 - tw / 2;
+      var maxLeft = sx + document.documentElement.clientWidth - tw - 10;
+      if (left > maxLeft) left = maxLeft;
+      if (left < sx + 10) left = sx + 10;
+      var top = r.top + sy - th - 10;
+      if (r.top - th - 10 < 0) top = r.bottom + sy + 10;   // flip below when it would clip
+      tip.style.left = left.toFixed(0) + 'px';
+      tip.style.top = top.toFixed(0) + 'px';
+    }
+
+    function show(btn) {
+      var g = glossIndex[btn.getAttribute('data-term')];
       if (!g) return;
-      var span = document.createElement('span');
-      span.className = 'termdef';
-      span.setAttribute('data-for', key);
-      span.setAttribute('role', 'note');
-      span.innerHTML = '<strong>' + g.term + '.</strong> ' + g.def;
-      host.parentNode.insertBefore(span, host.nextSibling);
-      btn.setAttribute('aria-expanded', 'true');
+      tip.innerHTML = '<strong>' + g.term + '</strong>' + g.def +
+        '<span class="tip-where">defined in ' + g.where + '</span>';
+      place(btn);
+      tip.classList.add('visible');
+      btn.setAttribute('aria-describedby', 'termTip');
+      current = btn;
+    }
+    function hide() {
+      tip.classList.remove('visible');
+      tip.hidden = true;
+      if (current) current.removeAttribute('aria-describedby');
+      current = null;
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button.term'), function (btn) {
+      btn.type = 'button';
+      btn.addEventListener('pointerenter', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') show(btn);
+      });
+      btn.addEventListener('pointerleave', function (e) {
+        if (!e.pointerType || e.pointerType === 'mouse') hide();
+      });
+      btn.addEventListener('focus', function () { show(btn); });
+      btn.addEventListener('blur', hide);
+      // On touch, focus fires before click, so a toggle here would close what
+      // focus just opened. Always show; tapping elsewhere or Escape dismisses.
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(btn);
+      });
     });
-  });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+    document.addEventListener('click', function (e) {
+      if (current && !e.target.closest('button.term')) hide();
+    });
+    window.addEventListener('scroll', function () { if (current) place(current); }, true);
+    window.addEventListener('resize', hide);
+  })();
 
   /* ---------------- Homework set ---------------- */
 
