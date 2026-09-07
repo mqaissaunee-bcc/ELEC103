@@ -1267,7 +1267,97 @@ table.ct.wide thead th { color: var(--ink-faint); border-bottom: 1px solid var(-
 @media print { .chapter-links { display: none !important; } }
 body.printing-notes .chapter-links { display: none !important; }
 
+/* ---------- Guided problems: scaffolded disclosure ---------- */
+
+.gp {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: 1.1rem 1.2rem;
+  margin: 1.8rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.gp > h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--gold-text);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+}
+.gp > h4 .gp-status {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.gp .gp-ask { margin: 0 0 .9rem; }
+.gp figure { margin: 1rem 0; }
+.gp figure svg { display: block; width: 100%; height: auto; background: var(--bench); border-radius: var(--r-sm); }
+.gp figcaption {
+  font-family: var(--font-ui); font-size: .8rem; color: var(--ink-faint);
+  margin-top: .4rem;
+}
+
+.gp-scaffold { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.gp-scaffold button {
+  min-height: 40px; padding: .45rem .8rem;
+  font-family: var(--font-ui); font-size: .82rem; font-weight: 600;
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.gp-scaffold button:hover:not(:disabled) { border-color: var(--gold); background: var(--rule-soft); }
+.gp-scaffold button:disabled { opacity: .45; cursor: not-allowed; }
+.gp-scaffold .gp-check { background: var(--bench); border-color: var(--bench); color: #EAF1F6; }
+.gp-scaffold .gp-check:hover:not(:disabled) { background: var(--bench-soft); border-color: var(--bench-soft); }
+
+.gp-reveal { margin: 1rem 0 0; padding: 0; list-style: none; }
+.gp-reveal li {
+  display: none;
+  padding: .6rem .8rem .6rem 2.2rem;
+  margin-bottom: .4rem;
+  border-radius: var(--r-sm);
+  position: relative;
+  font-size: .95rem;
+}
+.gp-reveal li.shown { display: block; }
+.gp-reveal.hints li {
+  background: var(--rule-soft);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+}
+.gp-reveal.hints li::before {
+  content: "?";
+  position: absolute; left: .8rem; top: .6rem;
+  font-family: var(--font-num); font-weight: 700; color: var(--gold-text);
+}
+.gp-reveal.steps li {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.gp-reveal.steps li::before {
+  content: counter(gpstep);
+  counter-increment: gpstep;
+  position: absolute; left: .75rem; top: .6rem;
+  font-family: var(--font-num); font-size: .8rem; font-weight: 700;
+  color: var(--gold-text);
+}
+.gp-reveal.steps { counter-reset: gpstep; }
+.gp-reveal.steps li.final {
+  border-color: var(--ok-ink);
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+  font-weight: 600;
+}
+.gp .feedback { margin-top: .9rem; }
+
 /* ---------- Cheat sheet ---------- */
+
 
 .cheat {
   background: var(--surface);
@@ -1502,6 +1592,22 @@ footer.page {
       <p>The same distinction decides whether a resistor survives. A resistor can pass a large current briefly without harm; sustain it and the resistor cooks. Power tells you the rate at which energy is arriving as heat, and section 4.4 turns that into a component you can actually buy.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="0.3" data-unit="kWh" data-tol="0.01">
+    <h4>Guided problem 1 &middot; energy from power and time</h4>
+    <p class="gp-ask">A 60 W lamp is left on for 5 hours. How much energy does it use, in kilowatt-hours?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Energy is power multiplied by time — the reverse of P = W / t.</li>
+        <li>A kilowatt-hour needs the power in kilowatts, not watts. Convert before multiplying.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Convert the power: 60 W = 0.060 kW.</li>
+        <li>Energy = power &times; time = 0.060 kW &times; 5 h.</li>
+        <li>That gives 0.30 kWh.</li>
+        <li class="final">The lamp uses <strong>0.3 kWh</strong>. At 18 cents per kWh that is about 5 cents — and in joules it is 1 080 000, which is why the utility does not bill in joules.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1596,6 +1702,22 @@ footer.page {
       <p class="streak" style="margin-top:.9rem;">Answers within 1% are accepted.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="172" data-unit="mW" data-tol="0.02">
+    <h4>Guided problem 2 &middot; power from voltage and resistance</h4>
+    <p class="gp-ask">A 470 &#937; resistor has 9.0 V across it. How much power does it dissipate, in milliwatts?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>You have voltage and resistance, so the form is P = V&sup2; / R.</li>
+        <li>Square the voltage first, then divide. Squaring the whole fraction is a different and wrong number.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Use P = V&sup2; / R.</li>
+        <li>Square the voltage: 9.0&sup2; = 81.</li>
+        <li>Divide by the resistance: 81 &divide; 470 = 0.1723 W.</li>
+        <li class="final">The resistor dissipates <strong>172 mW</strong>. A quarter-watt part handles this with a safety factor of about 1.45 — workable, but section 4.4 will ask for better.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1676,6 +1798,48 @@ footer.page {
       <p>The number on the datasheet is measured in free air at room temperature. Pack a resistor inside a sealed box next to three others and its real capacity is lower. Manufacturers publish derating curves for exactly this reason. In this lab, on an open breadboard, the free-air figure is fair — but do not carry that assumption into a product.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="2" data-unit="W" data-tol="0.01">
+    <h4>Guided problem 3 &middot; choosing a power rating</h4>
+    <p class="gp-ask">A 220 &#937; resistor will have 12 V across it. Applying the usual safety factor, what is the smallest standard power rating you should fit? Standard values are 0.125, 0.25, 0.5, 1 and 2 watts. Answer in watts.</p>
+      <figure>
+        <svg viewBox="0 0 640 180" role="img" aria-label="Five resistors drawn to relative scale, from an eighth of a watt at the left to two watts at the right. Each higher rating is physically larger than the one before it.">
+          <path d="M 18.0 90 H 40.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <path d="M 66.0 90 H 88.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <rect x="40.0" y="81.0" width="26" height="18" rx="8" fill="#C9B08A" stroke="#8A7355" stroke-width="2"></rect>
+          <text x="53.0" y="150" text-anchor="middle" class="label-svg">1/8 W</text>
+          <path d="M 106.0 90 H 128.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <path d="M 168.0 90 H 190.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <rect x="128.0" y="78.0" width="40" height="24" rx="8" fill="#C9B08A" stroke="#8A7355" stroke-width="2"></rect>
+          <text x="148.0" y="150" text-anchor="middle" class="label-svg">1/4 W</text>
+          <path d="M 208.0 90 H 230.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <path d="M 284.0 90 H 306.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <rect x="230.0" y="74.0" width="54" height="32" rx="8" fill="#C9B08A" stroke="#8A7355" stroke-width="2"></rect>
+          <text x="257.0" y="150" text-anchor="middle" class="label-svg">1/2 W</text>
+          <path d="M 324.0 90 H 346.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <path d="M 418.0 90 H 440.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <rect x="346.0" y="69.0" width="72" height="42" rx="8" fill="#C9B08A" stroke="#8A7355" stroke-width="2"></rect>
+          <text x="382.0" y="150" text-anchor="middle" class="label-svg">1 W</text>
+          <path d="M 458.0 90 H 480.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <path d="M 572.0 90 H 594.0" stroke="#8FA6B6" stroke-width="2.5" fill="none"></path>
+          <rect x="480.0" y="63.0" width="92" height="54" rx="8" fill="#C9B08A" stroke="#8A7355" stroke-width="2"></rect>
+          <text x="526.0" y="150" text-anchor="middle" class="label-svg">2 W</text>
+          <text x="320" y="26" text-anchor="middle" class="label-svg dim">drawn to relative scale</text>
+        </svg>
+        <figcaption>Resistor bodies at five standard power ratings, drawn to relative scale. All five could be the same resistance &mdash; a larger body simply sheds more heat, and that is what the rating measures.</figcaption>
+      </figure>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Work out the actual dissipation first, then apply the rule of thumb before choosing a part.</li>
+        <li>The rule of thumb is a factor of two: double the dissipation, then pick the next standard size at or above that.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Find the dissipation: P = V&sup2;/R = 144 &divide; 220 = 0.655 W.</li>
+        <li>Double it for the safety factor: 0.655 &times; 2 = 1.31 W.</li>
+        <li>Look along the standard values: 1 W is below 1.31 W, so it is not enough.</li>
+        <li class="final">Fit a <strong>2 W</strong> resistor. Fitting a 1 W part would leave a factor of only 1.53, and it would run hot enough to drift out of tolerance over time.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1712,6 +1876,22 @@ footer.page {
       <p style="margin:.8rem 0 0;font-size:.95rem;color:var(--ink-soft);">It will not survive this for long. This exact mistake, a resistor placed across the supply instead of in series with the load, is the most common way a part gets destroyed in this lab.</p>
     </div>
   </div>
+
+  <div class="gp" data-answer="5.76" data-unit="W" data-tol="0.02">
+    <h4>Guided problem 4 &middot; what happens when it goes wrong</h4>
+    <p class="gp-ask">A 100 &#937; resistor rated at a quarter of a watt is accidentally connected directly across a 24 V supply. How much power does it try to dissipate, in watts?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Nothing else is in the circuit, so the full 24 V appears across the resistor alone.</li>
+        <li>Use P = V&sup2;/R. Compare the answer with the quarter-watt rating when you have it.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>P = V&sup2; / R = 24&sup2; &divide; 100.</li>
+        <li>576 &divide; 100 = 5.76.</li>
+        <li>It tries to dissipate <strong>5.76 W</strong> in a part rated for 0.25 W — twenty-three times its rating.</li>
+        <li class="final">It will not survive. Expect discoloration within seconds and an open circuit shortly after, and remember that the resistor is the symptom: something put it across the supply, and that is what needs fixing.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1756,6 +1936,22 @@ footer.page {
     <h3>Ampere-hours are not energy</h3>
     <p>An ampere-hour is a quantity of charge, not of energy. To get energy you have to multiply by the voltage: a 2.5 Ah battery at 3.7 V holds about 9.25 watt-hours, while the same 2.5 Ah at 12 V holds 30 Wh. This is why comparing two batteries on ampere-hours alone tells you nothing unless they are the same voltage.</p>
   </div>
+
+  <div class="gp" data-answer="30" data-unit="h" data-tol="0.01">
+    <h4>Guided problem 5 &middot; how long will it run</h4>
+    <p class="gp-ask">A 4.5 Ah battery supplies a steady 150 mA. How many hours will it last, in theory?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Ampere-hours divided by amperes gives hours. The units cancel to leave time.</li>
+        <li>The current is in milliamperes and the capacity is in ampere-hours. Convert the current first.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Convert the current: 150 mA = 0.150 A.</li>
+        <li>time = capacity &divide; current = 4.5 Ah &divide; 0.150 A.</li>
+        <li>That gives 30.</li>
+        <li class="final">The battery lasts about <strong>30 hours</strong> in theory. In practice expect somewhat less, since capacity falls as the discharge rate rises — treat this as an upper bound.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -1816,6 +2012,22 @@ footer.page {
       </div>
     </div>
   </div>
+
+  <div class="gp" data-answer="13" data-unit="W" data-tol="0.01">
+    <h4>Guided problem 6 &middot; where the missing power goes</h4>
+    <p class="gp-ask">A power supply draws 65 W from the wall and delivers 52 W to its load. How much power becomes heat inside the supply, in watts?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Whatever goes in must come out, either as useful output or as heat.</li>
+        <li>You do not need to calculate the efficiency percentage to answer this — though it is worth doing afterwards.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>The input is 65 W and the useful output is 52 W.</li>
+        <li>Everything not delivered becomes heat: 65 &minus; 52.</li>
+        <li>That is <strong>13 W of heat</strong> inside the case.</li>
+        <li class="final">As a percentage, the efficiency is 52 &divide; 65 = 80%. Thirteen watts is roughly a soldering iron’s worth of heat, which is why supplies have vents and often a fan.</li>
+      </ol>
+  </div>
+
   <div class="pager"></div>
 </section>
 
@@ -2190,13 +2402,13 @@ footer.page {
   /* ---------------- Section navigation ---------------- */
 
   var SECTIONS = [
-    { n: '4.1', label: 'Energy and power', min: 11 },
+    { n: '4.1', label: 'Energy and power', min: 16 },
     { n: '4.2', label: 'Three formulas', min: 9 },
-    { n: '4.3', label: 'Calculating power', min: 14 },
-    { n: '4.4', label: 'Power ratings', min: 13 },
-    { n: '4.5', label: 'How resistors fail', min: 10 },
-    { n: '4.6', label: 'Battery life', min: 8 },
-    { n: '4.7', label: 'Efficiency', min: 9 },
+    { n: '4.3', label: 'Calculating power', min: 19 },
+    { n: '4.4', label: 'Power ratings', min: 19 },
+    { n: '4.5', label: 'How resistors fail', min: 15 },
+    { n: '4.6', label: 'Battery life', min: 12 },
+    { n: '4.7', label: 'Efficiency', min: 14 },
     { n: '4.8', label: 'Check yourself', min: 10 },
     { n: '', label: 'Homework', extra: true, min: 40 },
     { n: '', label: 'Glossary', extra: true },
@@ -2828,6 +3040,122 @@ footer.page {
   document.getElementById('quizReset').addEventListener('click', buildQuiz);
   buildQuiz();
 
+
+  /* ---------------- Guided problems: scaffolded disclosure ----------------
+     Each .gp block holds an answer box, a list of hints, and a list of steps.
+     Hints and steps are revealed one at a time on request, so a student who
+     is nearly there gets a nudge rather than the whole solution. How much
+     scaffolding was used is reported back, but never penalised. */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.gp'), function (box, idx) {
+    var answer = parseFloat(box.getAttribute('data-answer'));
+    var unit = box.getAttribute('data-unit') || '';
+    var tol = parseFloat(box.getAttribute('data-tol') || '0.01');
+    var hints = box.querySelectorAll('.gp-reveal.hints li');
+    var steps = box.querySelectorAll('.gp-reveal.steps li');
+    var hintsShown = 0, stepsShown = 0, settled = false;
+
+    var status = document.createElement('span');
+    status.className = 'gp-status';
+    box.querySelector('h4').appendChild(status);
+
+    var row = document.createElement('div');
+    row.className = 'answer-row';
+    var id = 'gp-' + idx;
+    row.innerHTML = '<label for="' + id + '" style="font-family:var(--font-ui);font-size:.85rem;color:var(--ink-soft);">Your answer</label>' +
+      '<input type="text" id="' + id + '" inputmode="decimal" autocomplete="off">' +
+      (unit ? '<span class="unit-tag">' + unit + '</span>' : '');
+    var ask = box.querySelector('.gp-ask');
+    var fig = box.querySelector('figure');
+    (fig || ask).parentNode.insertBefore(row, (fig || ask).nextSibling);
+
+    var bar = document.createElement('div');
+    bar.className = 'gp-scaffold';
+    var checkBtn = document.createElement('button');
+    checkBtn.type = 'button'; checkBtn.className = 'gp-check'; checkBtn.textContent = 'Check my answer';
+    var hintBtn = document.createElement('button');
+    hintBtn.type = 'button'; hintBtn.textContent = hints.length ? 'Give me a hint' : '';
+    var stepBtn = document.createElement('button');
+    stepBtn.type = 'button'; stepBtn.textContent = 'Work a step';
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button'; allBtn.textContent = 'Show the full solution';
+    bar.appendChild(checkBtn);
+    if (hints.length) bar.appendChild(hintBtn);
+    bar.appendChild(stepBtn);
+    bar.appendChild(allBtn);
+    box.insertBefore(bar, box.querySelector('.gp-reveal'));
+
+    var fb = document.createElement('div');
+    fb.className = 'feedback';
+    fb.setAttribute('role', 'status');
+    fb.setAttribute('aria-live', 'polite');
+    box.appendChild(fb);
+
+    function report() {
+      var bits = [];
+      if (hintsShown) bits.push(hintsShown + ' hint' + (hintsShown === 1 ? '' : 's'));
+      if (stepsShown) bits.push(stepsShown + ' step' + (stepsShown === 1 ? '' : 's'));
+      status.textContent = bits.length ? bits.join(' \u00B7 ') + ' revealed' : '';
+      hintBtn.disabled = hintsShown >= hints.length;
+      stepBtn.disabled = stepsShown >= steps.length;
+      if (stepsShown >= steps.length) allBtn.disabled = true;
+    }
+    hintBtn.addEventListener('click', function () {
+      if (hintsShown < hints.length) { hints[hintsShown].classList.add('shown'); hintsShown++; }
+      report();
+    });
+    stepBtn.addEventListener('click', function () {
+      if (stepsShown < steps.length) { steps[stepsShown].classList.add('shown'); stepsShown++; }
+      report();
+    });
+    allBtn.addEventListener('click', function () {
+      Array.prototype.forEach.call(hints, function (h) { h.classList.add('shown'); });
+      Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+      hintsShown = hints.length; stepsShown = steps.length;
+      report();
+    });
+
+    function check() {
+      var given = parseFloat(row.querySelector('input').value.replace(/[,\s]/g, '').trim());
+      if (isNaN(given)) {
+        fb.className = 'feedback no';
+        fb.textContent = 'Enter a number' + (unit ? ' in ' + unit + '.' : '.');
+        return;
+      }
+      var err = Math.abs(given - answer) / Math.abs(answer);
+      if (err <= tol) {
+        fb.className = 'feedback ok';
+        if (!settled) {
+          settled = true;
+          if (!hintsShown && !stepsShown) {
+            var solo = (state.best.gpSolo || 0) + 1;
+            state.best.gpSolo = solo;
+            saveState(state);
+            fb.textContent = 'Correct, with no help at all. That is ' + solo + ' solved unaided in this chapter.';
+          } else {
+            fb.textContent = 'Correct. Using the scaffolding is exactly what it is there for \u2014 try the next one with one fewer step.';
+          }
+        } else {
+          fb.textContent = 'Correct.';
+        }
+        Array.prototype.forEach.call(steps, function (s) { s.classList.add('shown'); });
+        stepsShown = steps.length;
+        report();
+      } else {
+        fb.className = 'feedback no';
+        var nudge = '';
+        var ratio = given / answer;
+        if (Math.abs(ratio - 1000) < 20 || Math.abs(ratio - 0.001) < 0.00002) nudge = ' The digits look right but the size is off by a factor of 1000 \u2014 check the prefix.';
+        else if (Math.abs(ratio - 10) < 0.2 || Math.abs(ratio - 0.1) < 0.002) nudge = ' You are out by a factor of ten. Check where the decimal point landed.';
+        fb.textContent = 'Not yet.' + nudge + (hintsShown < hints.length ? ' Try a hint before working a step.' : ' Work through the next step.');
+      }
+    }
+    checkBtn.addEventListener('click', check);
+    row.querySelector('input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+    report();
+  });
 
   /* ---------------- Worked examples: attempt before reveal ---------------- */
 
