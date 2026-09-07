@@ -1318,6 +1318,10 @@ body.printing-notes .chapter-links { display: none !important; }
 }
 .gp .feedback { margin-top: .9rem; }
 
+.calc-line { font-family: var(--font-num); font-size: 17px; fill: #9FD9B8; }
+.calc-line.dim { fill: #6E9C83; }
+.calc-hi { fill: #0B1712; }
+
 /* ---------- Cheat sheet ---------- */
 
 
@@ -1468,7 +1472,7 @@ footer.page {
   <div class="wrap">
     <div class="tablist" role="tablist" aria-label="Chapter 3 sections" id="tablist"></div>
     <div class="progress-row">
-      <span id="progressLabel">0 of 9 sections read</span>
+      <span id="progressLabel">0 of 13 sections read</span>
       <span class="bar"><i id="progressBar"></i></span>
       <span class="notes-chip" id="notesChip" aria-live="polite">
         <span aria-hidden="true">✎</span>
@@ -1518,13 +1522,33 @@ footer.page {
 
     <div class="callout">
       <h4>The one skill that carries the whole course</h4>
-      <p>Handling very large and very small numbers without losing track of scale. A resistor is 4 700 ohms; a current is 0.000 25 amperes; a capacitor is 0.000 000 1 farads. Writing those out is unworkable, so electronics has its own way of expressing them. That is what sections 1.3 through 1.5 are about, and every later chapter assumes you have it.</p>
+      <p>Handling very large and very small numbers without losing track of scale. A resistor is 4 700 ohms; a current is 0.000 25 amperes; a capacitor is 0.000 000 1 farads. Writing those out is unworkable, so electronics has its own way of expressing them. That is what sections 1.3 through 1.6 are about, and every later chapter assumes you have it.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>The three courses, and what each one adds</h3>
+    <table class="ct wide">
+      <thead><tr><th scope="col">Course</th><th scope="col">Chapters</th><th scope="col">What it adds</th></tr></thead>
+      <tbody>
+        <tr><td>This one</td><td>1&ndash;7, part of 11</td><td>DC circuits, measurement, and the instruments</td></tr>
+        <tr><td>The second</td><td>8&ndash;14</td><td>Circuit theorems, magnetism, capacitors, inductors, transformers</td></tr>
+        <tr><td>The third</td><td>15&ndash;21</td><td>Alternating current in depth, filters, resonance</td></tr>
+      </tbody>
+    </table>
+
+    <h3>What you will be doing in the lab</h3>
+    <p>Every week you will build something on a breadboard, measure it, compare the measurement against a calculation you made beforehand, and write down why they differ. That loop &mdash; predict, build, measure, explain &mdash; is the whole method of the course, and it does not change when the circuits get harder.</p>
+    <p>The instruments you will learn are a digital multimeter from Chapter 2 onward, a regulated power supply, and from week 8 a function generator and an oscilloscope. Those last two are why Chapter 11 sits in the middle of a direct-current course.</p>
+
+    <div class="callout">
+      <h4>Where this leads</h4>
+      <p>The skills in this course are the entry requirement for a long list of jobs rather than a subject in themselves: electronics technician, field service, instrumentation and controls, test engineering, biomedical equipment, avionics. All of them start with somebody who can read a schematic, take a trustworthy measurement, and explain a discrepancy. That is what the next fifteen weeks are for.</p>
     </div>
   </div>
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.2 ============ -->
 <section class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">1.2</span>Units and quantities</h2>
@@ -1571,7 +1595,6 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.3 ============ -->
 <section class="panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">1.3</span>Scientific and engineering notation</h2>
@@ -1656,10 +1679,78 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.4 ============ -->
 <section class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" tabindex="-1" hidden>
   <div class="col">
-    <h2><span class="sec-no">1.4</span>Metric prefixes</h2>
+    <h2><span class="sec-no">1.4</span>Using your calculator</h2>
+    <p>Your calculator will do every calculation in this course correctly, and it will also do the wrong calculation correctly if you let it. This section is about the settings and the habits that keep those two apart.</p>
+
+    <h3>Set the display mode once</h3>
+    <p>Press MODE and you will see a screen like the one below. The first row decides how answers are displayed.</p>
+  </div>
+
+      <figure>
+        <svg viewBox="0 0 460 250" role="img" aria-label="A calculator MODE screen. The first row offers NORMAL, SCI and ENG with ENG highlighted. The second row offers FLOAT and the digits 0 through 9, with FLOAT highlighted.">
+          <rect x="20" y="20" width="420" height="200" rx="8" fill="#101A16" stroke="#2C4A3B" stroke-width="2"></rect>
+          <text x="40" y="52" class="calc-line dim">NORMAL &#160;SCI &#160;<tspan class="calc-hi" style="paint-order:stroke;stroke:#9FD9B8;stroke-width:14px;stroke-linejoin:round;">ENG</tspan></text>
+          <text x="40" y="86" class="calc-line dim"><tspan class="calc-hi" style="paint-order:stroke;stroke:#9FD9B8;stroke-width:14px;stroke-linejoin:round;">FLOAT</tspan> &#160;0 1 2 3 4 5 6 7 8 9</text>
+          <text x="40" y="120" class="calc-line dim"><tspan class="calc-hi" style="paint-order:stroke;stroke:#9FD9B8;stroke-width:14px;stroke-linejoin:round;">RADIAN</tspan> &#160;DEGREE</text>
+          <text x="40" y="154" class="calc-line dim"><tspan class="calc-hi" style="paint-order:stroke;stroke:#9FD9B8;stroke-width:14px;stroke-linejoin:round;">FUNC</tspan> &#160;PAR &#160;POL &#160;SEQ</text>
+          <text x="40" y="196" class="calc-line" fill="#6E9C83">arrows, then ENTER</text>
+        </svg>
+        <figcaption>The MODE screen. The highlighted item in each row is the one currently in force; move with the arrow keys and press ENTER to change it.</figcaption>
+      </figure>
+
+  <div class="col">
+    <ul>
+      <li><strong>NORMAL</strong> shows ordinary decimals until the number gets too big or too small to fit, then falls back on scientific notation without warning.</li>
+      <li><strong>SCI</strong> forces scientific notation: one digit before the point, any exponent.</li>
+      <li><strong>ENG</strong> forces engineering notation: exponents that are multiples of three, which is what this subject uses.</li>
+    </ul>
+    <p>Put it on ENG at the start of the semester and leave it there. Every answer then arrives already lined up with a metric prefix, and the factor-of-a-thousand errors that section 1.6 warns about become much harder to make.</p>
+    <p>The second row, FLOAT through 9, sets how many decimal places are shown. Leave it on FLOAT. Fixing it to two decimals will silently round your intermediate results, which is exactly what section 1.10 tells you not to do.</p>
+
+    <h3>The EE key, and the mistake next to it</h3>
+    <p>To enter 4.7 &times; 10&#8315;&#8310;, you do <em>not</em> type 4.7 &times; 10 ^ &minus;6. You press <span class="eq">4.7</span>, then <span class="eq">2nd</span> <span class="eq">EE</span>, then <span class="eq">(&minus;)</span> <span class="eq">6</span>. The EE key means "times ten to the", so typing the &times; 10 as well multiplies by ten one extra time.</p>
+
+    <div class="callout caution">
+      <h4>Two different minus signs</h4>
+      <p>The grey <span class="eq">&minus;</span> key between the numbers is subtraction. The blue <span class="eq">(&minus;)</span> key near the bottom left makes a number negative. They are not interchangeable, and using subtraction where you meant a negative exponent gives a syntax error at best and a plausible wrong answer at worst.</p>
+    </div>
+
+    <h3>Parentheses are not optional</h3>
+    <p>The calculator follows order of operations exactly. <span class="eq">12 &divide; 2 &times; 3</span> is 18, not 2, because division and multiplication are done left to right. When you mean the whole of one thing divided by the whole of another, bracket both:</p>
+    <p style="text-align:center;font-family:var(--font-num);font-size:1.1rem;margin:1.1rem 0;">(1 &divide; 470 + 1 &divide; 220) <span style="color:var(--ink-faint);">&nbsp;not&nbsp;</span> 1 &divide; 470 + 1 &divide; 220 x&#8315;&#185;</p>
+    <p>That particular expression turns up in Chapter 6, and getting the brackets wrong there is the single most common calculator error in the whole course.</p>
+
+    <h3>Reuse the last answer</h3>
+    <p>Pressing <span class="eq">2nd</span> <span class="eq">(&minus;)</span> gives you <span class="eq">Ans</span>, the previous result, carried at full internal precision. Chaining calculations this way is better than writing down a rounded intermediate value and typing it back in, because the calculator keeps digits you did not bother to copy.</p>
+
+    <div class="callout">
+      <h4>Practise without the hardware</h4>
+      <p>The <a href="elec103-calculator-simulator.html" target="_blank" rel="noopener noreferrer">TI-84 simulator</a> behaves like the real machine, including the MODE screen above. The <a href="elec103-calculator-tutorial.html" target="_blank" rel="noopener noreferrer">worked examples guide</a> gives the exact keystrokes for Ohm&rsquo;s law, resistors in series and parallel, and the voltage divider. Both open in a new tab.</p>
+    </div>
+
+  <div class="gp" data-answer="0.1034" data-unit="" data-tol="0.01">
+    <h4>Guided problem C1 &middot; entering a small number</h4>
+    <p class="gp-ask">Using EE, enter 47 &times; 10&#8315;&#8310; and multiply it by 2 200. What does the calculator display, in ordinary decimal form?</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>47 &times; 10&#8315;&#8310; is 47, then 2nd EE, then the negative sign, then 6.</li>
+        <li>Use the blue (&minus;) key for the exponent, not the grey subtraction key.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Enter 47, press 2nd then EE, press (&minus;), press 6. The display shows 47<small>E</small>&minus;6.</li>
+        <li>Press &times;, then 2 200, then ENTER.</li>
+        <li>47 &times; 10&#8315;&#8310; = 0.000047, and 0.000047 &times; 2 200 = 0.1034.</li>
+        <li class="final">The answer is <strong>0.1034</strong>. In ENG mode the calculator would show this as 103.4<small>E</small>&minus;3 &mdash; that is 103.4 milli-something, which in Chapter 3 will be 103.4 mA.</li>
+      </ol>
+  </div>
+
+  <div class="pager"></div>
+</section>
+
+<section class="panel" id="panel-4" role="tabpanel" aria-labelledby="tab-4" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">1.5</span>Metric prefixes</h2>
     <p>A <button class="term" data-term="prefix">metric prefix</button> is a name for a power of ten. Once a number is in engineering notation, the prefix is just a substitution: 10<sup>3</sup> becomes k, 10<sup>&minus;3</sup> becomes m, and the number reads as a quantity a technician would say out loud.</p>
   </div>
 
@@ -1744,10 +1835,9 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.5 ============ -->
-<section class="panel" id="panel-4" role="tabpanel" aria-labelledby="tab-4" tabindex="-1" hidden>
+<section class="panel" id="panel-5" role="tabpanel" aria-labelledby="tab-5" tabindex="-1" hidden>
   <div class="col">
-    <h2><span class="sec-no">1.5</span>Arithmetic with prefixes</h2>
+    <h2><span class="sec-no">1.6</span>Arithmetic with prefixes</h2>
     <p>The rule for adding and subtracting is short: convert both numbers to the same prefix first, then add. There is no way around it, and skipping it is how 10 000 &#937; + 22 k&#937; becomes a wrong answer.</p>
 
     <div class="worked" data-answer="32" data-unit="k&#937;" data-tol="0.01">
@@ -1807,10 +1897,89 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.6 ============ -->
-<section class="panel" id="panel-5" role="tabpanel" aria-labelledby="tab-5" tabindex="-1" hidden>
+<section class="panel" id="panel-6" role="tabpanel" aria-labelledby="tab-6" tabindex="-1" hidden>
   <div class="col">
-    <h2><span class="sec-no">1.6</span>Error, accuracy, and precision</h2>
+    <h2><span class="sec-no">1.7</span>Estimating before you calculate</h2>
+    <p>A calculator will hand you a wrong answer with the same confidence as a right one. The only defence is knowing roughly what the answer should be before you press ENTER.</p>
+
+    <h3>Round to one digit and do it in your head</h3>
+    <p>Take 11.8 V across 2 170 &#937;. Round to 12 and 2 000. Twelve divided by two thousand is six thousandths, so about 6 mA. Now do it properly and you get 5.44 mA. The estimate was never meant to be the answer &mdash; it was meant to tell you whether 5.44 mA is believable, and it does.</p>
+    <p>The estimate takes about three seconds and it catches the errors that matter: a misplaced decimal point, a prefix left unconverted, a division done upside down. Those are wrong by factors of ten, a thousand, or more, and a one-digit estimate spots all of them.</p>
+
+    <h3>Know the ranges you work in</h3>
+    <p>After a few weeks in this lab you will have a feel for what is normal. Until then, borrow one:</p>
+    <table class="ct wide">
+      <thead><tr><th scope="col">Quantity</th><th scope="col">Usual range on this bench</th><th scope="col">Suspicious</th></tr></thead>
+      <tbody>
+        <tr><td>Supply voltage</td><td>1 V to 24 V</td><td>anything above about 50 V</td></tr>
+        <tr><td>Resistance</td><td>100 &#937; to 1 M&#937;</td><td>below 1 &#937;, or above 10 M&#937;</td></tr>
+        <tr><td>Current</td><td>0.1 mA to 100 mA</td><td>above about 1 A</td></tr>
+        <tr><td>Power in a resistor</td><td>1 mW to 500 mW</td><td>above 1 W</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem;">These are not laws. They are the shape of the work you will actually do, and a result that falls far outside them is a prompt to check rather than a discovery.</p>
+
+    <div class="callout">
+      <h4>The two questions to ask of every answer</h4>
+      <p><strong>Is it the right size?</strong> Compare it against your estimate and against the ranges above. <strong>Is it the right direction?</strong> If you increased the resistance, the current should have gone down. An answer that moved the wrong way is wrong even when the arithmetic checks out.</p>
+    </div>
+
+  <div class="gp" data-answer="1.91" data-unit="mA" data-tol="0.02">
+    <h4>Guided problem C2 &middot; catching a wrong answer</h4>
+    <p class="gp-ask">A student calculates the current in a 4.7 k&#937; resistor connected across 9 V and writes down 1.9 A. Estimate the correct value and give it in milliamperes.</p>
+      <ul class="gp-reveal hints" aria-label="Hints">
+        <li>Round both numbers to one digit: about 9 V across about 5 000 &#937;.</li>
+        <li>Nine divided by five thousand is a bit under two thousandths of an ampere. Compare that with the 1.9 A the student wrote.</li>
+      </ul>
+      <ol class="gp-reveal steps" aria-label="Worked steps">
+        <li>Estimate first: 9 &divide; 5 000 = 0.0018 A, which is about 1.8 mA.</li>
+        <li>The student&rsquo;s 1.9 A is a thousand times larger &mdash; the digits are right but the prefix is not.</li>
+        <li>Now calculate properly: 9 V &divide; 4 700 &#937; = 0.001915 A.</li>
+        <li class="final">The current is <strong>1.91 mA</strong>. The student almost certainly read the calculator display of 1.915<small>E</small>&minus;3 and copied the digits while ignoring the exponent.</li>
+      </ol>
+  </div>
+
+  <div class="pager"></div>
+</section>
+
+<section class="panel" id="panel-7" role="tabpanel" aria-labelledby="tab-7" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">1.8</span>Checking with units</h2>
+    <p>Units follow the same algebra as the numbers they sit beside. If you carry them through a calculation, they will tell you whether the calculation made sense.</p>
+
+    <h3>Units cancel</h3>
+    <p>Divide volts by ohms and the units themselves work out to amperes, because an ohm is defined as a volt per ampere:</p>
+    <p style="text-align:center;font-family:var(--font-num);font-size:1.15rem;margin:1.2rem 0;">V &divide; (V/A) = V &times; (A/V) = A</p>
+    <p>You do not have to remember that derivation. What matters is the habit: write the units into the working, and if they cancel to the unit you expected, the shape of the calculation was right.</p>
+
+    <div class="worked" data-answer="7.5" data-unit="V" data-tol="0.01">
+      <h4>Worked example 6</h4>
+      <p>A current of 15 mA is in a 500 &#937; resistor. Find the voltage, carrying the units through.</p>
+      <div class="steps">
+        <span>V = I &times; R = 0.015 A &times; 500 &#937;</span>
+        <span>Units: A &times; (V/A). The amperes cancel, leaving volts.</span>
+        <span>Numbers: 0.015 &times; 500 = 7.5</span>
+        <span class="ans">7.5 V &mdash; and the units confirm it should be volts</span>
+      </div>
+    </div>
+
+    <h3>When it catches a real error</h3>
+    <p>Suppose you had divided instead of multiplying: 0.015 A &divide; 500 &#937;. The units come out as A &divide; (V/A), which is A&sup2;/V &mdash; not a quantity that exists in this course. The number would have looked harmless at 0.00003, but the units say the operation was wrong before you ever thought about the value.</p>
+
+    <div class="callout">
+      <h4>Where this pays off later</h4>
+      <p>Chapter 4 has three power formulas that look similar and are easy to mix up. Carrying the units through tells you immediately whether you have <span class="eq">I&sup2;R</span> or <span class="eq">V&sup2;/R</span> the right way round, without memorizing which is which.</p>
+    </div>
+
+    <h3>The prefix trap it does not catch</h3>
+    <p>Unit checking confirms you did the right operation. It says nothing about whether you converted the prefixes first, because milliamperes and amperes are both amperes as far as the algebra is concerned. Use unit checking for the shape of the calculation and estimation from section 1.7 for the size. You need both.</p>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<section class="panel" id="panel-8" role="tabpanel" aria-labelledby="tab-8" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">1.9</span>Error, accuracy, and precision</h2>
     <p>Every measurement is uncertain. That is not a failure of technique; it is a property of measurement itself. What separates a good technician from a careless one is knowing how uncertain a reading is and saying so.</p>
     <p>Three words get used loosely in ordinary speech and mean specific things here.</p>
     <ul>
@@ -1876,10 +2045,9 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.7 ============ -->
-<section class="panel" id="panel-6" role="tabpanel" aria-labelledby="tab-6" tabindex="-1" hidden>
+<section class="panel" id="panel-9" role="tabpanel" aria-labelledby="tab-9" tabindex="-1" hidden>
   <div class="col">
-    <h2><span class="sec-no">1.7</span>Significant figures</h2>
+    <h2><span class="sec-no">1.10</span>Significant figures</h2>
     <p><button class="term" data-term="sigfig">Significant figures</button> are how you tell a reader how much of your number you actually believe. Reporting 2.7381 V from a meter that resolves to hundredths is a claim you cannot support.</p>
 
     <h3>The rules</h3>
@@ -1939,13 +2107,66 @@ footer.page {
       </ol>
   </div>
 
+
+  <div class="tool">
+    <div class="tool-head">
+      <h3>Significant figure drill</h3>
+      <span class="streak" id="sigDrillStreak">Streak 0 &middot; Best 0</span>
+    </div>
+    <div class="tool-body">
+      <p class="problem" id="sigDrillProblem">Loading a problem&hellip;</p>
+      <div class="answer-row">
+        <label for="sigDrillInput" class="visually-hidden">Your answer</label>
+        <input type="text" id="sigDrillInput" inputmode="numeric" autocomplete="off">
+        <span class="unit-tag" id="sigDrillUnit">figures</span>
+        <button class="btn" id="sigDrillCheck" type="button">Check answer</button>
+        <button class="btn ghost" id="sigDrillNew" type="button">New problem</button>
+      </div>
+      <div class="feedback" id="sigDrillFeedback" role="status" aria-live="polite"></div>
+    </div>
+  </div>
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.8 ============ -->
-<section class="panel" id="panel-7" role="tabpanel" aria-labelledby="tab-7" tabindex="-1" hidden>
+<section class="panel" id="panel-10" role="tabpanel" aria-labelledby="tab-10" tabindex="-1" hidden>
   <div class="col">
-    <h2><span class="sec-no">1.8</span>Collecting and graphing data</h2>
+    <h2><span class="sec-no">1.11</span>Collecting data</h2>
+    <p>Half of this course is lab work, and a lab report is only as good as the numbers it was built from. Most of what makes data trustworthy happens while you are taking it, not afterwards.</p>
+
+    <h3>Write it down when you read it</h3>
+    <p>In ink, with its units, before you do any arithmetic. Not into your phone, not into your memory, and not after you have finished all the readings. A number written five minutes later is a number you have already started to reconstruct.</p>
+
+    <h3>Record what the meter showed</h3>
+    <p>Including the digits you think are noise, and including readings that surprised you. The temptation to write 5.00 V when the meter says 4.97 V is strong and it is exactly the wrong instinct. A measurement that disagrees with your calculation is data; a measurement quietly adjusted to agree with it is nothing at all.</p>
+
+    <h3>Build the table before you build the circuit</h3>
+    <p>Draw the columns you are going to need, with headings and units, while you still have both hands free. A good table has a column for every quantity you will record and one more for anything you calculate from them, kept visibly separate.</p>
+
+    <table class="ct wide">
+      <thead><tr><th scope="col">V<sub>S</sub> set (V)</th><th scope="col">I measured (mA)</th><th scope="col">R calculated (&#937;)</th><th scope="col">Notes</th></tr></thead>
+      <tbody>
+        <tr><td>2.00</td><td>4.21</td><td>475</td><td></td></tr>
+        <tr><td>4.00</td><td>8.47</td><td>472</td><td></td></tr>
+        <tr><td>6.00</td><td>12.66</td><td>474</td><td></td></tr>
+        <tr><td>8.00</td><td>16.9</td><td>473</td><td>meter switched to 20 mA range</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem;">Notice the last row. The note about changing range is the kind of detail that explains a discontinuity in your graph three days later, when you no longer remember doing it.</p>
+
+    <h3>Take more than one reading</h3>
+    <p>Where a measurement matters, take it two or three times and record all of them rather than averaging on the spot. If they agree, you have evidence your method is repeatable. If they do not, you have learned something more useful than a single number would have told you &mdash; and section 1.9 has the vocabulary for describing it.</p>
+
+    <div class="callout caution">
+      <h4>What not to record</h4>
+      <p>Do not write down more digits than the instrument gave you. If the meter displays 4.97, then 4.97 is what you know; writing 4.970 claims a precision the instrument never offered. Section 1.10 covers the rules, but the discipline starts here, at the bench.</p>
+    </div>
+  </div>
+  <div class="pager"></div>
+</section>
+
+<section class="panel" id="panel-11" role="tabpanel" aria-labelledby="tab-11" tabindex="-1" hidden>
+  <div class="col">
+    <h2><span class="sec-no">1.12</span>Collecting and graphing data</h2>
     <p>Half of this course is lab work, and a lab report is mostly a graph with an argument attached. This section is about making the graph say something true.</p>
 
     <h3>Recording as you go</h3>
@@ -2028,13 +2249,52 @@ footer.page {
       </ol>
   </div>
 
+
+  <div class="col">
+    <h3>Building the chart in Excel</h3>
+    <p>Assignment 4 has to be done in Excel, and one choice in that process decides whether the graph is right.</p>
+    <p>Select your two columns, then insert a chart of type <strong>Scatter</strong> &mdash; specifically <em>Scatter with only markers</em>. Do not use <strong>Line</strong>. The names sound interchangeable and the results are not.</p>
+  </div>
+
+      <figure>
+        <svg viewBox="0 0 660 292" role="img" aria-labelledby="xlT" aria-describedby="xlD">
+          <title id="xlT">The same five readings as a scatter chart and as a line chart</title>
+          <desc id="xlD">Readings were taken at 0, 1, 2, 3 and 10 volts. The scatter chart places them at their true x values and they fall on a straight line. The line chart spaces them equally, which bends the same data into a sharp kink.</desc>
+          <text x="160" y="24" text-anchor="middle" class="label-svg">Scatter chart &mdash; correct</text>
+          <text x="480" y="24" text-anchor="middle" class="label-svg">Line chart &mdash; wrong</text>
+          <g stroke="#33485A" stroke-width="1">
+            <line x1="50" y1="40" x2="50" y2="220"></line><line x1="50" y1="220" x2="280" y2="220"></line>
+            <line x1="370" y1="40" x2="370" y2="220"></line><line x1="370" y1="220" x2="600" y2="220"></line>
+          </g>
+          <polyline points="50,220 72,203 94,186 116,169 270,50" fill="none" stroke="var(--gold-bright)" stroke-width="3"></polyline>
+          <g fill="var(--gold-bright)" stroke="#17242F" stroke-width="1.5"><circle cx="50" cy="220" r="5"></circle><circle cx="72" cy="203" r="5"></circle><circle cx="94" cy="186" r="5"></circle><circle cx="116" cy="169" r="5"></circle><circle cx="270" cy="50" r="5"></circle></g>
+          <polyline points="370,220 425,203 480,186 535,169 590,50" fill="none" stroke="#E8695A" stroke-width="3"></polyline>
+          <g fill="#E8695A" stroke="#17242F" stroke-width="1.5"><circle cx="370" cy="220" r="5"></circle><circle cx="425" cy="203" r="5"></circle><circle cx="480" cy="186" r="5"></circle><circle cx="535" cy="169" r="5"></circle><circle cx="590" cy="50" r="5"></circle></g>
+          <g class="label-svg dim"><text x="50" y="240" text-anchor="middle">0</text><text x="72" y="240" text-anchor="middle">1</text><text x="94" y="240" text-anchor="middle">2</text><text x="116" y="240" text-anchor="middle">3</text><text x="270" y="240" text-anchor="middle">10</text><text x="370" y="240" text-anchor="middle">0</text><text x="425" y="240" text-anchor="middle">1</text><text x="480" y="240" text-anchor="middle">2</text><text x="535" y="240" text-anchor="middle">3</text><text x="590" y="240" text-anchor="middle">10</text></g>
+          <text x="160" y="266" text-anchor="middle" class="label-svg dim">true x spacing</text>
+          <text x="480" y="266" text-anchor="middle" class="label-svg dim">x spaced evenly</text>
+        </svg>
+        <figcaption>Five readings taken at 0, 1, 2, 3 and 10 volts, charted both ways. The data is the same and the relationship is a straight line; only the chart type differs.</figcaption>
+      </figure>
+
+  <div class="col">
+    <p>A line chart treats your x-values as evenly spaced category labels, so readings taken at 0, 1, 2, 3 and 10 volts get drawn as though they were equally spaced. The straight relationship above bends into a curve that exists only because the chart type was wrong. A scatter chart places each point at its true x-value, which is what a graph of measured data has to do.</p>
+
+    <h3>Adding the trendline</h3>
+    <p>Right-click any data point, choose Add Trendline, select Linear, and tick <em>Display Equation on chart</em>. Excel will print something of the form <span class="eq">y = 0.0021x + 0.0004</span>.</p>
+    <p>That slope is usually the quantity the lab was asking you to find. In an I&ndash;V experiment the slope is 1/R, so a slope of 0.0021 A per volt means a resistance of about 476 &#937;. The intercept should be near zero, and a large one is worth a sentence in your report &mdash; it usually means a systematic offset somewhere in the setup.</p>
+
+    <div class="callout">
+      <h4>Label everything before you submit</h4>
+      <p>Chart title naming what is plotted against what, both axes labelled with quantity and unit. Excel will not do this for you, and an unlabelled graph is marked as an unlabelled graph no matter how good the data behind it is.</p>
+    </div>
+  </div>
   <div class="pager"></div>
 </section>
 
-<!-- ============ 1.9 ============ -->
-<section class="panel" id="panel-8" role="tabpanel" aria-labelledby="tab-8" tabindex="-1" hidden>
+<section class="panel" id="panel-12" role="tabpanel" aria-labelledby="tab-12" tabindex="-1" hidden>
   <div class="col">
-    <h2><span class="sec-no">1.9</span>Check yourself</h2>
+    <h2><span class="sec-no">1.13</span>Check yourself</h2>
     <p>Ten questions, scored but not recorded. Nothing here goes to Canvas. Take it as many times as you like — the questions and the answer choices are reshuffled each time.</p>
   </div>
 
@@ -2060,8 +2320,7 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ Homework ============ -->
-<section class="panel" id="panel-9" role="tabpanel" aria-labelledby="tab-9" tabindex="-1" hidden>
+<section class="panel" id="panel-13" role="tabpanel" aria-labelledby="tab-13" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">Graded</span>Homework set</h2>
     <p>Ten problems drawn from the whole chapter. Enter your student ID and the set builds itself from it, so your numbers are yours alone and stay the same every time you come back. Work them on paper, enter your answers, and submit the code it gives you.</p>
@@ -2101,8 +2360,7 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ Glossary ============ -->
-<section class="panel" id="panel-10" role="tabpanel" aria-labelledby="tab-10" tabindex="-1" hidden>
+<section class="panel" id="panel-14" role="tabpanel" aria-labelledby="tab-14" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">Reference</span>Glossary</h2>
     <p>Every term this chapter defines. The dotted terms in the reading link here.</p>
@@ -2116,8 +2374,7 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ Resources ============ -->
-<section class="panel" id="panel-11" role="tabpanel" aria-labelledby="tab-11" tabindex="-1" hidden>
+<section class="panel" id="panel-15" role="tabpanel" aria-labelledby="tab-15" tabindex="-1" hidden>
   <div class="col">
     <h2><span class="sec-no">Reference</span>Related resources</h2>
     <p>Places to go when this chapter has not clicked yet, and places to go when it has. External links open in a new tab.</p>
@@ -2187,8 +2444,7 @@ footer.page {
   <div class="pager"></div>
 </section>
 
-<!-- ============ Cheat sheet ============ -->
-<section class="panel" id="panel-12" role="tabpanel" aria-labelledby="tab-12" tabindex="-1" hidden>
+<section class="panel" id="panel-16" role="tabpanel" aria-labelledby="tab-16" tabindex="-1" hidden>
   <div class="col no-print">
     <h2><span class="sec-no">Chapter 1</span>Cheat sheet</h2>
     <p>Everything from this chapter on one page. Print it, or keep it open on your phone at the bench.</p>
@@ -2426,20 +2682,25 @@ footer.page {
   /* ---------------- Section navigation ---------------- */
 
   var SECTIONS = [
-    { n: '1.1', label: 'The parts', min: 7 },
+    { n: '1.1', label: 'Where this course sits', min: 20 },
     { n: '1.2', label: 'Units', min: 8 },
     { n: '1.3', label: 'Notation', min: 16 },
-    { n: '1.4', label: 'Prefixes', min: 16 },
-    { n: '1.5', label: 'Prefix arithmetic', min: 16 },
-    { n: '1.6', label: 'Accuracy', min: 14 },
-    { n: '1.7', label: 'Significant figures', min: 15 },
-    { n: '1.8', label: 'Graphing data', min: 19 },
-    { n: '1.9', label: 'Check yourself', min: 10 },
+    { n: '1.4', label: 'Your calculator', min: 18 },
+    { n: '1.5', label: 'Prefixes', min: 16 },
+    { n: '1.6', label: 'Prefix arithmetic', min: 16 },
+    { n: '1.7', label: 'Estimating', min: 12 },
+    { n: '1.8', label: 'Checking with units', min: 10 },
+    { n: '1.9', label: 'Accuracy', min: 14 },
+    { n: '1.10', label: 'Significant figures', min: 23 },
+    { n: '1.11', label: 'Collecting data', min: 12 },
+    { n: '1.12', label: 'Graphing data', min: 22 },
+    { n: '1.13', label: 'Check yourself', min: 10 },
     { n: '', label: 'Homework', extra: true, min: 45 },
     { n: '', label: 'Glossary', extra: true },
     { n: '', label: 'Resources', extra: true },
     { n: '', label: 'Cheat sheet', extra: true }
   ];
+
 
 
   var COUNTED = SECTIONS.filter(function (s) { return !s.extra; }).length;
@@ -3265,7 +3526,7 @@ footer.page {
     if (unanswered) msg += ' (' + unanswered + ' left blank.)';
     if (score === 10) msg += ' Move on to chapter 2.';
     else if (score >= 7) msg += ' Reread the sections behind the ones you missed, then try again.';
-    else msg += ' Work back through 1.3 through 1.5 before retaking this.';
+    else msg += ' Work back through 1.3 through 1.6 before retaking this.';
     document.getElementById('quizScore').textContent = msg;
     if (!state.best.quiz || score > state.best.quiz) {
       state.best.quiz = score;
@@ -3393,6 +3654,65 @@ footer.page {
     });
     report();
   });
+
+
+  /* ---------------- 1.10 Significant figure drill ---------------- */
+
+  var SIGFIG_CASES = [
+    { n: '0.004 070', c: 4, why: 'Leading zeros are placeholders. The 4, 0, 7 and the trailing 0 all count.' },
+    { n: '1 002',     c: 4, why: 'Zeros trapped between non-zero digits always count.' },
+    { n: '2.500',     c: 4, why: 'Trailing zeros after a decimal point are significant \u2014 they claim precision.' },
+    { n: '0.0350',    c: 3, why: 'The leading zeros do not count; the 3, 5 and the trailing 0 do.' },
+    { n: '96.0',      c: 3, why: 'The trailing zero after the point is a real claim about the measurement.' },
+    { n: '4.7',       c: 2, why: 'Two digits, both non-zero, both significant.' },
+    { n: '0.000 22',  c: 2, why: 'Only the 2 and 2 count. Everything before them places the decimal point.' },
+    { n: '10.05',     c: 4, why: 'The zero sits between non-zero digits, so it counts.' },
+    { n: '3.00',      c: 3, why: 'Both trailing zeros are after the decimal point and are significant.' },
+    { n: '0.9',       c: 1, why: 'A single significant digit. The leading zero is a placeholder.' },
+    { n: '120.',      c: 3, why: 'The decimal point at the end is deliberate: it marks the trailing zero as significant.' },
+    { n: '5.0 \u00D7 10\u00B3', c: 2, why: 'In engineering or scientific notation the coefficient carries the significant figures. The power of ten never does.' }
+  ];
+
+  (function wireSigFigDrill() {
+    var probEl = document.getElementById('sigDrillProblem');
+    if (!probEl) return;
+    var inEl = document.getElementById('sigDrillInput');
+    var fbEl = document.getElementById('sigDrillFeedback');
+    var stEl = document.getElementById('sigDrillStreak');
+    var current = null, streak = 0;
+
+    function label() { stEl.textContent = 'Streak ' + streak + ' \u00B7 Best ' + (state.best.sigDrill || 0); }
+    function next() {
+      current = SIGFIG_CASES[Math.floor(Math.random() * SIGFIG_CASES.length)];
+      probEl.textContent = 'How many significant figures does ' + current.n + ' have?';
+      inEl.value = ''; fbEl.textContent = ''; fbEl.className = 'feedback';
+      inEl.focus();
+    }
+    function check() {
+      if (!current) return;
+      var given = parseInt(inEl.value.trim(), 10);
+      if (isNaN(given)) {
+        fbEl.className = 'feedback no';
+        fbEl.textContent = 'Enter a whole number.';
+        return;
+      }
+      if (given === current.c) {
+        streak++;
+        if (!state.best.sigDrill || streak > state.best.sigDrill) { state.best.sigDrill = streak; saveState(state); }
+        fbEl.className = 'feedback ok';
+        fbEl.textContent = 'Correct. ' + current.why;
+      } else {
+        streak = 0;
+        fbEl.className = 'feedback no';
+        fbEl.textContent = current.n + ' has ' + current.c + '. ' + current.why;
+      }
+      label();
+    }
+    document.getElementById('sigDrillCheck').addEventListener('click', check);
+    document.getElementById('sigDrillNew').addEventListener('click', next);
+    inEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); check(); } });
+    label(); next();
+  })();
 
   /* ---------------- Worked examples: attempt before reveal ---------------- */
 
@@ -3747,19 +4067,23 @@ footer.page {
     // One entry per section the student can write notes on. The id MUST
     // match a panel id in the chapter HTML.
     var NOTE_SECTIONS = [
-      { id: 'panel-0',  num: '\u00A7 1.1', title: 'What you are about to work with' },
-      { id: 'panel-1',  num: '\u00A7 1.2', title: 'Units and quantities' },
-      { id: 'panel-2',  num: '\u00A7 1.3', title: 'Scientific and engineering notation' },
-      { id: 'panel-3',  num: '\u00A7 1.4', title: 'Metric prefixes' },
-      { id: 'panel-4',  num: '\u00A7 1.5', title: 'Arithmetic with prefixes' },
-      { id: 'panel-5',  num: '\u00A7 1.6', title: 'Error, accuracy, and precision' },
-      { id: 'panel-6',  num: '\u00A7 1.7', title: 'Significant figures' },
-      { id: 'panel-7',  num: '\u00A7 1.8', title: 'Collecting and graphing data' },
-      { id: 'panel-8',  num: '\u00A7 1.9', title: 'Check yourself' },
-      { id: 'panel-9',  num: 'Homework',   title: 'Homework set' },
-      { id: 'panel-10', num: 'Glossary',   title: 'Glossary' },
-      { id: 'panel-11', num: 'Resources',  title: 'Related resources' },
-      { id: 'panel-12', num: 'Quick Ref',  title: 'Cheat sheet' }
+      { id: 'panel-0', num: '\u00A7 1.1', title: 'What you are about to work with' },
+      { id: 'panel-1', num: '\u00A7 1.2', title: 'Units and quantities' },
+      { id: 'panel-2', num: '\u00A7 1.3', title: 'Scientific and engineering notation' },
+      { id: 'panel-3', num: '\u00A7 1.4', title: 'Using your calculator' },
+      { id: 'panel-4', num: '\u00A7 1.5', title: 'Metric prefixes' },
+      { id: 'panel-5', num: '\u00A7 1.6', title: 'Arithmetic with prefixes' },
+      { id: 'panel-6', num: '\u00A7 1.7', title: 'Estimating before you calculate' },
+      { id: 'panel-7', num: '\u00A7 1.8', title: 'Checking with units' },
+      { id: 'panel-8', num: '\u00A7 1.9', title: 'Error, accuracy, and precision' },
+      { id: 'panel-9', num: '\u00A7 1.10', title: 'Significant figures' },
+      { id: 'panel-10', num: '\u00A7 1.11', title: 'Collecting data' },
+      { id: 'panel-11', num: '\u00A7 1.12', title: 'Collecting and graphing data' },
+      { id: 'panel-12', num: '\u00A7 1.13', title: 'Check yourself' },
+      { id: 'panel-13', num: 'Homework', title: 'Homework set' },
+      { id: 'panel-14', num: 'Glossary', title: 'Glossary' },
+      { id: 'panel-15', num: 'Resources', title: 'Related resources' },
+      { id: 'panel-16', num: 'Quick Ref', title: 'Cheat sheet' }
     ];
 
     /* ═══════════════════════════════════════════════════════════
@@ -4533,7 +4857,7 @@ footer.page {
     // The chapter is tabbed, so "the end" is the last numbered section being opened.
     window.setInterval(function () {
       var open = document.querySelector('[role="tabpanel"]:not([hidden])');
-      if (open && open.id === 'panel-8') showReminder();
+      if (open && open.id === 'panel-12') showReminder();
     }, 4000);
 
     /* ---------- Modal open / close ---------- */
