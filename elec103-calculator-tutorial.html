@@ -131,6 +131,9 @@
   .result .lbl{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; opacity:.8; }
   .result .val{ font-family:var(--font-mono); font-weight:600; font-size:1.02rem; }
 
+  ul.tight{ margin:.5rem 0 .6rem; padding-left:1.15rem; }
+  ul.tight li{ margin:.25rem 0; line-height:1.5; }
+  ul.tight code{ font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
   .tip{ background:var(--tip-bg); border:1px solid var(--tip-line); color:var(--tip-ink);
     border-radius:var(--radius-sm); padding:10px 13px; font-size:.9rem; }
   .tip b{ font-weight:700; }
@@ -171,25 +174,6 @@
 </style>
 </head>
 <body>
-<nav class="elec-bookbar" aria-label="Course navigation">
-  <a href="index.html">&#8592; ELEC 103 &middot; Course home</a>
-  <span>&middot;</span>
-  <a href="elec103-ch1-quantities-and-units.html">Chapter 1 &middot; Quantities and Units</a>
-  <span>&middot;</span>
-  <a href="elec103-calculator-simulator.html">Open the simulator</a>
-</nav>
-<style>
-.elec-bookbar{
-  display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;
-  padding:.6rem 1rem;background:#17242F;border-bottom:3px solid #B08421;
-  font:600 .82rem "IBM Plex Sans","Segoe UI",system-ui,sans-serif;
-}
-.elec-bookbar a{color:#E9F0F5;text-decoration:none;border-bottom:1px solid transparent;}
-.elec-bookbar a:hover,.elec-bookbar a:focus-visible{border-bottom-color:#D9B23F;}
-.elec-bookbar span{color:#7C93A4;}
-@media print{.elec-bookbar{display:none;}}
-</style>
-
 <a class="skip-link" href="#main">Skip to main content</a>
 
 <header class="masthead">
@@ -241,8 +225,30 @@
         <h3>Set the angle mode first</h3>
         <p>Trigonometry gives different numbers in degrees versus radians. Choose deliberately.</p>
         <p class="klabel">Keys</p>
-        <div class="seq"><span class="k">MODE</span><span class="cap">move to Degree or Radian, press ENTER</span></div>
-        <div class="tip"><b>Rule of thumb:</b> physics and engineering examples here assume <b>Degree</b> mode unless noted. Watch the top-of-screen indicator.</div>
+        <div class="seq"><span class="k">MODE</span><span class="cap">▲▼ row · ◀ ▶ change · CLEAR to leave</span></div>
+        <div class="tip"><b>Rule of thumb:</b> physics and engineering examples here assume <b>Degree</b> mode unless noted. The current setting is shown on the MODE screen and in the simulator&rsquo;s side panel.</div>
+      </article>
+      <article class="card">
+        <h3>Choose how numbers are displayed</h3>
+        <p>The <b>NUMBER</b> row on the same MODE screen controls the format of every result.</p>
+        <div class="seq"><span class="k">MODE</span><span class="cap">NUMBER row</span><span class="cap">NORMAL · SCI · ENG</span></div>
+        <ul class="tight">
+          <li><b>NORMAL</b> — plain decimals until the value gets very large or small.</li>
+          <li><b>SCI</b> — one digit before the point: 4700 becomes <code>4.7E3</code>.</li>
+          <li><b>ENG</b> — the exponent is always a multiple of three, so it lines up with the SI prefixes: 4700 becomes <code>4.7E3</code> (4.7&nbsp;k) and 0.0022 becomes <code>2.2E&#8722;3</code> (2.2&nbsp;m).</li>
+        </ul>
+        <div class="tip">The <b>DECIMAL</b> row below fixes the number of decimal places (<code>FIX 2</code>) or leaves it free (<code>FLOAT</code>).</div>
+      </article>
+      <article class="card">
+        <h3>Type with your keyboard</h3>
+        <p>You do not have to click every key. With the simulator focused, your keyboard drives it directly.</p>
+        <ul class="tight">
+          <li>Digits and <code>.</code> type numbers; <code>+ - * / ^ ( ) ,</code> are the operators.</li>
+          <li><code>Enter</code> evaluates, <code>Backspace</code> deletes, arrow keys navigate, <code>Esc</code> is QUIT.</li>
+          <li>Letters type as ALPHA characters, so <code>sin(30)</code> and <code>Ans</code> can be typed out in full.</li>
+          <li><code>E</code> gives the power-of-ten exponent: <code>4.7E3</code>.</li>
+        </ul>
+        <div class="tip">If typing stops working, click the calculator once &mdash; a dropdown in the side panel had the keyboard.</div>
       </article>
       <article class="card">
         <h3>Reuse the last answer</h3>
@@ -267,7 +273,7 @@
   <!-- ================= MATH ================= -->
   <section class="panel" id="panel-math" role="tabpanel" aria-labelledby="tab-math" tabindex="0" hidden>
     <h2 class="section-title">Mathematics</h2>
-    <p class="panel-intro">Order of operations, roots and powers, trigonometry, logarithms, counting, and solving a linear system with matrices.</p>
+    <p class="panel-intro">Order of operations, roots and powers, trigonometry, logarithms, counting, percent change, the quadratic formula, coordinate geometry, and solving a linear system with matrices.</p>
     <div class="grid">
 
       <article class="card">
@@ -284,7 +290,7 @@
         <p class="given">Compute √(2² + 3²).</p>
         <p class="klabel">Keys</p>
         <div class="seq"><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">2</span><span class="k">x²</span><span class="k">+</span><span class="k">3</span><span class="k">x²</span><span class="k">)</span><span class="k">ENTER</span></div>
-        <div class="result"><span class="lbl">Display</span><span class="val">3.605551276</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">3.605551275</span></div>
       </article>
 
       <article class="card">
@@ -316,7 +322,29 @@
         <p class="given">Two moles of particles: 6.022×10²³ × 2.</p>
         <p class="klabel">Keys</p>
         <div class="seq"><span class="k">6</span><span class="k">.</span><span class="k">0</span><span class="k">2</span><span class="k">2</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">2</span><span class="k">3</span><span class="k">×</span><span class="k">2</span><span class="k">ENTER</span></div>
-        <div class="result"><span class="lbl">Display</span><span class="val">1.2044e24</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">1.2044E24</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Engineering notation and SI prefixes</h3>
+        <p class="given">Show 4700 and 0.0022 the way engineers write them.</p>
+        <p>Set <span class="k">MODE</span> → <b>NUMBER</b> row → <b>ENG</b>, then <span class="k">CLEAR</span> to return to the home screen. Every result now comes back with an exponent that is a multiple of three.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">4</span><span class="k">7</span><span class="k">0</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">4.7E3</span></div>
+        <div class="seq"><span class="k">.</span><span class="k">0</span><span class="k">0</span><span class="k">2</span><span class="k">2</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">2.2E&#8722;3</span></div>
+        <p>Because the exponent moves in steps of three, it maps straight onto the prefixes: E9 = G, E6 = M, E3 = k, E&#8722;3 = m, E&#8722;6 = &micro;, E&#8722;9 = n, E&#8722;12 = p. So <code>4.7E3</code> reads 4.7&nbsp;k and <code>2.2E&#8722;3</code> reads 2.2&nbsp;m.</p>
+        <div class="tip">Unlike SCI, ENG keeps the exponent even when it is zero: 10 displays as <code>10E0</code> and 240000 as <code>240E3</code>. The mantissa always lands between 1 and 999.999.</div>
+      </article>
+
+      <article class="card">
+        <h3>Entering a power of ten</h3>
+        <p class="given">Type 4.7&times;10³ directly rather than as 4700.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">4</span><span class="k">.</span><span class="k">7</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">3</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">4700</span><span class="lbl">in Normal mode</span></div>
+        <div class="tip">For a negative exponent use the <span class="k">(&minus;)</span> key, not the <span class="k">&minus;</span> subtraction key: <code>2.2</code> <span class="k k2">2nd</span> <span class="k">,</span> <span class="k">(&minus;)</span> <code>3</code> gives 0.0022.</div>
       </article>
 
       <article class="card">
@@ -341,13 +369,101 @@
         <div class="result"><span class="lbl">Display</span><span class="val">[[1] [2]]  →  x = 1, y = 2</span></div>
         <div class="tip">The determinant is on the same menu: <span class="cap">MATRIX → MATH → det(</span> then <span class="cap">NAMES → [A]</span> gives <b>−5</b>, confirming the system has a unique solution.</div>
       </article>
+
+      <article class="card">
+        <h3>Percent change</h3>
+        <p class="formula">percent change = (new − old) / old × 100</p>
+        <p class="given">A price rose from 40 to 58.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">5</span><span class="k">8</span><span class="k">−</span><span class="k">4</span><span class="k">0</span><span class="k">)</span><span class="k">÷</span><span class="k">4</span><span class="k">0</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">45</span><span class="lbl">%</span></div>
+        <div class="tip">A negative result means a decrease — the formula handles both directions.</div>
+      </article>
+
+      <article class="card">
+        <h3>Quadratic formula</h3>
+        <p class="formula">x = (−b ± √(b² − 4ac)) / 2a</p>
+        <p class="given">2x² − 7x + 3 = 0; find the larger root.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">7</span><span class="k">+</span><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">4</span><span class="k">9</span><span class="k">−</span><span class="k">4</span><span class="k">×</span><span class="k">2</span><span class="k">×</span><span class="k">3</span><span class="k">)</span><span class="k">)</span><span class="k">÷</span><span class="k">(</span><span class="k">2</span><span class="k">×</span><span class="k">2</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">3</span></div>
+        <div class="tip">Change the leading + to − for the other root, which is .5. Wrap the whole numerator in parentheses or the division will only apply to the last term.</div>
+      </article>
+
+      <article class="card">
+        <h3>Distance between two points</h3>
+        <p class="formula">d = √((x₂−x₁)² + (y₂−y₁)²)</p>
+        <p class="given">From (2, −3) to (7, 9).</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">(</span><span class="k">7</span><span class="k">−</span><span class="k">2</span><span class="k">)</span><span class="k">x²</span><span class="k">+</span><span class="k">(</span><span class="k">9</span><span class="k">−</span><span class="k">(−)</span><span class="k">3</span><span class="k">)</span><span class="k">x²</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">13</span></div>
+        <div class="tip">Use the (−) key for the negative coordinate; the subtraction key will give a syntax error.</div>
+      </article>
+
+      <article class="card">
+        <h3>Parallel-style reciprocal sum</h3>
+        <p class="formula">1 / (1/a + 1/b)</p>
+        <p class="given">Combine 4 and 6.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">4</span><span class="k">x⁻¹</span><span class="k">+</span><span class="k">6</span><span class="k">x⁻¹</span><span class="k">)</span><span class="k">x⁻¹</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">2.4</span></div>
+        <div class="tip">The x⁻¹ key is faster than typing 1÷ each time, and it reads closer to the algebra.</div>
+      </article>
+
+      <article class="card">
+        <h3>Degrees to radians</h3>
+        <p class="formula">rad = deg × π / 180</p>
+        <p class="given">Convert 45°.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">4</span><span class="k">5</span><span class="k">×</span><span class="k k2">2nd</span><span class="k">^</span><span class="cap">π</span><span class="k">÷</span><span class="k">1</span><span class="k">8</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.7853981634</span><span class="lbl">rad</span></div>
+        <div class="tip">Going the other way, multiply by 180÷π.</div>
+      </article>
+
+      <article class="card">
+        <h3>Exponential growth</h3>
+        <p class="formula">A = P(1 + r)ⁿ</p>
+        <p class="given">500 grows at 7% per year for 10 years.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">5</span><span class="k">0</span><span class="k">0</span><span class="k">×</span><span class="k">(</span><span class="k">1</span><span class="k">+</span><span class="k">.</span><span class="k">0</span><span class="k">7</span><span class="k">)</span><span class="k">^</span><span class="k">1</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">983.5756786</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Change of base for logarithms</h3>
+        <p class="formula">log_b(x) = log(x) / log(b)</p>
+        <p class="given">Find log₃ 50.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">LOG</span><span class="k">5</span><span class="k">0</span><span class="k">)</span><span class="k">÷</span><span class="k">LOG</span><span class="k">3</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">3.560876795</span></div>
+        <div class="tip">The calculator only has base-10 LOG and natural LN; either one works as long as you use it top and bottom.</div>
+      </article>
+
+      <article class="card">
+        <h3>Greatest common divisor and LCM</h3>
+        <p class="formula">gcd(a, b) and lcm(a, b)</p>
+        <p class="given">Reduce 48/180.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">MATH</span><span class="cap">NUM → gcd(</span><span class="k">4</span><span class="k">8</span><span class="k">,</span><span class="k">1</span><span class="k">8</span><span class="k">0</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">12</span></div>
+        <div class="tip">Both live in MATH → NUM. lcm(4,6) on the same menu gives 12.</div>
+      </article>
+
+      <article class="card">
+        <h3>Absolute value as distance</h3>
+        <p class="formula">|a − b|</p>
+        <p class="given">How far is −17 from 5 on the number line?</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">MATH</span><span class="cap">NUM → abs(</span><span class="k">(−)</span><span class="k">1</span><span class="k">7</span><span class="k">−</span><span class="k">5</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">22</span></div>
+      </article>
     </div>
   </section>
 
   <!-- ================= PHYSICS ================= -->
   <section class="panel" id="panel-phys" role="tabpanel" aria-labelledby="tab-phys" tabindex="0" hidden>
     <h2 class="section-title">Physics</h2>
-    <p class="panel-intro">Kinematics, projectile motion, and energy. Use <b>Degree</b> mode for the projectile example.</p>
+    <p class="panel-intro">Kinematics, forces, momentum, work and energy, circular motion, optics, and a position-versus-time graph. Use Degree mode for anything with an angle in it.</p>
     <div class="grid">
 
       <article class="card">
@@ -397,13 +513,88 @@
         </ol>
         <div class="tip">At t = 5 s the table shows x = 50 m, matching <code>5·5 + ½·2·5² = 25 + 25</code>.</div>
       </article>
+
+      <article class="card">
+        <h3>Weight from mass</h3>
+        <p class="formula">W = mg</p>
+        <p class="given">m = 12 kg, g = 9.8 m/s².</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">2</span><span class="k">×</span><span class="k">9</span><span class="k">.</span><span class="k">8</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">117.6</span><span class="lbl">N</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Momentum</h3>
+        <p class="formula">p = mv</p>
+        <p class="given">A 0.145 kg baseball at 42 m/s.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">0</span><span class="k">.</span><span class="k">1</span><span class="k">4</span><span class="k">5</span><span class="k">×</span><span class="k">4</span><span class="k">2</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">6.09</span><span class="lbl">kg·m/s</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Work done at an angle <span class="cap">Degree</span></h3>
+        <p class="formula">W = Fd·cosθ</p>
+        <p class="given">F = 50 N, d = 10 m, θ = 30°.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">5</span><span class="k">0</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">×</span><span class="k">COS</span><span class="k">3</span><span class="k">0</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">433.0127019</span><span class="lbl">J</span></div>
+        <div class="tip">Degree mode. At θ = 90° the cosine is zero and so is the work.</div>
+      </article>
+
+      <article class="card">
+        <h3>Period of a pendulum</h3>
+        <p class="formula">T = 2π√(L/g)</p>
+        <p class="given">L = 0.5 m, g = 9.8 m/s².</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">2</span><span class="k">×</span><span class="k k2">2nd</span><span class="k">^</span><span class="cap">π</span><span class="k">×</span><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">.</span><span class="k">5</span><span class="k">÷</span><span class="k">9</span><span class="k">.</span><span class="k">8</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">1.419226895</span><span class="lbl">s</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Centripetal acceleration</h3>
+        <p class="formula">a = v² / r</p>
+        <p class="given">v = 15 m/s on a 40 m radius curve.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">5</span><span class="k">x²</span><span class="k">÷</span><span class="k">4</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">5.625</span><span class="lbl">m/s²</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Snell's law — refraction angle <span class="cap">Degree</span></h3>
+        <p class="formula">n₁sinθ₁ = n₂sinθ₂</p>
+        <p class="given">Light from air (n = 1.00) at 30° into water (n = 1.33).</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k k2">2nd</span><span class="k">SIN</span><span class="cap">sin⁻¹(</span><span class="k">1</span><span class="k">×</span><span class="k">SIN</span><span class="k">3</span><span class="k">0</span><span class="k">)</span><span class="k">÷</span><span class="k">1</span><span class="k">.</span><span class="k">3</span><span class="k">3</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">22.08241319</span><span class="lbl">°</span></div>
+        <div class="tip">Degree mode. The result is smaller than 30°, which is the bending toward the normal you expect.</div>
+      </article>
+
+      <article class="card">
+        <h3>Energy of a photon</h3>
+        <p class="formula">E = hf</p>
+        <p class="given">f = 5×10¹⁴ Hz, h = 6.626×10⁻³⁴ J·s.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">6</span><span class="k">.</span><span class="k">6</span><span class="k">2</span><span class="k">6</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">(−)</span><span class="k">3</span><span class="k">4</span><span class="k">×</span><span class="k">5</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">1</span><span class="k">4</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">3.313E−19</span><span class="lbl">J</span></div>
+        <div class="tip">This is where ENG mode earns its keep: the same result reads 331.3E−21, i.e. 331.3 zJ.</div>
+      </article>
+
+      <article class="card">
+        <h3>Kinematics — solve for time</h3>
+        <p class="formula">t = (v − v₀) / a</p>
+        <p class="given">From 5 m/s to 25 m/s at 2.5 m/s².</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">2</span><span class="k">5</span><span class="k">−</span><span class="k">5</span><span class="k">)</span><span class="k">÷</span><span class="k">2</span><span class="k">.</span><span class="k">5</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">8</span><span class="lbl">s</span></div>
+      </article>
     </div>
   </section>
 
   <!-- ================= ELECTRONICS ================= -->
   <section class="panel" id="panel-elec" role="tabpanel" aria-labelledby="tab-elec" tabindex="0" hidden>
     <h2 class="section-title">Electronics</h2>
-    <p class="panel-intro">Ohm&rsquo;s law, resistor networks, RC timing, gain in decibels, and the voltage divider. The reciprocal key <span class="k">x⁻¹</span> makes parallel combinations painless.</p>
+    <p class="panel-intro">Ohm&rsquo;s law, resistor networks, power, reactance and resonance, RC timing, RMS values, decibels, and the voltage and current dividers. The reciprocal key x⁻¹ makes parallel combinations painless, and ENG mode keeps every answer in kilo, milli, micro, and nano.</p>
     <div class="grid">
 
       <article class="card">
@@ -469,13 +660,109 @@
         <div class="seq"><span class="k">9</span><span class="k">×</span><span class="k">2</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">÷</span><span class="k">(</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">+</span><span class="k">2</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">)</span><span class="k">ENTER</span></div>
         <div class="result"><span class="lbl">Display</span><span class="val">6</span><span class="lbl">V</span></div>
       </article>
+
+      <article class="card">
+        <h3>Power from current and resistance</h3>
+        <p class="formula">P = I²R</p>
+        <p class="given">I = 0.25 A through R = 470 Ω.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">0</span><span class="k">.</span><span class="k">2</span><span class="k">5</span><span class="k">x²</span><span class="k">×</span><span class="k">4</span><span class="k">7</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">29.375</span><span class="lbl">W</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Power from voltage and resistance</h3>
+        <p class="formula">P = V² / R</p>
+        <p class="given">12 V across 100 Ω.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">2</span><span class="k">x²</span><span class="k">÷</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">1.44</span><span class="lbl">W</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Capacitive reactance</h3>
+        <p class="formula">X_C = 1 / (2πfC)</p>
+        <p class="given">f = 1 kHz, C = 100 nF.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">2</span><span class="k">×</span><span class="k k2">2nd</span><span class="k">^</span><span class="cap">π</span><span class="k">×</span><span class="k">1</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">3</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">(−)</span><span class="k">9</span><span class="k">)</span><span class="k">x⁻¹</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">1591.549431</span><span class="lbl">Ω</span></div>
+        <div class="tip">Enter the capacitance as 100E−9 rather than typing a string of zeros.</div>
+      </article>
+
+      <article class="card">
+        <h3>Inductive reactance</h3>
+        <p class="formula">X_L = 2πfL</p>
+        <p class="given">f = 60 Hz, L = 0.5 H.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">2</span><span class="k">×</span><span class="k k2">2nd</span><span class="k">^</span><span class="cap">π</span><span class="k">×</span><span class="k">6</span><span class="k">0</span><span class="k">×</span><span class="k">.</span><span class="k">5</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">188.4955592</span><span class="lbl">Ω</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Resonant frequency</h3>
+        <p class="formula">f₀ = 1 / (2π√(LC))</p>
+        <p class="given">L = 10 mH, C = 100 nF.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">2</span><span class="k">×</span><span class="k k2">2nd</span><span class="k">^</span><span class="cap">π</span><span class="k">×</span><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">1</span><span class="k">0</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">(−)</span><span class="k">3</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">(−)</span><span class="k">9</span><span class="k">)</span><span class="k">)</span><span class="k">x⁻¹</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">5032.92121</span><span class="lbl">Hz</span></div>
+        <div class="tip">In ENG mode this reads 5.03292121E3 — about 5.03 kHz.</div>
+      </article>
+
+      <article class="card">
+        <h3>RMS from peak voltage</h3>
+        <p class="formula">V_rms = V_peak / √2</p>
+        <p class="given">A 170 V peak sine wave.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">7</span><span class="k">0</span><span class="k">÷</span><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">2</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">120.2081528</span><span class="lbl">V</span></div>
+        <div class="tip">That is where the 120 V figure for household mains comes from.</div>
+      </article>
+
+      <article class="card">
+        <h3>Period from frequency</h3>
+        <p class="formula">T = 1 / f</p>
+        <p class="given">f = 60 Hz.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">6</span><span class="k">0</span><span class="k">x⁻¹</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.01666666667</span><span class="lbl">s</span></div>
+        <div class="tip">ENG mode shows 16.66666667E−3 — 16.7 ms, the number you would dial into a scope.</div>
+      </article>
+
+      <article class="card">
+        <h3>Current divider</h3>
+        <p class="formula">I₁ = Iₓ × R₂ / (R₁ + R₂)</p>
+        <p class="given">I = 100 mA into 1 kΩ parallel with 3 kΩ; find the 1 kΩ branch.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">(−)</span><span class="k">3</span><span class="k">×</span><span class="k">3</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">÷</span><span class="k">(</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">+</span><span class="k">3</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.075</span><span class="lbl">A</span></div>
+        <div class="tip">Note the resistance ratio is inverted compared with a voltage divider.</div>
+      </article>
+
+      <article class="card">
+        <h3>Wavelength of a radio signal</h3>
+        <p class="formula">λ = c / f</p>
+        <p class="given">f = 100 MHz, c = 3×10⁸ m/s.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">3</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">8</span><span class="k">÷</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">6</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">3</span><span class="lbl">m</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Series-parallel network</h3>
+        <p class="formula">R = R₁ + (R₂⁻¹ + R₃⁻¹)⁻¹</p>
+        <p class="given">100 Ω in series with 220 Ω ∥ 330 Ω.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">+</span><span class="k">(</span><span class="k">2</span><span class="k">2</span><span class="k">0</span><span class="k">x⁻¹</span><span class="k">+</span><span class="k">3</span><span class="k">3</span><span class="k">0</span><span class="k">x⁻¹</span><span class="k">)</span><span class="k">x⁻¹</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">232</span><span class="lbl">Ω</span></div>
+        <div class="tip">Build the parallel part inside parentheses first, then add the series resistor.</div>
+      </article>
     </div>
   </section>
 
   <!-- ================= ENGINEERING ================= -->
   <section class="panel" id="panel-engr" role="tabpanel" aria-labelledby="tab-engr" tabindex="0" hidden>
     <h2 class="section-title">Engineering</h2>
-    <p class="panel-intro">Unit conversion, force resultants, linear interpolation, and a three-equation system solved with matrices.</p>
+    <p class="panel-intro">Unit conversion, stress and strain, torque, gear ratios, flow rate, percent error, force resultants, linear interpolation, and a three-equation system solved with matrices.</p>
     <div class="grid">
 
       <article class="card">
@@ -524,13 +811,87 @@
         <div class="result"><span class="lbl">Display</span><span class="val">[[5] [3] [−2]]  →  x = 5, y = 3, z = −2</span></div>
         <div class="tip">This is the workhorse for truss joints, mesh-current equations, and material balances — change the numbers, reuse the keystrokes.</div>
       </article>
+
+      <article class="card">
+        <h3>Stress</h3>
+        <p class="formula">σ = F / A</p>
+        <p class="given">F = 5000 N on 0.0025 m².</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">5</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">÷</span><span class="k">.</span><span class="k">0</span><span class="k">0</span><span class="k">2</span><span class="k">5</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">2000000</span><span class="lbl">Pa</span></div>
+        <div class="tip">ENG mode gives 2E6 — 2 MPa — which is the form most tables use.</div>
+      </article>
+
+      <article class="card">
+        <h3>Strain and Young's modulus</h3>
+        <p class="formula">E = σ / ε</p>
+        <p class="given">σ = 2×10⁶ Pa, ε = 0.00001.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">2</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">6</span><span class="k">÷</span><span class="k">.</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">1</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">2E11</span><span class="lbl">Pa</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Torque about a pivot <span class="cap">Degree</span></h3>
+        <p class="formula">τ = Fr·sinθ</p>
+        <p class="given">F = 250 N, r = 0.4 m, θ = 70°.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">2</span><span class="k">5</span><span class="k">0</span><span class="k">×</span><span class="k">.</span><span class="k">4</span><span class="k">×</span><span class="k">SIN</span><span class="k">7</span><span class="k">0</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">93.96926208</span><span class="lbl">N·m</span></div>
+        <div class="tip">Degree mode.</div>
+      </article>
+
+      <article class="card">
+        <h3>Gear ratio and output speed</h3>
+        <p class="formula">n_out = n_in × N_in / N_out</p>
+        <p class="given">1750 rpm, 18-tooth driving a 54-tooth.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">7</span><span class="k">5</span><span class="k">0</span><span class="k">×</span><span class="k">1</span><span class="k">8</span><span class="k">÷</span><span class="k">5</span><span class="k">4</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">583.3333333</span><span class="lbl">rpm</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Percent error</h3>
+        <p class="formula">% error = |measured − accepted| / accepted × 100</p>
+        <p class="given">Measured 9.63 against an accepted 9.81.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">MATH</span><span class="cap">NUM → abs(</span><span class="k">9</span><span class="k">.</span><span class="k">6</span><span class="k">3</span><span class="k">−</span><span class="k">9</span><span class="k">.</span><span class="k">8</span><span class="k">1</span><span class="k">)</span><span class="k">÷</span><span class="k">9</span><span class="k">.</span><span class="k">8</span><span class="k">1</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">1.834862385</span><span class="lbl">%</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Volume flow rate</h3>
+        <p class="formula">Q = Av</p>
+        <p class="given">A 0.05 m² duct at 3.2 m/s.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">0</span><span class="k">.</span><span class="k">0</span><span class="k">5</span><span class="k">×</span><span class="k">3</span><span class="k">.</span><span class="k">2</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.16</span><span class="lbl">m³/s</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Pressure unit conversion</h3>
+        <p class="formula">1 psi = 6.895 kPa</p>
+        <p class="given">Convert 45 psi.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">4</span><span class="k">5</span><span class="k">×</span><span class="k">6</span><span class="k">.</span><span class="k">8</span><span class="k">9</span><span class="k">5</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">310.275</span><span class="lbl">kPa</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Resultant magnitude of three forces</h3>
+        <p class="formula">R = √((ΣFx)² + (ΣFy)²)</p>
+        <p class="given">ΣFx = 120 N, ΣFy = −90 N.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">1</span><span class="k">2</span><span class="k">0</span><span class="k">x²</span><span class="k">+</span><span class="k">(</span><span class="k">(−)</span><span class="k">9</span><span class="k">0</span><span class="k">)</span><span class="k">x²</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">150</span><span class="lbl">N</span></div>
+      </article>
     </div>
   </section>
 
   <!-- ================= CHEMISTRY ================= -->
   <section class="panel" id="panel-chem" role="tabpanel" aria-labelledby="tab-chem" tabindex="0" hidden>
     <h2 class="section-title">Chemistry</h2>
-    <p class="panel-intro">The ideal gas law, pH and its inverse, and a dilution calculation. These lean on scientific notation and base-10 logs.</p>
+    <p class="panel-intro">Moles and molarity, the ideal gas law, thermochemistry, gas laws, percent yield, and pH in both directions. These lean on scientific notation and base-10 logs.</p>
     <div class="grid">
 
       <article class="card">
@@ -539,7 +900,7 @@
         <p class="given">n = 1 mol, T = 298 K, V = 24.5 L.</p>
         <p class="klabel">Keys</p>
         <div class="seq"><span class="k">1</span><span class="k">×</span><span class="k">.</span><span class="k">0</span><span class="k">8</span><span class="k">2</span><span class="k">0</span><span class="k">6</span><span class="k">×</span><span class="k">2</span><span class="k">9</span><span class="k">8</span><span class="k">÷</span><span class="k">2</span><span class="k">4</span><span class="k">.</span><span class="k">5</span><span class="k">ENTER</span></div>
-        <div class="result"><span class="lbl">Display</span><span class="val">≈ 0.998</span><span class="lbl">atm</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.998117551</span><span class="lbl">atm</span></div>
       </article>
 
       <article class="card">
@@ -557,7 +918,8 @@
         <p class="given">pH = 3.5.</p>
         <p class="klabel">Keys</p>
         <div class="seq"><span class="k k2">2nd</span><span class="k">LOG</span><span class="cap">10^(</span><span class="k">(−)</span><span class="k">3</span><span class="k">.</span><span class="k">5</span><span class="k">)</span><span class="k">ENTER</span></div>
-        <div class="result"><span class="lbl">Display</span><span class="val">≈ 3.1623e−4</span><span class="lbl">M</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.000316227766</span><span class="lbl">M</span></div>
+        <div class="tip">In <b>Normal</b> mode the screen shows all those leading zeros. Switch to <b>SCI</b> for <code>3.16227766E&#8722;4</code>, or <b>ENG</b> for <code>316.227766E&#8722;6</code> &mdash; i.e. about 316&nbsp;&micro;M.</div>
       </article>
 
       <article class="card">
@@ -568,13 +930,78 @@
         <div class="seq"><span class="k">.</span><span class="k">1</span><span class="k">×</span><span class="k">5</span><span class="k">0</span><span class="k">0</span><span class="k">÷</span><span class="k">2</span><span class="k">ENTER</span></div>
         <div class="result"><span class="lbl">Display</span><span class="val">25</span><span class="lbl">mL of stock</span></div>
       </article>
+
+      <article class="card">
+        <h3>Moles from mass</h3>
+        <p class="formula">n = m / M</p>
+        <p class="given">25 g of NaCl (M = 58.44 g/mol).</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">2</span><span class="k">5</span><span class="k">÷</span><span class="k">5</span><span class="k">8</span><span class="k">.</span><span class="k">4</span><span class="k">4</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.4277891855</span><span class="lbl">mol</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Molarity</h3>
+        <p class="formula">M = n / V</p>
+        <p class="given">0.4278 mol in 0.75 L.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">0</span><span class="k">.</span><span class="k">4</span><span class="k">2</span><span class="k">7</span><span class="k">8</span><span class="k">÷</span><span class="k">.</span><span class="k">7</span><span class="k">5</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.5704</span><span class="lbl">M</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Number of particles</h3>
+        <p class="formula">N = n × N_A</p>
+        <p class="given">0.4278 mol, N_A = 6.022×10²³.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">0</span><span class="k">.</span><span class="k">4</span><span class="k">2</span><span class="k">7</span><span class="k">8</span><span class="k">×</span><span class="k">6</span><span class="k">.</span><span class="k">0</span><span class="k">2</span><span class="k">2</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">2</span><span class="k">3</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">2.5762116E23</span><span class="lbl">particles</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Heat absorbed</h3>
+        <p class="formula">q = mcΔT</p>
+        <p class="given">150 g of water, c = 4.18 J/g·°C, ΔT = 35 °C.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">5</span><span class="k">0</span><span class="k">×</span><span class="k">4</span><span class="k">.</span><span class="k">1</span><span class="k">8</span><span class="k">×</span><span class="k">3</span><span class="k">5</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">21945</span><span class="lbl">J</span></div>
+        <div class="tip">ENG mode reads 21.945E3 — about 21.9 kJ.</div>
+      </article>
+
+      <article class="card">
+        <h3>Boyle's law</h3>
+        <p class="formula">P₁V₁ = P₂V₂</p>
+        <p class="given">1.2 atm at 4.0 L compressed to 1.5 L.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">.</span><span class="k">2</span><span class="k">×</span><span class="k">4</span><span class="k">÷</span><span class="k">1</span><span class="k">.</span><span class="k">5</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">3.2</span><span class="lbl">atm</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Percent yield</h3>
+        <p class="formula">% yield = actual / theoretical × 100</p>
+        <p class="given">Recovered 8.4 g of a possible 11.2 g.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">8</span><span class="k">.</span><span class="k">4</span><span class="k">÷</span><span class="k">1</span><span class="k">1</span><span class="k">.</span><span class="k">2</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">75</span><span class="lbl">%</span></div>
+      </article>
+
+      <article class="card">
+        <h3>pOH and pH</h3>
+        <p class="formula">pH + pOH = 14</p>
+        <p class="given">[OH⁻] = 2.5×10⁻⁵ M; find the pH.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">4</span><span class="k">−</span><span class="k">(</span><span class="k">(−)</span><span class="k">LOG</span><span class="k">2</span><span class="k">.</span><span class="k">5</span><span class="k k2">2nd</span><span class="k">,</span><span class="cap">E</span><span class="k">(−)</span><span class="k">5</span><span class="k">)</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">9.397940009</span></div>
+        <div class="tip">Take the negative log for pOH, then subtract from 14. The inner parentheses keep the two negatives straight.</div>
+      </article>
     </div>
   </section>
 
   <!-- ================= STATISTICS ================= -->
   <section class="panel" id="panel-stat" role="tabpanel" aria-labelledby="tab-stat" tabindex="0" hidden>
     <h2 class="section-title">Statistics &amp; Data</h2>
-    <p class="panel-intro">Enter data into the list editor, summarize one variable, and fit a line to paired data. This is where the STAT key earns its keep.</p>
+    <p class="panel-intro">Enter data into the list editor, summarize one variable, and fit a line to paired data — then z-scores, standard error, margins of error, weighted means, and counting problems you can do straight from the home screen.</p>
     <div class="grid">
 
       <article class="card wide">
@@ -600,13 +1027,80 @@
         <p>The slope says each extra study hour adds about 8.3 points; r near 1 signals a very strong positive linear relationship.</p>
         <div class="tip"><b>Predict:</b> back on the home screen, evaluate the fitted line at x = 6 with <span class="k">8</span> <span class="k">.</span> <span class="k">3</span> <span class="k">×</span> <span class="k">6</span> <span class="k">+</span> <span class="k">4</span> <span class="k">3</span> <span class="k">.</span> <span class="k">5</span> <span class="k">ENTER</span> → <b>93.3</b>.</div>
       </article>
+
+      <article class="card">
+        <h3>z-score</h3>
+        <p class="formula">z = (x − μ) / σ</p>
+        <p class="given">x = 78, μ = 70, σ = 6.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">7</span><span class="k">8</span><span class="k">−</span><span class="k">7</span><span class="k">0</span><span class="k">)</span><span class="k">÷</span><span class="k">6</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">1.333333333</span></div>
+        <div class="tip">A z of about 1.33 puts the score just past one standard deviation above the mean.</div>
+      </article>
+
+      <article class="card">
+        <h3>Standard error of the mean</h3>
+        <p class="formula">SE = σ / √n</p>
+        <p class="given">σ = 12, n = 36.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">2</span><span class="k">÷</span><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">3</span><span class="k">6</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">2</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Margin of error at 95%</h3>
+        <p class="formula">ME = 1.96 × σ/√n</p>
+        <p class="given">σ = 12, n = 36.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">.</span><span class="k">9</span><span class="k">6</span><span class="k">×</span><span class="k">1</span><span class="k">2</span><span class="k">÷</span><span class="k k2">2nd</span><span class="k">x²</span><span class="cap">√(</span><span class="k">3</span><span class="k">6</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">3.92</span></div>
+        <div class="tip">Add and subtract this from the sample mean to get the confidence interval.</div>
+      </article>
+
+      <article class="card">
+        <h3>Weighted mean</h3>
+        <p class="formula">x̄ = Σ(wx) / Σw</p>
+        <p class="given">Scores 88, 92, 79 weighted 0.2, 0.3, 0.5.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">.</span><span class="k">2</span><span class="k">×</span><span class="k">8</span><span class="k">8</span><span class="k">+</span><span class="k">.</span><span class="k">3</span><span class="k">×</span><span class="k">9</span><span class="k">2</span><span class="k">+</span><span class="k">.</span><span class="k">5</span><span class="k">×</span><span class="k">7</span><span class="k">9</span><span class="k">)</span><span class="k">÷</span><span class="k">(</span><span class="k">.</span><span class="k">2</span><span class="k">+</span><span class="k">.</span><span class="k">3</span><span class="k">+</span><span class="k">.</span><span class="k">5</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">84.7</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Probability with combinations</h3>
+        <p class="formula">P = favourable / total</p>
+        <p class="given">Two aces drawn from a 52-card deck.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">4</span><span class="k">MATH</span><span class="cap">PRB → nCr</span><span class="k">2</span><span class="k">)</span><span class="k">÷</span><span class="k">(</span><span class="k">5</span><span class="k">2</span><span class="k">MATH</span><span class="cap">PRB → nCr</span><span class="k">2</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.004524886878</span></div>
+        <div class="tip">nCr is on the MATH → PRB menu. Multiply by 100 for a percentage.</div>
+      </article>
+
+      <article class="card">
+        <h3>Permutations</h3>
+        <p class="formula">nPr counts ordered arrangements</p>
+        <p class="given">How many ways can 3 of 10 finish first, second, third?</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">0</span><span class="k">MATH</span><span class="cap">PRB → nPr</span><span class="k">3</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">720</span></div>
+        <div class="tip">Compare with 10 nCr 3 = 120 when the order does not matter.</div>
+      </article>
+
+      <article class="card">
+        <h3>Coefficient of variation</h3>
+        <p class="formula">CV = σ / μ × 100</p>
+        <p class="given">σ = 4.2, μ = 33.5.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">4</span><span class="k">.</span><span class="k">2</span><span class="k">÷</span><span class="k">3</span><span class="k">3</span><span class="k">.</span><span class="k">5</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">12.53731343</span><span class="lbl">%</span></div>
+      </article>
     </div>
   </section>
 
   <!-- ================= FINANCE ================= -->
   <section class="panel" id="panel-fin" role="tabpanel" aria-labelledby="tab-fin" tabindex="0" hidden>
     <h2 class="section-title">Finance &amp; Business</h2>
-    <p class="panel-intro">Compound growth, the future value of a stream of payments, and a quick return-on-investment check.</p>
+    <p class="panel-intro">Simple and compound growth, loan payments, present value, effective rates, doubling time, depreciation, and a break-even calculation.</p>
     <div class="grid">
 
       <article class="card wide">
@@ -634,6 +1128,72 @@
         <p class="klabel">Keys</p>
         <div class="seq"><span class="k">(</span><span class="k">1</span><span class="k">5</span><span class="k">0</span><span class="k">0</span><span class="k">−</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">)</span><span class="k">÷</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">×</span><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">ENTER</span></div>
         <div class="result"><span class="lbl">Display</span><span class="val">50</span><span class="lbl">percent</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Simple interest</h3>
+        <p class="formula">I = Prt</p>
+        <p class="given">$2500 at 4.5% for 3 years.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">2</span><span class="k">5</span><span class="k">0</span><span class="k">0</span><span class="k">×</span><span class="k">.</span><span class="k">0</span><span class="k">4</span><span class="k">5</span><span class="k">×</span><span class="k">3</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">337.5</span><span class="lbl">$</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Monthly loan payment</h3>
+        <p class="formula">PMT = Pi / (1 − (1+i)⁻ⁿ)</p>
+        <p class="given">$18,000 at 6%/yr for 5 years; i = .06/12, n = 60.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">8</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">×</span><span class="k">(</span><span class="k">.</span><span class="k">0</span><span class="k">6</span><span class="k">÷</span><span class="k">1</span><span class="k">2</span><span class="k">)</span><span class="k">÷</span><span class="k">(</span><span class="k">1</span><span class="k">−</span><span class="k">(</span><span class="k">1</span><span class="k">+</span><span class="k">.</span><span class="k">0</span><span class="k">6</span><span class="k">÷</span><span class="k">1</span><span class="k">2</span><span class="k">)</span><span class="k">^</span><span class="k">(−)</span><span class="k">6</span><span class="k">0</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">347.9904275</span><span class="lbl">$/mo</span></div>
+        <div class="tip">Watch the negative exponent — use the (−) key inside the power.</div>
+      </article>
+
+      <article class="card">
+        <h3>Present value</h3>
+        <p class="formula">PV = FV / (1 + r)ⁿ</p>
+        <p class="given">$10,000 in 8 years at 5%.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">÷</span><span class="k">(</span><span class="k">1</span><span class="k">+</span><span class="k">.</span><span class="k">0</span><span class="k">5</span><span class="k">)</span><span class="k">^</span><span class="k">8</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">6768.39362</span><span class="lbl">$</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Effective annual rate</h3>
+        <p class="formula">EAR = (1 + r/n)ⁿ − 1</p>
+        <p class="given">6% nominal, compounded monthly.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">1</span><span class="k">+</span><span class="k">.</span><span class="k">0</span><span class="k">6</span><span class="k">÷</span><span class="k">1</span><span class="k">2</span><span class="k">)</span><span class="k">^</span><span class="k">1</span><span class="k">2</span><span class="k">−</span><span class="k">1</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">.06167781186</span></div>
+        <div class="tip">Multiply by 100 to read it as a percentage: about 6.17%.</div>
+      </article>
+
+      <article class="card">
+        <h3>Doubling time</h3>
+        <p class="formula">t = log 2 / log(1 + r)</p>
+        <p class="given">How long to double at 5% per year?</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">LOG</span><span class="k">2</span><span class="k">)</span><span class="k">÷</span><span class="k">LOG</span><span class="k">1</span><span class="k">.</span><span class="k">0</span><span class="k">5</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">14.20669908</span><span class="lbl">years</span></div>
+        <div class="tip">The rule of 72 estimates 14.4 — close, and this is the exact figure.</div>
+      </article>
+
+      <article class="card">
+        <h3>Straight-line depreciation</h3>
+        <p class="formula">annual = (cost − salvage) / life</p>
+        <p class="given">$24,000 asset, $3,000 salvage, 8 years.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">(</span><span class="k">2</span><span class="k">4</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">−</span><span class="k">3</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">)</span><span class="k">÷</span><span class="k">8</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">2625</span><span class="lbl">$/yr</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Break-even units</h3>
+        <p class="formula">units = fixed / (price − variable)</p>
+        <p class="given">Fixed $12,000; price $45; variable $27.</p>
+        <p class="klabel">Keys</p>
+        <div class="seq"><span class="k">1</span><span class="k">2</span><span class="k">0</span><span class="k">0</span><span class="k">0</span><span class="k">÷</span><span class="k">(</span><span class="k">4</span><span class="k">5</span><span class="k">−</span><span class="k">2</span><span class="k">7</span><span class="k">)</span><span class="k">ENTER</span></div>
+        <div class="result"><span class="lbl">Display</span><span class="val">666.6666667</span><span class="lbl">units</span></div>
       </article>
     </div>
   </section>
@@ -747,8 +1307,8 @@ Disp "AMOUNT=",F</code></pre>
 
 <footer>
   <div class="wrap">
-    <p>Companion to the TI Graphing Calculator Simulator · Built for <span class="program">Engineering &amp; Technology</span> · Brookdale Community College · <span class="year">2026</span></p>
-    <p>Educational simulation for the TI-84 Plus CE and TI-83/84 Plus. Not affiliated with or endorsed by Texas Instruments.</p>
+    <p>Companion to the TI Graphing Calculator Simulator</p>
+    <p>Educational simulation for the TI-84 Plus CE and TI-83/84 Plus. Not affiliated with or endorsed by Texas Instruments. TI-83, TI-84 Plus and TI-84 Plus CE are trademarks of Texas Instruments.</p>
   </div>
 </footer>
 
@@ -797,6 +1357,17 @@ Disp "AMOUNT=",F</code></pre>
   var startIdx = 0;
   try { var saved = parseInt(localStorage.getItem(STORE), 10); if (saved >= 0 && saved < tabs.length) startIdx = saved; } catch (e) {}
   selectTab(startIdx, false);
+
+  // open a tab named in the URL, e.g. ...#tab-math
+  function tabFromHash() {
+    var h = (location.hash || '').replace('#', '');
+    if (!h) return;
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i].id === h) { selectTab(i, false); return; }
+    }
+  }
+  tabFromHash();
+  window.addEventListener('hashchange', tabFromHash);
 
   // ---------- Copy buttons ----------
   function flash(el, msg) { el.textContent = msg; setTimeout(function () { el.textContent = ''; }, 1900); }
