@@ -17,6 +17,7 @@
     --clearface:#5a4a4a;
     --c2nd:#63a4ff; --calpha:#73dd92;
     --brand-chip:#e9eaed; --brand-fg:#cdd2da;
+    --device-w:400px;
   }
   .device.model-mono{
     --face:#565b63; --face-edge:#3d4148; --bezel:#2c2f34;
@@ -47,7 +48,7 @@
   .device-wrap{ flex:0 0 auto; }
 
   .device{
-    width: 360px; max-width: 94vw;
+    width: var(--device-w); max-width: 96vw;
     background: linear-gradient(180deg,var(--face),var(--face-edge));
     border-radius:20px; padding:14px 14px 18px;
     box-shadow: 0 10px 30px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
@@ -61,7 +62,9 @@
   .ind{ font-weight:700; font-size:9px; padding:1px 5px; border-radius:3px; letter-spacing:.4px; }
   .ind.b2{ background:#2563eb; color:#fff; }
   .ind.ba{ background:#16a34a; color:#fff; }
-  canvas#lcd{ display:block; width:100%; height:auto; border-radius:4px; image-rendering:auto; background:#fff; }
+  canvas#lcd{ display:block; width:100%; height:auto; aspect-ratio:4/3; border-radius:4px; image-rendering:auto; background:#fff; }
+  .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
 
   .keypad{ margin-top:14px; }
   .krow.graphrow{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:10px; }
@@ -110,6 +113,14 @@
   select, .btn{ font-family:inherit; font-size:.9rem; padding:7px 10px; border-radius:8px; border:1px solid var(--panel-line); background:var(--page-bg); color:var(--page-fg); cursor:pointer; min-height:40px; }
   .btn:hover{ filter:brightness(1.05); }
   .statusline{ font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.74rem; color:var(--muted); background:var(--page-bg); border:1px solid var(--panel-line); border-radius:8px; padding:7px 9px; word-break:break-word; }
+  .settings{ display:grid; grid-template-columns:auto 1fr; gap:8px 10px; align-items:center; margin:12px 0 4px; }
+  .settings label{ font-size:.85rem; color:var(--muted); }
+  .settings select{ width:100%; }
+  .engbox{ margin-top:12px; border:1px solid var(--panel-line); border-radius:10px; padding:10px 12px; background:var(--page-bg); }
+  .engbox h3{ margin:0 0 6px; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
+  .engbox .val{ font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:1rem; line-height:1.7; word-break:break-word; }
+  .engbox .val .pfx{ color:var(--accent); font-weight:700; }
+  .engbox .none{ font-size:.84rem; color:var(--muted); }
   details{ margin-top:12px; border-top:1px solid var(--panel-line); padding-top:10px; }
   summary{ cursor:pointer; font-weight:600; }
   details ul{ margin:8px 0 0; padding-left:18px; }
@@ -135,25 +146,6 @@
 </style>
 </head>
 <body>
-<nav class="elec-bookbar" aria-label="Course navigation">
-  <a href="index.html">&#8592; ELEC 103 &middot; Course home</a>
-  <span>&middot;</span>
-  <a href="elec103-ch1-quantities-and-units.html">Chapter 1 &middot; Quantities and Units</a>
-  <span>&middot;</span>
-  <a href="elec103-calculator-tutorial.html">Worked examples</a>
-</nav>
-<style>
-.elec-bookbar{
-  display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;
-  padding:.6rem 1rem;background:#17242F;border-bottom:3px solid #B08421;
-  font:600 .82rem "IBM Plex Sans","Segoe UI",system-ui,sans-serif;
-}
-.elec-bookbar a{color:#E9F0F5;text-decoration:none;border-bottom:1px solid transparent;}
-.elec-bookbar a:hover,.elec-bookbar a:focus-visible{border-bottom-color:#D9B23F;}
-.elec-bookbar span{color:#7C93A4;}
-@media print{.elec-bookbar{display:none;}}
-</style>
-
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="top">
   <h1>TI Graphing Calculator Simulator</h1>
@@ -166,6 +158,7 @@
       <div class="bezel">
         <div class="indicators" id="indicators"></div>
         <canvas id="lcd" width="640" height="480" role="img" aria-label="Calculator screen"></canvas>
+        <div id="lcdText" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
         <textarea id="prgmEditor" class="prgm-editor" spellcheck="false" autocomplete="off" autocapitalize="characters" aria-label="Program editor"></textarea>
         <div id="basicInputWrap" class="basic-input">
           <label id="basicPrompt" for="basicInput">?</label>
@@ -185,25 +178,65 @@
       </select>
       <button type="button" class="btn" id="resetBtn">Reset (clear RAM)</button>
     </div>
+    <div class="settings">
+      <label for="sizeSel">Screen size</label>
+      <select id="sizeSel">
+        <option value="400">Standard</option>
+        <option value="480">Large</option>
+        <option value="560">Extra large</option>
+      </select>
+      <label for="angleSel">Angle</label>
+      <select id="angleSel">
+        <option value="deg">Degree</option>
+        <option value="rad">Radian</option>
+      </select>
+      <label for="numfmtSel">Number format</label>
+      <select id="numfmtSel">
+        <option value="normal">Normal</option>
+        <option value="sci">Sci (scientific)</option>
+        <option value="eng">Eng (engineering)</option>
+      </select>
+      <label for="decSel">Decimals</label>
+      <select id="decSel">
+        <option value="-1">Float</option>
+        <option value="0">Fix 0</option>
+        <option value="1">Fix 1</option>
+        <option value="2">Fix 2</option>
+        <option value="3">Fix 3</option>
+        <option value="4">Fix 4</option>
+        <option value="5">Fix 5</option>
+        <option value="6">Fix 6</option>
+        <option value="7">Fix 7</option>
+        <option value="8">Fix 8</option>
+        <option value="9">Fix 9</option>
+      </select>
+    </div>
+    <p class="stage2note">These mirror the calculator's <code>MODE</code> screen — change them either way.</p>
     <div class="statusline" id="statusline" aria-live="polite"></div>
+    <div class="engbox">
+      <h3>Last answer in engineering form</h3>
+      <div class="val" id="engReadout"><span class="none">Evaluate something on the home screen to see it here.</span></div>
+    </div>
     <details open>
       <summary>Quick start</summary>
       <ul>
         <li>Type on the <strong>home screen</strong> and press <code>ENTER</code>. Use <code>2nd</code> (blue) and <code>ALPHA</code> (green) for the labels above each key.</li>
+        <li><strong>Your keyboard works too.</strong> Digits and <code>.</code> type numbers; <code>+ - * / ^ ( ) ,</code> are the operators; <code>Enter</code> evaluates, <code>Backspace</code> deletes, arrow keys navigate, <code>Esc</code> is QUIT. Letters type as ALPHA characters, and <code>E</code> gives the power-of-ten exponent.</li>
         <li><code>Y=</code> enter functions of X · <code>GRAPH</code> to plot · <code>TRACE</code> then <code>◀ ▶</code> to read coordinates · <code>▲▼</code> switch functions.</li>
         <li><code>ZOOM</code> for standard/decimal/square/trig/fit · <code>WINDOW</code> to set bounds.</li>
         <li><code>2nd</code> then <code>WINDOW</code> = table setup · <code>2nd</code> then <code>GRAPH</code> = <strong>TABLE</strong>.</li>
         <li>Store values with <code>STO▶</code> (e.g. <code>5 STO▶ A</code>). Recall the last answer with <code>2nd</code> <code>(-)</code> = <code>Ans</code>.</li>
-        <li><code>MODE</code> switches Degree/Radian and the number format.</li>
+        <li><code>MODE</code> &rarr; <strong>NUMBER</strong> row &rarr; <code>◀ ▶</code> to pick <strong>NORMAL / SCI / ENG</strong>, then <code>CLEAR</code> to leave. <strong>ENG</strong> keeps the exponent a multiple of 3, so 4700 reads <code>4.7E3</code> and 0.0022 reads <code>2.2E-3</code>.</li>
+        <li>Type a power of ten with <code>2nd</code> <code>,</code> (<code>EE</code>) — e.g. <code>4.7</code> <code>EE</code> <code>3</code> for 4.7&nbsp;&times;&nbsp;10<sup>3</sup>. Use <code>(-)</code>, not <code>−</code>, for a negative exponent.</li>
         <li><code>STAT</code> &rarr; Edit lists (L1–L6), then 1-Var Stats or LinReg. <code>2nd</code> <code>x⁻¹</code> = MATRIX editor &amp; operations.</li>
         <li><code>PRGM</code> &rarr; write and run TI-BASIC. The editor accepts your keyboard; <code>PRGM</code> inside the editor inserts commands (Disp, If, For, …).</li>
       </ul>
-      <p class="stage2note">Tip: pair this with the companion tutorial for worked examples in math, physics, electronics, engineering, chemistry, statistics, and finance.</p>
+      <p class="stage2note">Your work is saved in this browser, so the calculator is where you left it when you come back.</p>
     </details>
   </aside>
 </main>
 <footer class="foot">
-  <p>A simulator for teaching and practice — not affiliated with or endorsed by Texas Instruments. Built for Engineering &amp; Technology · Brookdale Community College · 2026</p>
+  <p>A simulator for teaching and practice — not affiliated with or endorsed by Texas Instruments. TI-83, TI-84 Plus and TI-84 Plus CE are trademarks of Texas Instruments.</p>
 </footer>
 <script>
 /* TI Calculator math engine — tokenizer + recursive-descent parser + evaluator.
@@ -222,6 +255,14 @@
     'det(', 'not('
   ];
   var WORD_OPS = ['nCr', 'nPr', 'and', 'or', 'xor'];
+  /* Keyboard entry arrives uppercased (the calculator has no lowercase), so "SIN("
+     has to resolve to the same token as the SIN key's "sin(". Match on a folded copy
+     and always emit the canonical lowercase name. */
+  var FUNCS_LC = FUNCS.map(function (f) { return f.toLowerCase(); });
+  var WORD_OPS_LC = WORD_OPS.map(function (w) { return w.toLowerCase(); });
+  function matchesAt(s, i, lc) {
+    return s.substr(i, lc.length).toLowerCase() === lc;
+  }
 
   function tokenize(src) {
     var s = src;
@@ -254,7 +295,7 @@
 
       // multi-char functions
       for (var f = 0; f < FUNCS.length; f++) {
-        if (s.startsWith(FUNCS[f], i)) {
+        if (matchesAt(s, i, FUNCS_LC[f])) {
           toks.push({ t: 'func', v: FUNCS[f].slice(0, -1) }); // strip '('
           toks.push({ t: '(' });
           i += FUNCS[f].length; continue outer;
@@ -262,7 +303,7 @@
       }
       // word operators
       for (var w = 0; w < WORD_OPS.length; w++) {
-        if (s.startsWith(WORD_OPS[w], i)) {
+        if (matchesAt(s, i, WORD_OPS_LC[w])) {
           // ensure not a prefix of a longer identifier run (these are standalone)
           toks.push({ t: 'wop', v: WORD_OPS[w] });
           i += WORD_OPS[w].length; continue outer;
@@ -950,14 +991,14 @@
   var evalExprRaw;
 
   // ---- LCD geometry (logical px) ----
-  var LCD_W = 320, LCD_H = 240, COLS = 24, ROWS = 11;
+  var LCD_W = 320, LCD_H = 240, COLS = 24, ROWS = 10;
   var cellW = LCD_W / COLS, cellH = LCD_H / ROWS;
 
   // ---- palettes ----
   var PAL = {
-    ce: { bg: '#fbfbf7', text: '#15171a', axis: '#3a3f47', grid: '#e2e4e1', dim: '#7c828b',
-      func: ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0e7490'] },
-    mono: { bg: '#aeb79a', text: '#1b2316', axis: '#1b2316', grid: '#9ba585', dim: '#48522f',
+    ce: { bg: '#fbfbf7', text: '#15171a', axis: '#3a3f47', grid: '#d8dbd7', dim: '#565c66',
+      func: ['#1d4ed8', '#c81e1e', '#15803d', '#7e22ce', '#c2410c', '#0e7490'] },
+    mono: { bg: '#aeb79a', text: '#161d10', axis: '#161d10', grid: '#95a07e', dim: '#333c1f',
       func: ['#161d10', '#161d10', '#161d10', '#161d10', '#161d10', '#161d10'] }
   };
 
@@ -968,8 +1009,17 @@
   for (var li = 1; li <= 6; li++) ctx.lists[li] = [];
   evalExprRaw = Engine.makeEvaluator(ctx);
   function evalExpr(src) { return evalExprRaw(preprocess(src)); }
+  /* Ans is spliced in as a literal. String(1e-9) is "1e-9", and the tokenizer reads a
+     lowercase 'e' as Euler's number — so Ans would silently evaluate as 1 x e - 9.
+     Anything below 1e-6 or at/above 1e21 hit this, which is exactly the range science
+     and engineering work lives in. Emit an uppercase E literal. */
+  function numLiteral(v) {
+    if (typeof v !== 'number' || !isFinite(v)) return '0';
+    return String(v).replace('e', 'E').replace('E+', 'E');
+  }
   function preprocess(src) {
-    return src.replace(/Ans/g, '(' + (ctx.vars.Ans || 0) + ')');
+    // Typed letters arrive uppercased, so "ANS" must resolve as well as "Ans".
+    return src.replace(/ans/gi, '(' + numLiteral(ctx.vars.Ans || 0) + ')');
   }
 
   // ---- state ----
@@ -986,7 +1036,7 @@
     statCol: 0, statRow: 0, statColScroll: 0, statBuf: null, statResult: null,
     matName: 'A', matRow: 0, matCol: 0, matBuf: null, matPhase: 'dim', matDimSel: 0,
     programs: [], prgmEditIdx: -1, nameBuf: '', prog: null, basicInput: null, runScroll: 0, runLines: null,
-    menu: null, statusMsg: ''
+    menu: null, statusMsg: '', deviceW: 400
   };
 
   function syncYFuncs() { ctx.yfuncs = {}; S.yf.forEach(function (f, i) { ctx.yfuncs[i + 1] = f.src; }); }
@@ -997,7 +1047,7 @@
     try {
       localStorage.setItem(SKEY, JSON.stringify({
         model: S.model, mode: mode, win: S.win, tbl: S.tbl, yf: S.yf, vars: ctx.vars,
-        lists: ctx.lists, mats: ctx.mats, programs: S.programs
+        lists: ctx.lists, mats: ctx.mats, programs: S.programs, deviceW: S.deviceW
       }));
     } catch (e) {}
   }
@@ -1005,7 +1055,13 @@
     try {
       var d = JSON.parse(localStorage.getItem(SKEY)); if (!d) return;
       if (d.model) S.model = d.model;
-      if (d.mode) { mode.angle = d.mode.angle; mode.numfmt = d.mode.numfmt; mode.decimals = d.mode.decimals; }
+      if (d.mode) {
+        mode.angle = d.mode.angle === 'rad' ? 'rad' : 'deg';
+        mode.numfmt = NUMFMTS.indexOf(d.mode.numfmt) >= 0 ? d.mode.numfmt : 'normal';
+        var dv = parseInt(d.mode.decimals, 10);
+        mode.decimals = (dv >= 0 && dv <= 9) ? dv : -1;
+      }
+      if ([400, 480, 560].indexOf(d.deviceW) >= 0) S.deviceW = d.deviceW;
       if (d.win) S.win = d.win;
       if (d.tbl) S.tbl = d.tbl;
       if (d.yf && d.yf.length === 6) S.yf = d.yf;
@@ -1020,6 +1076,20 @@
   }
 
   // ---- number formatting ----
+  var NUMFMTS = ['normal', 'sci', 'eng'];
+
+  /* Engineering notation: exponent forced to a multiple of 3, mantissa in [1,1000).
+     Matches the TI-84 family, which keeps the E term even when the exponent is 0
+     (10 displays as 10E0, 240000 as 240E3, 0.47 as 470E-3). */
+  function engParts(ax) {
+    var e3 = Math.floor(Math.floor(Math.log10(ax)) / 3) * 3;
+    var mant = ax / Math.pow(10, e3);
+    // log10 rounding can land the mantissa just outside [1,1000); nudge it back.
+    if (!isFinite(mant) || mant <= 0) { mant = ax; e3 = 0; }
+    while (mant >= 1000) { mant /= 1000; e3 += 3; }
+    while (mant < 1) { mant *= 1000; e3 -= 3; }
+    return { mant: mant, exp: e3 };
+  }
   function fmtNum(x) {
     if (typeof x !== 'number') return String(x);
     if (!isFinite(x)) return x > 0 ? '\u221E' : (x < 0 ? '-\u221E' : 'undef');
@@ -1027,6 +1097,14 @@
     var neg = x < 0, ax = Math.abs(x), s;
     if (mode.numfmt === 'sci') {
       s = trimExp(ax.toExponential(mode.decimals >= 0 ? mode.decimals : 9).replace('e', 'E'));
+    } else if (mode.numfmt === 'eng') {
+      var p = engParts(ax);
+      // 10 significant digits total, minus the digits already left of the point.
+      var intDigits = Math.floor(Math.log10(p.mant)) + 1;
+      var dec = mode.decimals >= 0 ? mode.decimals : Math.max(0, 10 - intDigits);
+      var mstr = p.mant.toFixed(Math.min(dec, 12));
+      if (parseFloat(mstr) >= 1000) { p.mant /= 1000; p.exp += 3; mstr = p.mant.toFixed(Math.min(dec, 12)); }
+      s = trimExp(mstr + 'E' + p.exp, mode.decimals >= 0);
     } else if (mode.decimals >= 0) {
       s = ax.toFixed(mode.decimals);
     } else if (ax >= 1e10 || ax < 1e-4) {
@@ -1034,12 +1112,25 @@
     } else {
       s = '' + parseFloat(ax.toPrecision(10));
     }
+    // TI omits the leading zero on values below 1: 1/2 shows as .5, not 0.5
+    if (s.charAt(0) === '0' && s.charAt(1) === '.') s = s.slice(1);
     return (neg ? '-' : '') + s;
   }
-  function trimExp(s) {
+  function trimExp(s, keepZeros) {
     var m = s.split('E'), mant = m[0], exp = m[1].replace('+', '');
-    if (mant.indexOf('.') >= 0) mant = mant.replace(/0+$/, '').replace(/\.$/, '');
+    if (!keepZeros && mant.indexOf('.') >= 0) mant = mant.replace(/0+$/, '').replace(/\.$/, '');
     return mant + 'E' + exp;
+  }
+
+  /* SI prefixes, for the engineering-notation study readout in the side panel. */
+  var SI_PREFIX = { 24: 'Y', 21: 'Z', 18: 'E', 15: 'P', 12: 'T', 9: 'G', 6: 'M', 3: 'k', 0: '',
+    '-3': 'm', '-6': '\u00B5', '-9': 'n', '-12': 'p', '-15': 'f', '-18': 'a', '-21': 'z', '-24': 'y' };
+  function engPrefix(x) {
+    if (typeof x !== 'number' || !isFinite(x) || x === 0) return null;
+    var p = engParts(Math.abs(x));
+    if (!(p.exp in SI_PREFIX)) return null;
+    var mant = parseFloat(p.mant.toPrecision(7));
+    return { mant: (x < 0 ? -mant : mant), exp: p.exp, prefix: SI_PREFIX[p.exp] };
   }
   function fmtValue(v) {
     if (typeof v === 'number') return [fmtNum(v)];
@@ -1056,19 +1147,44 @@
   //  RENDERING
   // ====================================================================
   var canvas, g, dpr = 2, cursorOn = true;
+  var MONO = '"DejaVu Sans Mono","Liberation Mono","Menlo","Consolas","Courier New",monospace';
+  var fontPx = 0, glyphAdv = 0;
   function pal() { return PAL[S.model]; }
   function clearLCD() { g.fillStyle = pal().bg; g.fillRect(0, 0, LCD_W, LCD_H); }
-  function setFont() { g.font = Math.round(cellH * 0.74) + 'px "DejaVu Sans Mono","Liberation Mono","Courier New",monospace'; g.textBaseline = 'top'; }
+
+  /* The old font size (0.74 x cell height) left the glyphs far narrower than their
+     cells, so the screen text read as small and thin. Measure the font's real advance
+     width once, then pick the largest size that fills the cell in both directions. */
+  function measureFont() {
+    g.font = '100px ' + MONO;
+    var adv = 0;
+    try { adv = g.measureText('0').width / 100; } catch (e) { adv = 0; }
+    if (!adv || !isFinite(adv)) adv = 0.6;
+    fontPx = Math.max(8, Math.min(cellW * 0.94 / adv, cellH * 0.88));
+    g.font = fontPx.toFixed(2) + 'px ' + MONO;
+    try { glyphAdv = g.measureText('0').width; } catch (e) { glyphAdv = fontPx * adv; }
+    if (!glyphAdv || !isFinite(glyphAdv)) glyphAdv = fontPx * adv;
+  }
+  function setFont() {
+    if (!fontPx) measureFont();
+    g.font = fontPx.toFixed(2) + 'px ' + MONO;
+    g.textBaseline = 'middle';
+    g.textAlign = 'left';
+  }
+  function drawChars(str, col, row) {
+    var pad = (cellW - glyphAdv) / 2, y = row * cellH + cellH * 0.52;
+    for (var i = 0; i < str.length; i++) g.fillText(str[i], (col + i) * cellW + pad, y);
+  }
   function putText(col, row, str, inv) {
     str = str == null ? '' : ('' + str);
     var x = col * cellW, y = row * cellH;
     if (inv) { g.fillStyle = pal().text; g.fillRect(x, y, Math.max(1, str.length) * cellW, cellH); g.fillStyle = pal().bg; }
     else { g.fillStyle = pal().text; }
-    for (var i = 0; i < str.length; i++) g.fillText(str[i], (col + i) * cellW + cellW * 0.07, y + cellH * 0.11);
+    drawChars(str, col, row);
   }
   function putDim(col, row, str) {
     g.fillStyle = pal().dim;
-    for (var i = 0; i < str.length; i++) g.fillText(str[i], (col + i) * cellW + cellW * 0.07, row * cellH + cellH * 0.11);
+    drawChars('' + str, col, row);
   }
   function pad(s, w) { s = '' + s; while (s.length < w) s += ' '; return s.slice(0, w); }
 
@@ -1194,10 +1310,34 @@
     }
     ctx.vars.X = savedX;
   }
+  /* Narrow (7-char) rendering for TABLE and TRACE cells. Reduces precision to fit
+     instead of chopping characters off the end, which used to turn 1.2345E-7 into
+     "1.2345E" and silently drop the exponent. */
   function fmtShort(x) {
     if (typeof x !== 'number' || !isFinite(x)) return 'ERR';
-    var s = (Math.abs(x) >= 1e6 || (x !== 0 && Math.abs(x) < 1e-3)) ? x.toExponential(2).replace('e', 'E') : ('' + (Math.round(x * 1e4) / 1e4));
-    return s.length > 7 ? s.slice(0, 7) : s;
+    if (x === 0) return '0';
+    var W = 7, neg = x < 0, ax = Math.abs(x), body;
+    function expForm(digits, engMode) {
+      var mant, e;
+      if (engMode) { var p = engParts(ax); mant = p.mant; e = p.exp; }
+      else { var t = ax.toExponential(Math.max(0, digits)).split('e'); mant = parseFloat(t[0]); e = parseInt(t[1], 10); }
+      var ms = digits > 0 ? mant.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '') : String(Math.round(mant));
+      return ms + 'E' + e;
+    }
+    var useExp = mode.numfmt === 'sci' || mode.numfmt === 'eng' || ax >= 1e6 || ax < 1e-3;
+    if (useExp) {
+      for (var d = 4; d >= 0; d--) {
+        body = expForm(d, mode.numfmt === 'eng');
+        if (body.length + (neg ? 1 : 0) <= W) break;
+      }
+    } else {
+      for (var k = 5; k >= 0; k--) {
+        body = String(parseFloat(ax.toFixed(k)));
+        if (body.length + (neg ? 1 : 0) <= W) break;
+      }
+      if (body.length + (neg ? 1 : 0) > W) body = expForm(1, false);
+    }
+    return (neg ? '-' : '') + body;
   }
 
   // -------- GRAPH --------
@@ -1258,7 +1398,7 @@
     putText(0, 0, 'MODE');
     var rows = [
       { lbl: 'ANGLE', opts: ['RADIAN', 'DEGREE'], active: mode.angle === 'deg' ? 1 : 0 },
-      { lbl: 'NUMBER', opts: ['NORMAL', 'SCI'], active: mode.numfmt === 'sci' ? 1 : 0 },
+      { lbl: 'NUMBER', opts: ['NORMAL', 'SCI', 'ENG'], active: Math.max(0, NUMFMTS.indexOf(mode.numfmt)) },
       { lbl: 'DECIMAL', opts: [mode.decimals < 0 ? 'FLOAT' : 'FIX ' + mode.decimals], active: 0 }
     ];
     for (var i = 0; i < rows.length; i++) {
@@ -1267,13 +1407,13 @@
       var c = 9;
       for (var k = 0; k < R.opts.length; k++) { putText(c, row, R.opts[k], k === R.active); c += R.opts[k].length + 1; }
     }
-    putDim(0, ROWS - 1, '\u2191\u2193 row  \u2190\u2192 change');
+    putDim(0, ROWS - 1, '\u2191\u2193 row  \u2190\u2192 change  CLEAR');
   }
 
   // -------- MENU overlay --------
   function renderMenu() {
     var m = S.menu, n = m.items.length;
-    var boxRows = Math.min(n, ROWS - 1) + 1;
+    var boxRows = Math.min(n, ROWS - 2) + 1;
     var top = 0;
     g.fillStyle = pal().bg; g.fillRect(0, 0, LCD_W, boxRows * cellH);
     g.strokeStyle = pal().text; g.lineWidth = 1; g.strokeRect(0.5, 0.5, LCD_W - 1, boxRows * cellH - 1);
@@ -1520,6 +1660,7 @@
     if (!S.trace) {
       // simple pan with arrows
       var dx = (S.win.Xmax - S.win.Xmin) * 0.1, dy = (S.win.Ymax - S.win.Ymin) * 0.1;
+      if (id === 'clear') { S.screen = 'home'; return; }
       if (id === 'left') { S.win.Xmin -= dx; S.win.Xmax -= dx; }
       else if (id === 'right') { S.win.Xmin += dx; S.win.Xmax += dx; }
       else if (id === 'up') { S.win.Ymin += dy; S.win.Ymax += dy; }
@@ -1539,16 +1680,22 @@
   function tableKey(id) {
     if (id === 'up') S.tblScroll--;
     else if (id === 'down') S.tblScroll++;
+    else if (id === 'clear') S.screen = 'home';
   }
 
   // ---- MODE ----
   function modeKey(id) {
     if (id === 'up') S.modeRow = (S.modeRow + 2) % 3;
     else if (id === 'down') S.modeRow = (S.modeRow + 1) % 3;
-    else if (id === 'left' || id === 'right') {
+    else if (id === 'clear') { S.screen = 'home'; }
+    else if (id === 'left' || id === 'right' || id === 'enter') {
+      var d = (id === 'left') ? -1 : 1;
       if (S.modeRow === 0) mode.angle = mode.angle === 'deg' ? 'rad' : 'deg';
-      else if (S.modeRow === 1) mode.numfmt = mode.numfmt === 'sci' ? 'normal' : 'sci';
-      else { mode.decimals += (id === 'right' ? 1 : -1); if (mode.decimals < -1) mode.decimals = -1; if (mode.decimals > 9) mode.decimals = 9; }
+      else if (S.modeRow === 1) {
+        var i = Math.max(0, NUMFMTS.indexOf(mode.numfmt));
+        mode.numfmt = NUMFMTS[(i + d + NUMFMTS.length) % NUMFMTS.length];
+      } else { mode.decimals += d; if (mode.decimals < -1) mode.decimals = -1; if (mode.decimals > 9) mode.decimals = 9; }
+      syncSettingsUI();
     }
   }
 
@@ -1707,16 +1854,90 @@
   // ====================================================================
   //  SIDEBAR / CHROME
   // ====================================================================
+  function bindSelect(id, fn) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', function (e) { fn(e.target.value); });
+  }
+  function setSel(id, v) {
+    var el = document.getElementById(id);
+    if (el && el.value !== String(v)) el.value = String(v);
+  }
+  function syncSettingsUI() {
+    setSel('angleSel', mode.angle);
+    setSel('numfmtSel', mode.numfmt);
+    setSel('decSel', mode.decimals);
+  }
+
+  var lastMirror = '';
   function updateSidebar() {
     var brand = document.getElementById('brandModel');
     if (brand) brand.textContent = S.model === 'ce' ? 'TI-84 Plus CE' : 'TI-84 Plus';
     var st = document.getElementById('statusline');
     if (st) {
-      var bits = [mode.angle === 'deg' ? 'DEG' : 'RAD', mode.numfmt === 'sci' ? 'SCI' : 'NORMAL',
+      var bits = [mode.angle === 'deg' ? 'DEG' : 'RAD', mode.numfmt.toUpperCase(),
         mode.decimals < 0 ? 'FLOAT' : 'FIX' + mode.decimals, 'screen: ' + S.screen.toUpperCase()];
       if (S.statusMsg) bits.push('\u2022 ' + S.statusMsg);
       st.textContent = bits.join('  \u00B7  ');
     }
+    syncSettingsUI();
+    updateEngReadout();
+    updateScreenMirror();
+  }
+
+  /* Study aid: the last answer written in engineering form with its SI prefix.
+     Lives outside the LCD so the simulated screen itself stays faithful. */
+  function updateEngReadout() {
+    var box = document.getElementById('engReadout'); if (!box) return;
+    var v = ctx.vars.Ans;
+    var p = (typeof v === 'number') ? engPrefix(v) : null;
+    if (p === null) {
+      var txt = (typeof v === 'number' && v === 0) ? '0' : null;
+      box.textContent = '';
+      var em = document.createElement('span'); em.className = 'none';
+      em.textContent = txt ? '0 \u2014 zero has no exponent or prefix.'
+        : 'Evaluate something on the home screen to see it here.';
+      box.appendChild(em);
+      return;
+    }
+    box.textContent = '';
+    var line1 = document.createElement('div');
+    line1.textContent = p.mant + ' \u00D7 10' + supDigits(p.exp);
+    var line2 = document.createElement('div');
+    line2.appendChild(document.createTextNode(p.mant + ' '));
+    var pf = document.createElement('span'); pf.className = 'pfx';
+    pf.textContent = p.prefix || '(no prefix)';
+    line2.appendChild(pf);
+    box.appendChild(line1);
+    box.appendChild(line2);
+    box.setAttribute('aria-label', 'Last answer: ' + p.mant + ' times ten to the ' + p.exp
+      + (p.prefix ? ', prefix ' + p.prefix : ''));
+  }
+  var SUPS = { '0': '\u2070', '1': '\u00B9', '2': '\u00B2', '3': '\u00B3', '4': '\u2074',
+    '5': '\u2075', '6': '\u2076', '7': '\u2077', '8': '\u2078', '9': '\u2079', '-': '\u207B' };
+  function supDigits(n) {
+    return String(n).split('').map(function (c) { return SUPS[c] || c; }).join('');
+  }
+
+  /* The canvas is opaque to assistive tech, so mirror the screen contents into a
+     live region. Only pushed when the text actually changes, so the blinking
+     cursor does not spam a screen reader. */
+  function updateScreenMirror() {
+    var el = document.getElementById('lcdText'); if (!el) return;
+    var txt;
+    if (S.screen === 'home') {
+      txt = 'Home screen. ' + S.homeLines.slice(-6).join('. ') + (S.entry ? '. Entry: ' + S.entry : '');
+    } else if (S.screen === 'mode') {
+      txt = 'Mode screen. Angle ' + (mode.angle === 'deg' ? 'Degree' : 'Radian')
+        + '. Number ' + mode.numfmt.toUpperCase()
+        + '. Decimal ' + (mode.decimals < 0 ? 'Float' : 'Fix ' + mode.decimals) + '.';
+    } else if (S.screen === 'yedit') {
+      txt = 'Y equals editor. ' + S.yf.map(function (f, i) {
+        return 'Y' + (i + 1) + (f.on ? ' on' : ' off') + ' ' + (f.src || 'empty');
+      }).join('. ');
+    } else {
+      txt = S.screen.toUpperCase() + ' screen.';
+    }
+    if (txt !== lastMirror) { lastMirror = txt; el.textContent = txt; }
   }
 
   function setModel(m) {
@@ -1732,19 +1953,33 @@
   var KB = {
     '0': 'num0', '1': 'num1', '2': 'num2', '3': 'num3', '4': 'num4', '5': 'num5', '6': 'num6', '7': 'num7', '8': 'num8', '9': 'num9',
     '.': 'dot', '+': 'add', '-': 'sub', '*': 'mul', '/': 'div', '^': 'caret', '(': 'lparen', ')': 'rparen', ',': 'comma',
-    'Enter': 'enter', 'Backspace': 'del', 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right'
+    'Enter': 'enter', 'Backspace': 'del', 'Delete': 'del', 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right'
   };
+  // Characters that go straight into the entry line with no dedicated key.
+  var KB_TEXT = { '!': '!', '<': '<', '>': '>', '=': '=', '{': '{', '}': '}', ':': ':', '"': '"', ' ': ' ' };
+
   function onKeydown(ev) {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
     var t = ev.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+    // A focused text field owns the keyboard outright.
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
     var k = ev.key;
+    /* A focused <select> used to swallow every keystroke, so changing the model or a
+       setting silently killed typing until the user clicked elsewhere. Let the select
+       keep its navigation keys, but hand any printable character to the calculator. */
+    if (t && t.tagName === 'SELECT') {
+      if (k.length !== 1) return;
+      try { t.blur(); } catch (e) {}
+    }
     if (k === 'Escape') { ev.preventDefault(); S.menu = null; S.screen = 'home'; render(); return; }
     if (KB[k]) { ev.preventDefault(); pressKey(KB[k]); return; }
     if (/^[a-zA-Z]$/.test(k)) {
       if (hasTextTarget()) { ev.preventDefault(); insertText(k.toUpperCase()); render(); save(); }
       return;
     }
-    if (k === '=') { ev.preventDefault(); if (hasTextTarget()) { insertText('='); render(); } }
+    if (KB_TEXT[k] !== undefined) {
+      if (hasTextTarget()) { ev.preventDefault(); insertText(KB_TEXT[k]); render(); save(); }
+    }
   }
 
   // ====================================================================
@@ -2076,10 +2311,33 @@
   // ====================================================================
   //  INIT
   // ====================================================================
+  /* Previously the backing store was pinned to 640x480 and then scaled to whatever
+     CSS width the bezel happened to be (304px), so every glyph was resampled at a
+     fractional ratio and came out soft. Render at true device resolution instead. */
+  function sizeCanvas(rerender) {
+    var cssW = canvas.clientWidth || LCD_W;
+    var ratio = Math.min(3, Math.max(1, window.devicePixelRatio || 1));
+    var back = Math.max(LCD_W, Math.round(cssW * ratio));
+    if (canvas.width !== back) {
+      canvas.width = back;
+      canvas.height = Math.round(back * LCD_H / LCD_W);
+    }
+    dpr = canvas.width / LCD_W;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    fontPx = 0; // force a re-measure at the new resolution
+    if (rerender) render();
+  }
+
+  function setDeviceWidth(px) {
+    S.deviceW = px;
+    document.documentElement.style.setProperty('--device-w', px + 'px');
+    var sel = document.getElementById('sizeSel'); if (sel) sel.value = String(px);
+    sizeCanvas(true);
+  }
+
   function init() {
     canvas = document.getElementById('lcd');
-    canvas.width = LCD_W * dpr; canvas.height = LCD_H * dpr;
-    g = canvas.getContext('2d'); g.scale(dpr, dpr);
+    g = canvas.getContext('2d');
     load();
     buildKeypad();
     setModel(S.model);
@@ -2090,6 +2348,19 @@
       if (btn && btn.getAttribute('data-id')) { pressKey(btn.getAttribute('data-id')); }
     });
     document.getElementById('modelSel').addEventListener('change', function (e) { setModel(e.target.value); });
+
+    setDeviceWidth(S.deviceW);
+    bindSelect('sizeSel', function (v) { setDeviceWidth(parseInt(v, 10) || 400); save(); });
+    bindSelect('angleSel', function (v) { mode.angle = v === 'rad' ? 'rad' : 'deg'; render(); save(); });
+    bindSelect('numfmtSel', function (v) { mode.numfmt = NUMFMTS.indexOf(v) >= 0 ? v : 'normal'; render(); save(); });
+    bindSelect('decSel', function (v) { var n = parseInt(v, 10); mode.decimals = (n >= 0 && n <= 9) ? n : -1; render(); save(); });
+    syncSettingsUI();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      try { new ResizeObserver(function () { sizeCanvas(true); }).observe(canvas); } catch (e) {}
+    }
+    window.addEventListener('resize', function () { sizeCanvas(true); });
+
     var reset = document.getElementById('resetBtn');
     if (reset) reset.addEventListener('click', function () {
       S.homeLines = []; S.entry = ''; S.cur = 0; ctx.vars = { X: 0, Ans: 0 };
@@ -2097,9 +2368,18 @@
       setWin(-10, 10, 1, -10, 10, 1); S.screen = 'home'; S.menu = null; render(); save();
     });
     document.addEventListener('keydown', onKeydown);
+    /* Clicking anywhere on the device takes the keyboard back from a dropdown, so
+       "type on the screen" keeps working after changing a setting. */
+    var dev = document.getElementById('device');
+    if (dev) dev.addEventListener('pointerdown', function () {
+      var a = document.activeElement;
+      if (a && a.tagName === 'SELECT') { try { a.blur(); } catch (e) {} }
+    });
     var bi = document.getElementById('basicInput');
     if (bi) bi.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); submitBasicInput(bi.value); } });
-    setInterval(function () { cursorOn = !cursorOn; if (needCursor()) render(); }, 530);
+    var reduceMotion = false;
+    try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    if (!reduceMotion) setInterval(function () { cursorOn = !cursorOn; if (needCursor()) render(); }, 530);
     if (typeof window !== 'undefined' && window.__TIDEBUG) {
       window.__TI = { press: pressKey, setModel: setModel, S: S, ctx: ctx, render: render,
         runProgram: runProgram, submitBasicInput: submitBasicInput, openEditor: openEditor };
