@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chapter 1 Quantities and Units — In-class</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,'Times New Roman',serif;color:#1a1a1a;line-height:1.6;font-size:12pt}
+.page{max-width:760px;margin:0 auto;padding:36px 30px}
+.cover{border-bottom:3px solid #003366;padding-bottom:18px;margin-bottom:22px}
+.cover h1{font-size:1.5rem;color:#003366;margin-bottom:4px}
+.cover .sub{font-size:1rem;color:#006666;margin-bottom:8px}
+.cover .meta{font-size:.85rem;color:#555;display:flex;flex-wrap:wrap;gap:18px}
+.namebar{display:flex;gap:28px;margin:14px 0;font-size:.9rem}
+.namebar .blank{border-bottom:1px solid #333;flex:1;min-width:120px;display:inline-block}
+.instr{background:#f4f4ee;border-left:4px solid #006666;padding:11px 15px;font-size:.88rem;margin-bottom:8px;border-radius:3px}
+.pledge{font-size:.82rem;font-style:italic;color:#444;margin-bottom:20px;padding-left:4px}
+.prob{margin-bottom:26px;page-break-inside:avoid;border-bottom:1px solid #ddd;padding-bottom:16px}
+.prob:last-child{border-bottom:none}
+.prob-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.prob-h .pn{font-weight:700;color:#003366;font-size:1.05rem}
+.prob-h .pp{font-size:.82rem;color:#666}
+.prob-label{font-size:.82rem;color:#006666;font-style:italic;margin-bottom:6px}
+.stem{margin-bottom:12px}
+.fig{margin:12px 0;text-align:center}
+.fig svg,.fig img{max-width:90%;height:auto}
+.figcap{font-size:.8rem;color:#666;font-style:italic;margin-top:5px}
+.figcap-only{font-size:.85rem;color:#888;font-style:italic;border:1px dashed #bbb;padding:8px;text-align:center;margin:10px 0}
+.exhibit{font-family:'Courier New',monospace;font-size:.82rem;white-space:pre;overflow-x:auto;background:#f6f6f2;border:1px solid #ccc;border-radius:4px;padding:10px 13px;text-align:left;display:inline-block}
+.part{margin:10px 0 10px 6px}
+.part-q{font-weight:600}
+.pl{font-size:.8rem;color:#888;margin-left:8px}
+.work-box{border:1px solid #bbb;border-radius:4px;margin-top:8px;background:#fcfcfa}
+.work-box.medium{height:130px}.work-box.large{height:230px}
+.work-lines{margin-top:8px}.work-lines .ln{border-bottom:1px solid #ccc;height:26px}
+.ans-line{margin-top:8px;font-size:.9rem}.ans-box{border:1.5px solid #333;display:inline-block;min-width:130px;padding:5px 10px;border-radius:3px}
+.key-ans{margin-top:6px;font-size:.92rem;background:#eef6ee;border-left:3px solid #006840;padding:6px 11px;border-radius:0 3px 3px 0}
+.key-ans b{color:#006840}
+.key-check{font-family:'Courier New',monospace;font-size:.78rem;color:#444;margin-top:4px}
+.key-check.fail{color:#a30000}
+.sol{margin-top:10px;background:#fff8ee;border:1px solid #e0c080;border-radius:5px;padding:11px 14px;font-size:.9rem}
+.sol .sh{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a5000;margin-bottom:6px}
+.footer{margin-top:30px;padding-top:14px;border-top:2px solid #003366;text-align:center;font-size:.78rem;color:#666}
+.canvas-note{background:#e8f3ff;border:1px solid #9cc6ef;border-radius:6px;padding:12px 15px;font-size:.86rem;margin-bottom:20px}
+@media print{.page{padding:0;max-width:none}.prob{page-break-inside:avoid}.no-print{display:none}@page{margin:.85in}}.ic-bar{position:sticky;top:0;z-index:9;background:#003366;color:#fff;display:flex;gap:10px;align-items:center;padding:10px 18px;font-family:sans-serif;font-size:.85rem;flex-wrap:wrap}
+.ic-bar .sp{margin-left:auto}
+.ic-btn{font-family:sans-serif;font-size:.8rem;font-weight:600;padding:7px 14px;border-radius:5px;border:1px solid #cfe0ff;background:transparent;color:#fff;cursor:pointer}
+.ic-btn.on,.ic-btn:hover{background:#fff;color:#003366}
+#slideCount{font-family:sans-serif;font-weight:700;color:#003366}
+.reveal-row{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.reveal-btn{font-family:sans-serif;font-size:.85rem;font-weight:600;padding:9px 16px;border-radius:6px;border:1px solid #006666;background:#e9f3f3;color:#044;cursor:pointer}
+.reveal-btn.ans{border-color:#006840;background:#eef6ee;color:#044e30}
+.reveal-body{display:none;margin-top:10px}
+.reveal-body.show{display:block}
+.ic-answer{background:#eef6ee;border-left:3px solid #006840;padding:9px 13px;border-radius:0 4px 4px 0;font-size:1rem}
+.ic-answer .ai{display:block;margin:4px 0}
+.slide-nav{display:none}
+body.slide .page{max-width:1000px}
+body.slide .prob{display:none;border-bottom:none}
+body.slide .prob.current{display:block;font-size:1.25em;min-height:56vh}
+body.slide .slide-nav{display:flex;gap:18px;align-items:center;justify-content:center;position:sticky;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid #bbb;padding:12px}
+body.slide .slide-nav .ic-btn{border-color:#003366;color:#003366}
+body.slide .slide-nav .ic-btn:hover{background:#003366;color:#fff}
+@media print{.ic-bar,.reveal-row,.slide-nav{display:none!important}.reveal-body{display:block!important}body.slide .prob{display:block!important}}</style></head><body class="page"><div class="ic-bar no-print"><b>Chapter 1 Quantities and Units</b><span class="sp"></span><button class="ic-btn on" id="vPage">Page view</button><button class="ic-btn" id="vSlide">Slide view</button></div><div class="page"><div class="cover"><h1>Chapter 1 Quantities and Units</h1><div class="sub">Electrical Skills and Techniques</div><div class="meta"><span>Prof Qaissaunee ELEC 103-001RL</span><span>5 problems</span></div></div><div class="instr">Show all work for full credit. Clearly box each final answer and include units. Partial credit is awarded for correct method.</div><div class="prob" id="prob-0"><div class="prob-h"><span class="pn">Problem 1</span><span class="pp">20 points</span></div><div class="prob-label">Problem 1</div><div class="stem">Electronics work constantly requires combining numbers that differ by many powers of ten, so the arithmetic is carried out in scientific notation rather than by writing the digits out. Evaluate the following expression entirely in scientific notation (multiply and divide the decimal parts, add and subtract the exponents), and report the result in proper scientific notation — one nonzero digit to the left of the decimal point — rounded to three significant figures: $$\frac{\left(6.80 \times 10^{4}\right)\left(3.00 \times 10^{-3}\right)}{4.00 \times 10^{2}}$$ The quantities are pure numbers, so the result is dimensionless. Show the intermediate product and the exponent bookkeeping, not just the final digits.</div><div class="part"><span class="part-q"></span>Evaluate the expression and state the result in scientific notation to three significant figures.<span class="pl">[20 pts]</span></div><div class="reveal-row no-print"><button class="reveal-btn ans" data-target="ans-0" data-label="Answer">Show Answer</button><button class="reveal-btn" data-target="sol-0" data-label="Full Solution">Show Full Solution</button></div><div class="reveal-body" id="ans-0"><div class="ic-answer"><span class="ai"><b>$5.10 \times 10^{-1}$ (that is, 0.510)</b> dimensionless</span></div></div><div class="reveal-body" id="sol-0"><div class="sol"><div class="sh">Worked Solution</div>Given: numerator factors $6.80 \times 10^{4}$ and $3.00 \times 10^{-3}$; denominator $4.00 \times 10^{2}$.
+
+**Step 1 — multiply the numerator.** Multiply the decimal parts and add the exponents:
+$$\left(6.80 \times 10^{4}\right)\left(3.00 \times 10^{-3}\right) = (6.80)(3.00) \times 10^{4 + (-3)} = 20.4 \times 10^{1}$$
+Put this in proper scientific notation by moving the decimal point one place left and raising the exponent by one:
+$$20.4 \times 10^{1} = 2.04 \times 10^{2}$$
+
+**Step 2 — divide by the denominator.** Divide the decimal parts and subtract the exponents:
+$$\frac{2.04 \times 10^{2}}{4.00 \times 10^{2}} = \frac{2.04}{4.00} \times 10^{2 - 2} = 0.510 \times 10^{0} = 0.510$$
+
+**Step 3 — express in proper scientific notation.** Move the decimal point one place right and lower the exponent by one:
+$$0.510 \times 10^{0} = 5.10 \times 10^{-1}$$
+
+**Check on significant figures.** Every given value carries three significant figures, so the quotient is reported to three significant figures.
+
+**Answer:** $5.10 \times 10^{-1}$ (dimensionless).</div></div></div><div class="prob" id="prob-1"><div class="prob-h"><span class="pn">Problem 2</span><span class="pp">20 points</span></div><div class="prob-label">Problem 2</div><div class="stem">A ceramic capacitor in a parts drawer is marked $0.0100\ \mu\text{F}$, but the schematic you are building from specifies capacitor values in picofarads. Using the standard metric prefixes — micro ($\mu$) means $10^{-6}$ and pico (p) means $10^{-12}$ — convert the marked value to picofarads. Work the conversion through the base unit (farads) rather than memorizing a shortcut: first express $0.0100\ \mu\text{F}$ in farads in scientific notation, then re-express that quantity with the pico prefix. Report the answer to three significant figures.</div><div class="part"><span class="part-q"></span>Express $0.0100\ \mu\text{F}$ in picofarads, to three significant figures.<span class="pl">[20 pts]</span></div><div class="reveal-row no-print"><button class="reveal-btn ans" data-target="ans-1" data-label="Answer">Show Answer</button><button class="reveal-btn" data-target="sol-1" data-label="Full Solution">Show Full Solution</button></div><div class="reveal-body" id="ans-1"><div class="ic-answer"><span class="ai"><b>$1.00 \times 10^{4}\ \text{pF}$ (that is, $10{,}000\ \text{pF}$)</b> pF</span></div></div><div class="reveal-body" id="sol-1"><div class="sol"><div class="sh">Worked Solution</div>Given: $C = 0.0100\ \mu\text{F}$. Standard prefixes: $\mu = 10^{-6}$, $\text{p} = 10^{-12}$.
+
+**Step 1 — write the marked value in scientific notation.**
+$$0.0100\ \mu\text{F} = 1.00 \times 10^{-2}\ \mu\text{F}$$
+
+**Step 2 — convert to the base unit, farads.** Replace the prefix $\mu$ with its value $10^{-6}$:
+$$C = \left(1.00 \times 10^{-2}\right)\left(10^{-6}\ \text{F}\right) = 1.00 \times 10^{-8}\ \text{F}$$
+
+**Step 3 — re-express with the pico prefix.** Divide by the value of the prefix, using it as a conversion factor so the units cancel:
+$$C = 1.00 \times 10^{-8}\ \text{F} \times \frac{1\ \text{pF}}{10^{-12}\ \text{F}} = 1.00 \times 10^{-8 - (-12)}\ \text{pF} = 1.00 \times 10^{4}\ \text{pF}$$
+
+**Unit check.** Farads cancel against farads in the conversion factor, leaving picofarads, which is what was asked for. The exponent moved from $-8$ to $+4$, a shift of six decades, which is exactly the six-decade gap between micro and pico — a useful sanity check.
+
+**Answer:** $1.00 \times 10^{4}\ \text{pF} = 10{,}000\ \text{pF}$.</div></div></div><div class="prob" id="prob-2"><div class="prob-h"><span class="pn">Problem 3</span><span class="pp">20 points</span></div><div class="prob-label">Problem 3</div><div class="stem">Three branch currents measured at a test point are recorded in three different formats, as often happens when readings are copied from instruments with different range settings: $I_1 = 2.50\ \text{mA}$, $I_2 = 375\ \mu\text{A}$, and $I_3 = 6.00 \times 10^{-5}\ \text{A}$. Quantities expressed with different prefixes cannot be added directly, so first convert all three to a single common unit, add them, and then express the total in engineering notation — a power of ten that is a multiple of three — using the metric prefix that keeps the leading digits between 1 and 999. Report the numeric coefficient to three significant figures and state the prefix. Use $\text{m} = 10^{-3}$ and $\mu = 10^{-6}$.</div><div class="part"><span class="part-q"></span>Find the total current $I_1 + I_2 + I_3$ and express it in engineering notation with the appropriate metric prefix, to three significant figures.<span class="pl">[20 pts]</span></div><div class="reveal-row no-print"><button class="reveal-btn ans" data-target="ans-2" data-label="Answer">Show Answer</button><button class="reveal-btn" data-target="sol-2" data-label="Full Solution">Show Full Solution</button></div><div class="reveal-body" id="ans-2"><div class="ic-answer"><span class="ai"><b>$2.94\ \text{mA}$ (total $= 2.935 \times 10^{-3}\ \text{A}$, rounded to three significant figures)</b> mA</span></div></div><div class="reveal-body" id="sol-2"><div class="sol"><div class="sh">Worked Solution</div>Given: $I_1 = 2.50\ \text{mA}$, $I_2 = 375\ \mu\text{A}$, $I_3 = 6.00 \times 10^{-5}\ \text{A}$.
+
+**Step 1 — put every term in the base unit (amperes).**
+$$I_1 = 2.50 \times 10^{-3}\ \text{A}$$
+$$I_2 = 375\ \mu\text{A} = 375 \times 10^{-6}\ \text{A} = 0.375 \times 10^{-3}\ \text{A}$$
+$$I_3 = 6.00 \times 10^{-5}\ \text{A} = 0.0600 \times 10^{-3}\ \text{A}$$
+Notice that each was rewritten against the common power $10^{-3}$, which is what makes the addition possible.
+
+**Step 2 — add the aligned terms.**
+$$I_T = (2.50 + 0.375 + 0.0600) \times 10^{-3}\ \text{A} = 2.935 \times 10^{-3}\ \text{A}$$
+
+**Step 3 — express in engineering notation with a prefix.** The exponent $-3$ is already a multiple of three and the coefficient 2.935 lies between 1 and 999, so the form is correct. Substituting the prefix milli for $10^{-3}$:
+$$I_T = 2.935 \times 10^{-3}\ \text{A} = 2.935\ \text{mA}$$
+
+**Step 4 — round.** The least precise term, $2.50\ \text{mA}$, is given to the hundredths of a milliampere, and the problem calls for three significant figures:
+$$I_T \approx 2.94\ \text{mA}$$
+
+**Unit check.** All three terms are currents in amperes before addition, so the sum is a current; the milli prefix only relabels the power of ten.
+
+**Answer:** $I_T = 2.94\ \text{mA}$.</div></div></div><div class="prob" id="prob-3"><div class="prob-h"><span class="pn">Problem 4</span><span class="pp">20 points</span></div><div class="prob-label">Problem 4</div><div class="stem">Part of every lab exercise in this course is comparing a measured value against the value you predicted and explaining the difference numerically rather than calling it \&quot;close enough.\&quot; A resistor is marked with a nominal (accepted) value of $4.70\ \text{k}\Omega$. When you measure it with a digital multimeter, the display reads $4.53\ \text{k}\Omega$. Using the standard definition $$\%\ \text{error} = \frac{\left| \text{measured} - \text{accepted} \right|}{\text{accepted}} \times 100\%$$ determine the percent error of the measurement relative to the nominal value. Both values are given to three significant figures; report the percent error to three significant figures. Note that both quantities carry the same prefix, so the kilo prefix cancels in the ratio.</div><div class="part"><span class="part-q"></span>Calculate the percent error of the measured resistance relative to the nominal value, to three significant figures.<span class="pl">[20 pts]</span></div><div class="reveal-row no-print"><button class="reveal-btn ans" data-target="ans-3" data-label="Answer">Show Answer</button><button class="reveal-btn" data-target="sol-3" data-label="Full Solution">Show Full Solution</button></div><div class="reveal-body" id="ans-3"><div class="ic-answer"><span class="ai"><b>$3.62\%$</b> %</span></div></div><div class="reveal-body" id="sol-3"><div class="sol"><div class="sh">Worked Solution</div>Given: accepted value $R_{\text{acc}} = 4.70\ \text{k}\Omega$; measured value $R_{\text{meas}} = 4.53\ \text{k}\Omega$.
+
+**Step 1 — find the absolute deviation.**
+$$\left| R_{\text{meas}} - R_{\text{acc}} \right| = \left| 4.53\ \text{k}\Omega - 4.70\ \text{k}\Omega \right| = 0.17\ \text{k}\Omega = 170\ \Omega$$
+
+**Step 2 — form the ratio and convert to a percentage.**
+$$\%\ \text{error} = \frac{0.17\ \text{k}\Omega}{4.70\ \text{k}\Omega} \times 100\% $$
+
+**Step 3 — evaluate.**
+$$\frac{0.17}{4.70} = 0.036170 \qquad \Rightarrow \qquad \%\ \text{error} = 0.036170 \times 100\% = 3.6170\%$$
+Rounded to three significant figures:
+$$\%\ \text{error} \approx 3.62\%$$
+
+**Dimensional analysis.** Kilohms appear in both the numerator and the denominator and cancel, leaving a pure number; multiplying by 100 converts that pure number into a percentage. This is why the prefixes never had to be expanded to ohms — though doing so gives the same ratio, $170\ \Omega / 4700\ \Omega$.
+
+**Answer:** $3.62\%$.</div></div></div><div class="prob" id="prob-4"><div class="prob-h"><span class="pn">Problem 5</span><span class="pp">20 points</span></div><div class="prob-label">Problem 5</div><div class="stem">A digital multimeter does not produce a single exact number; its specification sheet states how far the displayed reading may be from the true value. For the DC volts function on the range in use, the meter is specified as $\pm\left(0.5\%\ \text{of reading} + 3\ \text{counts}\right)$, and on that range the display resolution is one count $= 0.01\ \text{V}$ (the last digit shown). The meter displays $12.46\ \text{V}$. Compute the total measurement uncertainty implied by this specification: evaluate the proportional term as $0.5\%$ of the displayed reading, evaluate the fixed term as 3 counts expressed in volts, and add the two contributions. Express the total uncertainty in millivolts, using $\text{m} = 10^{-3}$, to three significant figures.</div><div class="fig"><div class="figcap">Excerpt from the multimeter specification sheet</div><pre class="exhibit">FUNCTION   RANGE      RESOLUTION     ACCURACY
+-------------------------------------------------------------
+DC Volts   20.00 V    0.01 V         +/- (0.5% of rdg + 3 cts)
+
+Displayed reading ............ 12.46 V
+1 count (last digit) ......... 0.01 V</pre></div><div class="part"><span class="part-q"></span>Determine the total measurement uncertainty in the 12.46 V reading and express it in millivolts, to three significant figures.<span class="pl">[20 pts]</span></div><div class="reveal-row no-print"><button class="reveal-btn ans" data-target="ans-4" data-label="Answer">Show Answer</button><button class="reveal-btn" data-target="sol-4" data-label="Full Solution">Show Full Solution</button></div><div class="reveal-body" id="ans-4"><div class="ic-answer"><span class="ai"><b>$92.3\ \text{mV}$ (total uncertainty $= 0.0923\ \text{V}$)</b> mV</span></div></div><div class="reveal-body" id="sol-4"><div class="sol"><div class="sh">Worked Solution</div>Given: displayed reading $V_{\text{disp}} = 12.46\ \text{V}$; accuracy specification $\pm\left(0.5\%\ \text{of reading} + 3\ \text{counts}\right)$; resolution $1\ \text{count} = 0.01\ \text{V}$.
+
+**Step 1 — the proportional (percent-of-reading) term.** Convert the percentage to a decimal fraction, $0.5\% = 0.005$, then apply it to the reading:
+$$\Delta V_{\%} = 0.005 \times 12.46\ \text{V} = 0.0623\ \text{V}$$
+
+**Step 2 — the fixed (counts) term.** A count is one unit in the last displayed digit, worth $0.01\ \text{V}$ on this range:
+$$\Delta V_{\text{cts}} = 3 \times 0.01\ \text{V} = 0.03\ \text{V}$$
+
+**Step 3 — total uncertainty.** The specification adds the two contributions:
+$$\Delta V = \Delta V_{\%} + \Delta V_{\text{cts}} = 0.0623\ \text{V} + 0.0300\ \text{V} = 0.0923\ \text{V}$$
+
+**Step 4 — express in millivolts.** Using $1\ \text{mV} = 10^{-3}\ \text{V}$:
+$$\Delta V = 0.0923\ \text{V} \times \frac{1\ \text{mV}}{10^{-3}\ \text{V}} = 9.23 \times 10^{-2 + 3}\ \text{mV} = 92.3\ \text{mV}$$
+
+**Dimensional analysis.** In Step 1 the 0.005 is a pure number, so the product carries volts; in Step 2 the 3 is a pure count and $0.01\ \text{V}$ supplies the volts. Both terms are therefore in volts and may legitimately be added. In Step 4 volts cancel against volts in the conversion factor, leaving millivolts.
+
+**Interpretation.** The true voltage lies within $12.46 \pm 0.0923\ \text{V}$, that is between roughly $12.37\ \text{V}$ and $12.55\ \text{V}$ — so the final displayed digit is not trustworthy, even though the meter prints it.
+
+**Answer:** $\Delta V = 92.3\ \text{mV}$.</div></div></div></div><div class="slide-nav no-print"><button class="ic-btn" id="slidePrev">&#8592; Prev</button><span id="slideCount"></span><button class="ic-btn" id="slideNext">Next &#8594;</button></div><script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});</script><script>(function(){var b=document.body;var probs=[].slice.call(document.querySelectorAll(".prob"));var cur=0;function show(i){cur=Math.max(0,Math.min(i,probs.length-1));probs.forEach(function(p,x){p.classList.toggle("current",x===cur);});var c=document.getElementById("slideCount");if(c)c.textContent="Problem "+(cur+1)+" / "+probs.length;window.scrollTo(0,0);}function view(v){var s=(v==="slide");b.classList.toggle("slide",s);b.classList.toggle("page",!s);document.getElementById("vPage").classList.toggle("on",!s);document.getElementById("vSlide").classList.toggle("on",s);if(s)show(cur);}document.getElementById("vPage").addEventListener("click",function(){view("page");});document.getElementById("vSlide").addEventListener("click",function(){view("slide");});document.getElementById("slidePrev").addEventListener("click",function(){show(cur-1);});document.getElementById("slideNext").addEventListener("click",function(){show(cur+1);});document.addEventListener("keydown",function(e){if(!b.classList.contains("slide"))return;if(e.key==="ArrowRight"||e.key==="PageDown"){show(cur+1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){show(cur-1);}});document.addEventListener("click",function(e){var t=e.target.closest?e.target.closest(".reveal-btn"):null;if(!t)return;var el=document.getElementById(t.getAttribute("data-target"));if(!el)return;var on=el.classList.toggle("show");t.textContent=(on?"Hide ":"Show ")+t.getAttribute("data-label");});view("page");})();</script></body></html>
