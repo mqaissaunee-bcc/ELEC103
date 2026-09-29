@@ -357,24 +357,9 @@ html { font-size: calc(100% * var(--ui-scale)); }
 
   <div class="chapters" id="chapterGrid"></div>
 
-
-  <h2 style="margin-top:3.5rem;"><span class="kicker">Tools</span>Things to keep open while you work</h2>
-  <p class="section-intro">Not chapters &mdash; standing tools you can reach for in any week of the course. Both open in a new tab.</p>
-
-  <div class="chapters">
-    <a class="ch-card" href="elec103-calculator-simulator.html" target="_blank" rel="noopener noreferrer">
-      <div class="ch-top"><span class="ch-no">Calculator</span><span class="ch-week">any week</span></div>
-      <div class="ch-title">TI-84 Simulator</div>
-      <p class="ch-blurb">A working in-browser replica of the TI-84 Plus CE. Rehearse keystrokes, and check that MODE is set the way you think it is.</p>
-      <div class="ch-foot"><span class="tag ready">Open in a new tab</span><span class="ch-stat">works without the physical calculator</span></div>
-    </a>
-    <a class="ch-card" href="elec103-calculator-tutorial.html" target="_blank" rel="noopener noreferrer">
-      <div class="ch-top"><span class="ch-no">Calculator</span><span class="ch-week">any week</span></div>
-      <div class="ch-title">Worked Examples Guide</div>
-      <p class="ch-blurb">Keystroke-by-keystroke walkthroughs by subject. The electronics section covers Ohm&rsquo;s law, series and parallel resistors, and the voltage divider.</p>
-      <div class="ch-foot"><span class="tag ready">Open in a new tab</span><span class="ch-stat">use alongside the simulator</span></div>
-    </a>
-  </div>
+  <h2 style="margin-top:3rem;"><span class="kicker">Labs</span>Tinkercad labs</h2>
+  <p class="section-intro">Do the tutorial first, then each lab in order. Every lab builds a PDF report you upload to Canvas. Your work saves in the browser you use, so download a backup from the lab’s Report tab if you switch computers.</p>
+  <div class="chapters" id="labGrid"></div>
 
   <div class="callout">
     <h3>How the chapters work</h3>
@@ -626,6 +611,46 @@ html { font-size: calc(100% * var(--ui-scale)); }
       ? 'All ' + ready + ' chapters are ready. Open the first one to start; your place is kept automatically.'
       : ready + ' of ' + CHAPTERS.length + ' chapters are ready. The rest arrive as the semester goes on.';
   }
+
+  /* ---------- Tinkercad labs ---------- */
+  var LABS = [
+    { no: 'Tutorial', title: 'Getting Around Tinkercad Circuits', when: 'Before Lab 1', file: 'elec103-lab0-tinkercad-tutorial.html', key: 'elec103-lab0-v1', mins: 75,
+      blurb: 'Sign in, place and set parts, wire a breadboard, use the multimeter, and submit a practice build.' },
+    { no: 'Lab 1', title: 'Breadboards and Resistance', when: 'With Ch 2', file: 'elec103-lab1-breadboards-and-resistance.html', key: 'elec103-lab1-v1', mins: 90,
+      blurb: 'The color code, how a breadboard is connected, and one circuit built three ways.' },
+    { no: 'Lab 2', title: 'Measuring Resistance', when: 'With Ch 2', file: 'elec103-lab2-measuring-resistance.html', key: 'elec103-lab2-v1', mins: 120,
+      blurb: 'Series, parallel, and series-parallel networks, plus what a potentiometer’s wiper does.' },
+    { no: 'Lab 3', title: 'Ohm\u2019s Law', when: 'With Ch 3', file: 'elec103-lab3-ohms-law.html', key: 'elec103-lab3-v1', mins: 100,
+      blurb: 'Graph current against voltage and resistance, and find conductance in the slope.' },
+    { no: 'Lab 4', title: 'Series Circuits', when: 'With Ch 4\u20135', file: 'elec103-lab4-series-circuits.html', key: 'elec103-lab4-v1', mins: 120,
+      blurb: 'Every drop and every milliwatt in a series loop, and what a rheostat does to all of them.' }
+  ];
+  var labGrid = document.getElementById('labGrid');
+  LABS.forEach(function (lb) {
+    var card = document.createElement('a');
+    card.className = 'ch-card'; card.href = lb.file; card.target = '_blank'; card.rel = 'noopener noreferrer';
+    var top = document.createElement('div'); top.className = 'ch-top';
+    var no = document.createElement('span'); no.className = 'ch-no'; no.textContent = lb.no;
+    var wk = document.createElement('span'); wk.className = 'ch-week'; wk.textContent = lb.when;
+    top.appendChild(no); top.appendChild(wk);
+    var title = document.createElement('div'); title.className = 'ch-title'; title.textContent = lb.title;
+    var blurb = document.createElement('p'); blurb.className = 'ch-blurb'; blurb.textContent = lb.blurb;
+    var foot = document.createElement('div'); foot.className = 'ch-foot';
+    var tag = document.createElement('span'); tag.className = 'tag ready'; tag.textContent = 'Open in a new tab';
+    var stat = document.createElement('span'); stat.className = 'ch-stat';
+    var pct = null;
+    try { var st = JSON.parse(localStorage.getItem(lb.key) || 'null'); if (st && typeof st.pct === 'number') pct = st.pct; } catch (e) {}
+    stat.textContent = pct === null ? 'about ' + lb.mins + ' min' : pct + '% complete';
+    foot.appendChild(tag); foot.appendChild(stat);
+    card.appendChild(top); card.appendChild(title); card.appendChild(blurb); card.appendChild(foot);
+    if (pct !== null) {
+      var bar = document.createElement('span'); bar.className = 'ch-progress';
+      bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100');
+      bar.setAttribute('aria-valuenow', String(pct)); bar.setAttribute('aria-label', lb.no + ' progress');
+      var fill = document.createElement('i'); fill.style.width = pct + '%'; bar.appendChild(fill); card.appendChild(bar);
+    }
+    labGrid.appendChild(card);
+  });
 })();
 </script>
 </body>

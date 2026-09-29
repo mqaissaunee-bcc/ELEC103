@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2: Measuring Resistance — ELEC 103</title>
+<meta name="description" content="ELEC 103 Tinkercad Lab 2: resistance in series, parallel, and series-parallel networks, potentiometers, and rheostats.">
+<style>
+:root {
+  /* Palette drawn from the resistor color code and the lab bench */
+  --paper: #F3F6F8;
+  --surface: #FFFFFF;
+  --bench: #17242F;
+  --bench-soft: #24384A;
+  --ink: #15212C;
+  --ink-soft: #4C5C6B;
+  --ink-faint: #5A6875;
+  --rule: #D3DCE3;
+  --rule-soft: #E7ECF0;
+
+  --gold: #B08421;        /* tolerance band — primary accent, fills and rules */
+  --gold-text: #8A6414;   /* darkened for small text: 4.9:1 on paper */
+  --gold-bright: #D9B23F;
+  --brown: #7B4A2D;
+  --red: #BE3A2B;
+  --orange: #D2691E;
+  --green: #2C7A57;
+  --blue: #2A5DA8;
+  --violet: #6B3FA0;
+
+  --lcd-bg: #101A16;
+  --lcd-ink: #7DE3A1;
+
+  --ok-bg: #E3F3EA;
+  --ok-ink: #1E6343;
+  --no-bg: #FBE7E4;
+  --no-ink: #96261A;
+
+  --font-read: "Iowan Old Style", "IBM Plex Serif", Charter, Georgia, "Times New Roman", serif;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --measure: 66ch;
+  --ui-scale: 1;
+  --r-sm: 3px;
+  --r-md: 6px;
+  --shadow: 0 1px 2px rgba(21,33,44,.08), 0 6px 20px rgba(21,33,44,.06);
+}
+
+/* Dark values live in one place, applied either by explicit choice or by system preference */
+:root[data-theme="dark"] {
+  --paper: #0E161D;
+  --surface: #16212C;
+  --bench: #0A1218;
+  --bench-soft: #1B2A36;
+  --ink: #E4ECF2;
+  --ink-soft: #A9BAC7;
+  --ink-faint: #8697A5;
+  --rule: #2B3C4A;
+  --rule-soft: #223140;
+
+  --gold: #E0BC57;
+  --gold-text: #E0BC57;
+  --gold-bright: #F2D07C;
+  --brown: #B77B54;
+  --red: #E8695A;
+  --orange: #E9924B;
+  --green: #5FBF8F;
+  --blue: #6FA3E8;
+  --violet: #A683DC;
+
+  --ok-bg: #14312A;
+  --ok-ink: #86E0B4;
+  --no-bg: #35201E;
+  --no-ink: #F0958A;
+
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --paper: #0E161D;
+    --surface: #16212C;
+    --bench: #0A1218;
+    --bench-soft: #1B2A36;
+    --ink: #E4ECF2;
+    --ink-soft: #A9BAC7;
+    --ink-faint: #8697A5;
+    --rule: #2B3C4A;
+    --rule-soft: #223140;
+
+    --gold: #E0BC57;
+    --gold-text: #E0BC57;
+    --gold-bright: #F2D07C;
+    --brown: #B77B54;
+    --red: #E8695A;
+    --orange: #E9924B;
+    --green: #5FBF8F;
+    --blue: #6FA3E8;
+    --violet: #A683DC;
+
+    --ok-bg: #14312A;
+    --ok-ink: #86E0B4;
+    --no-bg: #35201E;
+    --no-ink: #F0958A;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+
+html { font-size: calc(100% * var(--ui-scale)); }
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-read);
+  font-size: clamp(1rem, .96rem + .22vw, 1.12rem);
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--gold);
+  color: #15212C;
+  padding: .75rem 1rem;
+  font-family: var(--font-ui);
+  z-index: 100;
+}
+.skip-link:focus { left: 0; }
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.wrap {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.col {
+  max-width: var(--measure);
+}
+
+/* ---------- Masthead ---------- */
+
+.masthead {
+  background: var(--bench);
+  color: #E9F0F5;
+  padding: 1.6rem 0 1.4rem;
+  border-bottom: 3px solid var(--gold);
+}
+.masthead .wrap { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: baseline; justify-content: space-between; }
+.course-line {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  letter-spacing: .04em;
+  color: #9FB4C4;
+  margin: 0 0 .3rem;
+}
+.masthead h1 {
+  font-family: var(--font-read);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.6rem);
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -.01em;
+}
+.masthead h1 .ch {
+  display: block;
+  font-family: var(--font-num);
+  font-size: .8rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: var(--gold-bright);
+  margin-bottom: .5rem;
+}
+.masthead .lede {
+  font-size: .98rem;
+  color: #B9CAD7;
+  margin: .7rem 0 0;
+  max-width: 34ch;
+}
+
+/* ---------- Section nav ---------- */
+
+.chapter-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+}
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .1rem;
+  padding: .2rem 0;
+}
+.tablist .divider {
+  flex: 0 0 100%;
+  height: 1px;
+  background: var(--rule-soft);
+  margin: .15rem 0;
+}
+@media (max-width: 760px) {
+  .chapter-nav { position: static; }
+  .tablist button { font-size: .8rem; padding: .45rem .5rem; }
+}
+.tablist button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: .55rem .6rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: var(--font-ui);
+  font-size: .84rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.tablist button:hover { color: var(--ink); background: var(--rule-soft); }
+.tablist button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+  font-weight: 600;
+}
+.tablist .num {
+  font-family: var(--font-num);
+  font-size: .74rem;
+  color: var(--ink-faint);
+}
+.tablist button[aria-selected="true"] .num { color: var(--gold-text); }
+.tablist .done { color: var(--green); font-size: .8rem; }
+.tablist button.extra { color: var(--gold-text); }
+.tablist button.extra[aria-selected="true"] { color: var(--ink); }
+
+.progress-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+  padding: .5rem 0 .6rem;
+  font-family: var(--font-ui);
+  font-size: .78rem;
+  color: var(--ink-faint);
+}
+.bar {
+  flex: 1 1 8rem;
+  height: 5px;
+  background: var(--rule-soft);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--gold);
+  transition: width .3s ease;
+}
+
+/* ---------- Display preferences ---------- */
+
+.viewprefs { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.prefbtn, .sizer button {
+  min-height: 32px;
+  padding: .25rem .6rem;
+  font-family: var(--font-ui);
+  font-size: .76rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-soft);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.prefbtn:hover, .sizer button:hover { background: var(--rule-soft); color: var(--ink); }
+.sizer {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+.sizer button { border: none; background: none; min-width: 34px; justify-content: center; }
+.sizer button:disabled { opacity: .4; cursor: not-allowed; }
+.sizer #textSizeLabel {
+  font-family: var(--font-num);
+  font-size: .72rem;
+  color: var(--ink-faint);
+  min-width: 3.1rem;
+  text-align: center;
+  border-left: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  padding: .25rem .2rem;
+}
+#themeIcon { font-size: .95rem; line-height: 1; }
+
+/* ---------- Panels ---------- */
+
+main { padding: 2rem 0 4rem; }
+.panel { scroll-margin-top: 5.5rem; }
+.panel[hidden] { display: none; }
+.panel { animation: none; }
+
+h2 {
+  font-family: var(--font-read);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.9rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  margin: 0 0 .2rem;
+}
+h2 .sec-no {
+  display: block;
+  font-family: var(--font-num);
+  font-size: .78rem;
+  color: var(--gold-text);
+  letter-spacing: .1em;
+  margin-bottom: .45rem;
+}
+h3 {
+  font-family: var(--font-ui);
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 2rem 0 .5rem;
+  color: var(--ink);
+}
+p { margin: 0 0 1rem; }
+.panel > .col > p:first-of-type { margin-top: .8rem; }
+
+a { color: var(--blue); }
+
+ul, ol { max-width: var(--measure); padding-left: 1.2rem; }
+li { margin-bottom: .4rem; }
+
+.eq {
+  font-family: var(--font-num);
+  font-size: 1.05em;
+  background: var(--rule-soft);
+  padding: .08em .35em;
+  border-radius: var(--r-sm);
+}
+
+.callout {
+  border-left: 3px solid var(--gold);
+  background: var(--surface);
+  padding: .9rem 1.1rem;
+  margin: 1.5rem 0;
+  max-width: var(--measure);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+.callout h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  font-weight: 600;
+  margin: 0 0 .4rem;
+  color: var(--gold-text);
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout.caution { border-left-color: var(--red); }
+.callout.caution h4 { color: var(--red); }
+
+.worked {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  padding: 1.1rem 1.2rem;
+  margin: 1.5rem 0;
+  max-width: var(--measure);
+  box-shadow: var(--shadow);
+}
+.worked h4 {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  margin: 0 0 .6rem;
+  color: var(--ink-faint);
+}
+.worked .steps {
+  font-family: var(--font-num);
+  font-size: .92rem;
+  line-height: 2;
+  margin: .6rem 0 0;
+  color: var(--ink);
+}
+.worked .steps span { display: block; }
+.worked .steps .ans { color: var(--green); font-weight: 600; }
+
+/* ---------- Interactive shell ---------- */
+
+.tool {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  margin: 2rem 0;
+  overflow: hidden;
+}
+.tool-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--rule-soft);
+}
+.tool-head h3 {
+  margin: 0;
+  font-size: .92rem;
+}
+.tool-body { padding: 1rem; }
+
+/* ---------- Lab additions ---------- */
+.panel .col { max-width: 62rem; }
+.panel .col > h2, .panel .col > .intro { max-width: var(--measure); }
+:root { --bb: #EDEFF1; --bb-edge: #C9CFD5; --bb-hole: #5C6670; --bb-on: #2C9A5A; --dmm: #3A4652; --psu: #D9DEE3; --wire-edge: rgba(0,0,0,.25); }
+:root[data-theme="dark"] { --bb: #D9DDE1; --bb-edge: #9AA4AE; --psu: #C7CDD3; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) { --bb: #D9DDE1; --bb-edge: #9AA4AE; --psu: #C7CDD3; } }
+
+.sr-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.intro { font-size: 1.05em; color: var(--ink-soft); }
+.prose { max-width: var(--measure); }
+.prose.wide { max-width: none; }
+.sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; border: 1px solid rgba(255,255,255,.5); vertical-align: -1px; margin-right: .3rem; }
+.lead { stroke-width: 1.8; }
+.prose p, .prose ul, .prose ol { max-width: var(--measure); }
+kbd { font-family: var(--font-num); font-size: .82em; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 3px; padding: 0 .3em; background: var(--surface); }
+.unit { font-weight: 400; color: var(--ink-faint); font-size: .9em; }
+
+.btn { font-family: var(--font-ui); font-size: .86rem; min-height: 44px; padding: .5rem .95rem; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: var(--r-sm); cursor: pointer; display: inline-flex; align-items: center; gap: .4rem; }
+.btn:hover { background: var(--rule-soft); }
+.btn.primary { background: var(--bench); color: #EAF1F6; border-color: var(--bench); font-weight: 600; }
+.btn.primary:hover { background: var(--bench-soft); }
+.btn.ghost { background: none; color: var(--ink-soft); }
+.btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0; }
+.linkbtn { background: none; border: none; color: var(--blue); text-decoration: underline; cursor: pointer; font: inherit; padding: .2rem 0; min-height: 32px; }
+.pn { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; margin: 3rem 0 0; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+.pn .primary { margin-left: auto; }
+
+.step { display: grid; grid-template-columns: 4.6rem 1fr; gap: .2rem .8rem; margin: 1.4rem 0 .6rem; max-width: var(--measure); }
+.step-n { font-family: var(--font-num); font-size: .78rem; color: var(--gold-text); padding-top: .3rem; letter-spacing: .04em; }
+.step-b p:last-child { margin-bottom: 0; }
+@media (max-width: 520px) { .step { grid-template-columns: 1fr; } }
+
+.callout.tip { border-left-color: var(--blue); } .callout.tip h4 { color: var(--blue); }
+.callout.try { border-left-color: var(--green); } .callout.try h4 { color: var(--green); }
+.callout ul { margin: .3rem 0 0; }
+
+.fig { margin: 1.6rem 0; max-width: 46rem; }
+.fig.small { max-width: 30rem; }
+.fig.wide { max-width: 58rem; }
+.fig-art { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-md); padding: .8rem; overflow-x: auto; }
+.fig-art svg { display: block; width: 100%; height: auto; min-width: 20rem; }
+.fig figcaption { font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft); margin-top: .5rem; max-width: var(--measure); }
+
+/* bench drawings */
+.bench text { font-family: var(--font-ui); }
+.bb-body { fill: var(--bb); stroke: var(--bb-edge); }
+.bb-channel { fill: var(--bb-edge); }
+.bb-hole { fill: var(--bb-hole); }
+.bb-hole.on { fill: var(--bb-on); }
+.bb-hole.picked { fill: #F2C714; stroke: #1b1b1b; stroke-width: 1; }
+.clickable .bb-hole { cursor: pointer; }
+.bb-pos { stroke: #C9302C; stroke-width: 1.4; }
+.bb-neg { stroke: #2D3339; stroke-width: 1.4; }
+.bb-rail-l { font-size: 12px; fill: #2D3339; text-anchor: middle; font-weight: 700; }
+.bb-num, .bb-let { font-size: 8px; fill: #5C6670; text-anchor: middle; }
+.lead { stroke: #8D969E; stroke-width: 1.8; }
+.foot { fill: #4A535B; }
+.res-body { fill: #E3C08A; stroke: #B08D57; stroke-width: .8; }
+.part-l { font-size: 10.5px; font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; }
+.bench .part-l { fill: #15212C; stroke: #F3F5F7; }
+.pin-l { font-size: 8.5px; fill: #1E4A99; text-anchor: middle; font-weight: 700; paint-order: stroke; stroke: #F3F5F7; stroke-width: 3px; }
+.wire { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.wire-o { fill: none; stroke: var(--wire-edge); stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }
+.pot-body { fill: #2F6BD6; stroke: #1E4A99; }
+.pot-knob { fill: #E9ECEF; stroke: #7A838B; stroke-width: 1.2; }
+.pot-ptr { stroke: #1b1b1b; stroke-width: 2; stroke-linecap: round; }
+.dmm-body { fill: var(--dmm); stroke: #1F272E; }
+.dmm-lcd { fill: #C7D6C4; stroke: #6E7F6B; }
+.dmm-read, .psu-read { font-family: var(--font-num); font-size: 14px; font-weight: 600; fill: #15212C; }
+.psu-read { font-size: 12px; }
+.dmm-mode { fill: #56626E; } .dmm-mode.on { fill: #F2C714; }
+.dmm-mode-t { font-size: 9.5px; fill: #E4EAEF; text-anchor: middle; font-weight: 700; } .dmm-mode-t.on { fill: #15212C; }
+.jack-com { fill: #1b1b1b; stroke: #999; } .jack-pos { fill: #C9302C; stroke: #999; }
+.jack-l { font-size: 7.5px; fill: #E4EAEF; text-anchor: middle; font-weight: 700; }
+.psu-body { fill: var(--psu); stroke: #8C969F; }
+.psu-body ~ .jack-l, .bench .psu-lab { fill: #15212C; }
+.note-l { font-size: 10.5px; fill: var(--ink-soft); font-style: italic; }
+.bench .note-l { fill: var(--ink-soft); }
+.callout-line { stroke: var(--red); stroke-width: 1.6; }
+.arr-head { fill: var(--red); }
+.mark-bad { fill: none; stroke: var(--red); stroke-width: 2.4; stroke-dasharray: 4 3; }
+.mark-t { font-size: 11px; font-weight: 700; fill: var(--red); }
+
+/* schematics */
+.sch-w { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.sch-w.thick { stroke-width: 3.6; }
+.sch-dot { fill: var(--ink); }
+.sch-term { fill: var(--surface); stroke: var(--ink); stroke-width: 1.6; }
+.sch-tl { font-family: var(--font-ui); font-size: 14px; font-weight: 700; fill: var(--red); }
+.sch-n { font-family: var(--font-ui); font-size: 12.5px; font-weight: 600; fill: var(--ink); }
+.sch-v { font-family: var(--font-num); font-size: 12px; fill: var(--ink-soft); }
+.sch-pin { font-family: var(--font-num); font-size: 9.5px; fill: var(--ink-faint); }
+.sch-arrow { fill: var(--ink); }
+.sch-meter { fill: var(--surface); stroke: var(--ink); stroke-width: 1.8; }
+.sch-ml { font-family: var(--font-ui); font-size: 13px; font-weight: 700; fill: var(--ink); }
+
+/* student info */
+.student { display: grid; gap: .8rem 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-md); padding: 1rem; margin: 1.2rem 0; max-width: 50rem; }
+.field { display: flex; flex-direction: column; gap: .25rem; font-family: var(--font-ui); }
+.field label { font-size: .84rem; font-weight: 600; color: var(--ink); }
+.field.inline { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.field input, .field textarea, .field select, table.data input, table.data select {
+  font: inherit; font-family: var(--font-ui); font-size: .95rem; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--rule); border-radius: var(--r-sm); padding: .5rem .6rem; min-height: 44px;
+}
+.field textarea { font-family: var(--font-read); line-height: 1.5; resize: vertical; width: 100%; }
+.field.work textarea { font-family: var(--font-num); font-size: .9rem; }
+.textans { margin: 1rem 0 1.4rem; max-width: var(--measure); }
+
+/* data tables */
+.datablock, .nums { margin: 1.2rem 0 1.6rem; }
+.data-title { font-family: var(--font-ui); font-size: .9rem; margin: 0 0 .5rem; color: var(--ink); }
+.table-scroll { overflow-x: auto; max-width: 100%; border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--surface); }
+table.data { border-collapse: collapse; font-family: var(--font-ui); font-size: .88rem; min-width: 100%; }
+table.data td { white-space: nowrap; }
+table.data th, table.data td { border-bottom: 1px solid var(--rule-soft); padding: .45rem .55rem; text-align: center; vertical-align: middle; }
+table.data thead th { background: var(--bench); color: #EAF1F6; font-weight: 600; white-space: nowrap; }
+table.data tbody th { text-align: left; background: var(--rule-soft); font-weight: 600; white-space: nowrap; }
+table.data input { width: 6.6rem; text-align: center; font-family: var(--font-num); }
+table.data select { width: 7.4rem; }
+table.data td.na { color: var(--ink-faint); }
+table.data td.given { font-family: var(--font-num); }
+table.data td .u { font-size: .75rem; color: var(--ink-faint); margin-left: .2rem; }
+table.data output { font-family: var(--font-num); color: var(--ink-soft); }
+[data-state="ok"] input, [data-state="ok"] select { border-color: var(--green); background: var(--ok-bg); }
+[data-state="bad"] input, [data-state="bad"] select, [data-state="empty"] input { border-color: var(--red); background: var(--no-bg); }
+td[data-state="ok"]::after, .field[data-state="ok"] label::after { content: " ✓"; color: var(--ok-ink); font-weight: 700; }
+td[data-state="bad"]::after, .field[data-state="bad"] label::after { content: " ✗"; color: var(--no-ink); font-weight: 700; }
+.nums-row { display: flex; flex-wrap: wrap; gap: .8rem 1.2rem; }
+.nums-row .field input { width: 9rem; font-family: var(--font-num); }
+.nums-row .field input.free { width: 15rem; font-family: var(--font-ui); }
+.check-row { margin-top: .6rem; }
+.feedback { font-family: var(--font-ui); font-size: .86rem; max-width: var(--measure); }
+.feedback .fb-sum { font-weight: 600; margin: .5rem 0 .2rem; }
+.feedback ul { margin: .2rem 0; }
+
+/* screenshots */
+.shot { margin: 1.4rem 0 1.8rem; max-width: 46rem; }
+.shot-zone { border: 2px dashed var(--rule); border-radius: var(--r-md); min-height: 9rem; display: flex; align-items: center; justify-content: center; padding: 1rem; background: var(--surface); cursor: pointer; }
+.shot-zone:focus-visible, .shot-zone.drag { border-color: var(--gold); background: var(--rule-soft); }
+.shot-zone.has { border-style: solid; padding: .4rem; }
+.shot-zone img { max-width: 100%; height: auto; display: block; }
+.shot-empty { font-family: var(--font-ui); font-size: .86rem; color: var(--ink-soft); text-align: center; margin: 0; max-width: 40ch; }
+.shot-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+.shot-msg { font-family: var(--font-ui); font-size: .82rem; color: var(--ink-soft); min-height: 1.2em; margin: .3rem 0 0; }
+
+/* graph */
+.graph { font-family: var(--font-ui); }
+.g-title { font-size: 14px; font-weight: 600; fill: var(--ink); }
+.g-minor { stroke: var(--rule-soft); stroke-width: .7; }
+.g-major { stroke: var(--rule); stroke-width: 1; }
+.g-tick { font-size: 11px; fill: var(--ink-soft); font-family: var(--font-num); }
+.g-axis { font-size: 12.5px; fill: var(--ink); }
+.g-empty { font-size: 13px; fill: var(--ink-faint); font-style: italic; }
+.g-line { stroke-width: 2.2; fill: none; }
+.g-lab { font-size: 11.5px; font-weight: 700; }
+.g-s0 { stroke: var(--red); fill: var(--red); color: var(--red); }
+.g-s1 { stroke: var(--blue); fill: var(--blue); color: var(--blue); }
+.g-s2 { stroke: var(--green); fill: var(--green); color: var(--green); }
+.g-s3 { stroke: var(--violet); fill: var(--violet); color: var(--violet); }
+.g-pt.g-s1 { } .legend { font-family: var(--font-ui); font-size: .82rem; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; margin: .5rem 0 0; }
+.lg i { display: inline-block; width: 1.4rem; height: 3px; background: currentColor; vertical-align: middle; margin-right: .4rem; }
+.lg:nth-child(2) i { height: 0; border-top: 3px dashed currentColor; background: none; }
+.g-line.g-s1 { stroke-dasharray: 7 4; } .g-line.g-s2 { stroke-dasharray: 2 3; } .g-line.g-s3 { stroke-dasharray: 10 3 2 3; }
+.lg:nth-child(3) i { height: 0; border-top: 3px dotted currentColor; background: none; }
+
+/* quiz */
+.quiz { margin: 1.6rem 0; max-width: var(--measure); }
+.q { border: 1px solid var(--rule); border-radius: var(--r-md); padding: .9rem 1rem; margin: 0 0 1rem; background: var(--surface); }
+.q legend { font-family: var(--font-ui); font-weight: 600; font-size: .95rem; padding: 0; float: left; width: 100%; margin-bottom: .5rem; }
+.q legend + * { clear: both; }
+.q .qn { color: var(--gold-text); font-family: var(--font-num); }
+.q-fig svg { width: 100%; max-width: 30rem; height: auto; display: block; margin: .4rem 0 .6rem; }
+.opt { display: flex; gap: .6rem; align-items: flex-start; padding: .3rem 0; font-family: var(--font-ui); font-size: .92rem; }
+.opt input { width: 1.2rem; height: 1.2rem; margin-top: .15rem; flex: 0 0 auto; }
+.opt label { cursor: pointer; }
+.q[data-state="ok"] { border-color: var(--green); }
+.q[data-state="bad"] { border-color: var(--red); }
+.why p { margin: .5rem 0 0; font-family: var(--font-ui); font-size: .88rem; color: var(--ink-soft); }
+.quiz-score { font-family: var(--font-ui); font-size: .86rem; color: var(--ink-soft); }
+
+.checklist { margin: 1.2rem 0; max-width: var(--measure); }
+.ck { display: flex; gap: .6rem; align-items: flex-start; padding: .35rem 0; font-family: var(--font-ui); font-size: .92rem; }
+.ck input { width: 1.25rem; height: 1.25rem; margin-top: .1rem; flex: 0 0 auto; }
+
+/* tools */
+.bb-controls { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; font-family: var(--font-ui); font-size: .88rem; margin-bottom: .6rem; }
+.bb-controls select { min-height: 40px; font: inherit; padding: .3rem .5rem; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); }
+.bb-controls .hint { color: var(--ink-faint); }
+.bb-status, .bb-fb, .band-out { font-family: var(--font-ui); font-size: .9rem; margin: .6rem 0; max-width: var(--measure); }
+.bb-quiz { border-top: 1px solid var(--rule); margin-top: 1rem; padding-top: .8rem; }
+.bb-quiz h4 { font-family: var(--font-ui); font-size: .88rem; margin: 0 0 .4rem; }
+.bb-q { font-family: var(--font-ui); font-size: .95rem; margin: 0 0 .4rem; }
+.band-art { max-width: 30rem; }
+.band-art svg { min-width: 0; }
+.big-res .lead { stroke-width: 3; }
+.big-res .foot { display: none; }
+
+.hs { display: grid; gap: 1rem; }
+@media (min-width: 900px) { .hs { grid-template-columns: 1.5fr 1fr; align-items: start; } }
+.hs-list { display: flex; flex-direction: column; gap: .2rem; }
+.hs-list button { text-align: left; background: none; border: 1px solid transparent; border-radius: var(--r-sm); padding: .45rem .6rem; min-height: 40px; font-family: var(--font-ui); font-size: .88rem; color: var(--ink-soft); cursor: pointer; display: flex; gap: .6rem; align-items: center; }
+.hs-list button[aria-selected="true"] { background: var(--rule-soft); color: var(--ink); border-color: var(--rule); font-weight: 600; }
+.hs-n { display: inline-flex; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--bench); color: #fff; align-items: center; justify-content: center; font-size: .75rem; font-family: var(--font-num); flex: 0 0 auto; }
+.hs-detail { font-family: var(--font-ui); font-size: .9rem; border-left: 3px solid var(--gold); padding: .3rem 0 .3rem .9rem; margin-top: .8rem; }
+.hs-detail h4 { margin: 0 0 .3rem; font-size: .95rem; }
+.hs-detail p { margin: 0 0 .5rem; }
+.hs-dot circle { fill: var(--bench); stroke: #fff; stroke-width: 2; cursor: pointer; }
+.hs-dot text { fill: #fff; font-family: var(--font-num); font-size: 12px; font-weight: 700; pointer-events: none; }
+.hs-dot.on circle { fill: #F2C714; stroke: var(--bench); } .hs-dot.on text { fill: #15212C; }
+/* editor wireframe */
+.ui-frame { fill: var(--surface); stroke: var(--rule); }
+.ui-bar { fill: var(--rule-soft); stroke: var(--rule); }
+.ui-plane { fill: var(--paper); stroke: var(--rule); }
+.ui-grid { stroke: var(--rule-soft); }
+.ui-t { font-family: var(--font-ui); font-size: 11px; fill: var(--ink); }
+.ui-ts { font-family: var(--font-ui); font-size: 9.5px; fill: var(--ink-soft); }
+.ui-btn { fill: var(--surface); stroke: var(--rule); }
+.ui-go { fill: var(--green); } .ui-go-t { font-family: var(--font-ui); font-size: 10.5px; fill: #fff; font-weight: 700; }
+.ui-panel { fill: var(--surface); stroke: var(--rule); }
+.ui-chip { fill: var(--rule-soft); stroke: var(--rule); }
+
+.missing { font-family: var(--font-ui); font-size: .9rem; }
+.warnline { color: var(--no-ink); font-family: var(--font-ui); font-weight: 600; }
+.howto { font-family: var(--font-ui); font-size: .92rem; }
+.preview { border: 1px solid var(--rule); border-radius: var(--r-md); background: #fff; color: #111; padding: 1.4rem; margin: 1rem 0; overflow-x: auto; }
+.save-status { font-family: var(--font-ui); font-size: .76rem; color: var(--ink-faint); }
+
+/* ---------- Report (preview and print) ---------- */
+.report-doc { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif; color: #111; font-size: 10.5pt; line-height: 1.4; }
+.report-doc h1 { font-size: 18pt; margin: .1rem 0 .6rem; }
+.report-doc h2 { font-family: inherit; font-size: 13pt; border-bottom: 1.5px solid #17242F; padding-bottom: .15rem; margin: 1.3rem 0 .5rem; }
+.report-doc h3 { font-family: inherit; font-size: 10.5pt; margin: .9rem 0 .3rem; }
+.rh-course { font-size: 9pt; color: #555; margin: 0; }
+.rmeta { border-collapse: collapse; width: 100%; margin: .4rem 0; }
+.rmeta th, .rmeta td { border: 1px solid #999; padding: .25rem .45rem; text-align: left; font-size: 10pt; }
+.rmeta th { background: #E8EEF3; width: 16%; }
+.rh-done { font-size: 9.5pt; color: #444; }
+.rt { border-collapse: collapse; margin: .3rem 0 .6rem; font-size: 9.5pt; }
+.rt th, .rt td { border: 1px solid #999; padding: .22rem .45rem; text-align: center; }
+.rt thead th { background: #17242F; color: #fff; }
+.rt tbody th { background: #E8EEF3; text-align: left; }
+.report-doc .blank { color: #A33; font-style: italic; }
+.rshot img { max-width: 100%; max-height: 5.2in; border: 1px solid #999; }
+.rgraph svg { max-width: 5.6in; }
+.report-doc .graph .g-major { stroke: #aaa; } .report-doc .graph .g-minor { stroke: #ddd; }
+.report-doc .graph text { fill: #111; }
+.report-doc .g-s0 { stroke: #C9302C; fill: #C9302C; } .report-doc .g-s1 { stroke: #2A5DA8; fill: #2A5DA8; } .report-doc .g-s2 { stroke: #2C7A57; fill: #2C7A57; } .report-doc .g-s3 { stroke: #6B3FA0; fill: #6B3FA0; }
+.rtext p { white-space: normal; margin: .2rem 0 .6rem; }
+.rck { list-style: none; padding-left: .2rem; }
+#printReport { display: none; }
+@media print {
+  @page { size: letter; margin: .6in; }
+  body.printing > *:not(#printReport) { display: none !important; }
+  body.printing #printReport { display: block; }
+  body.printing { background: #fff; }
+  .rshot, .rgraph, .rt, .rtext, .rnums { break-inside: avoid; }
+  .rsec h2 { break-after: avoid; }
+}
+footer.site { border-top: 1px solid var(--rule); padding: 1.5rem 0 2rem; font-family: var(--font-ui); font-size: .8rem; color: var(--ink-faint); }
+
+table.data.ref td { font-family: var(--font-ui); text-align: left; white-space: normal; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="masthead">
+  <div class="wrap">
+    <div>
+      <p class="course-line">ELEC 103 · Electrical Skills and Techniques · Tinkercad Labs</p>
+      <h1 id="labTitle"><span class="ch" id="labNo"></span></h1>
+    </div>
+    <p class="lede" id="labLede"></p>
+  </div>
+</header>
+<nav class="chapter-nav" aria-label="Lab parts">
+  <div class="wrap">
+    <div class="tablist" role="tablist" aria-label="Lab parts" id="tablist"></div>
+    <div class="progress-row">
+      <span id="progressLabel"></span>
+      <span class="bar" id="progressBarWrap" role="progressbar" aria-label="Lab progress" aria-valuemin="0" aria-valuenow="0" aria-valuemax="1"><i id="progressBar"></i></span>
+      <span class="save-status" id="saveStatus" aria-live="polite"></span>
+      <div class="viewprefs" role="group" aria-label="Display settings">
+        <div class="sizer" role="group" aria-label="Text size">
+          <button type="button" id="textSmaller" aria-label="Make text smaller">A<span aria-hidden="true">−</span></button>
+          <span id="textSizeLabel" aria-live="polite">100%</span>
+          <button type="button" id="textLarger" aria-label="Make text larger">A<span aria-hidden="true">+</span></button>
+        </div>
+        <button type="button" id="themeBtn" class="prefbtn" aria-pressed="false"><span id="themeIcon" aria-hidden="true">◐</span><span id="themeLabel">System theme</span></button>
+        <button type="button" class="prefbtn" id="resetAll">Reset lab</button>
+      </div>
+    </div>
+  </div>
+</nav>
+<main id="main"><div class="wrap"></div></main>
+<footer class="site"><div class="wrap"><p>Built for ELEC 103 · Brookdale Community College · 2026. Drawings are simplified illustrations; the Tinkercad screen will look a little different. <a href="index.html">Course home</a></p></div></footer>
+<div id="printReport" class="report-doc"></div>
+<script>
+/* ==========================================================================
+   Bench drawings: breadboard, parts, instruments, and schematics as SVG.
+   Every drawing is built from hole coordinates, so layouts stay exact.
+   ========================================================================== */
+var Draw = (function () {
+  'use strict';
+  var BAND = ['#1b1b1b', '#7a4a24', '#c9302c', '#e8751a', '#f2c714', '#2e8b3e', '#2d5fc4', '#7b3fb0', '#8c8c8c', '#f4f4f4'];
+  var BAND_NAMES = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'gray', 'white'];
+  var GOLD = '#c9a13b', SILVER = '#b8bcc2';
+  var WIRE = { red: '#d33a2c', black: '#262a2e', green: '#2f9a4a', blue: '#2f6bd6', yellow: '#e2b21c', orange: '#e0781e', white: '#e9ecef', gray: '#8c96a0' };
+
+  function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function f(n) { return Math.round(n * 10) / 10; }
+
+  /* ---- Resistor color code ---- */
+  function bands(ohms) {
+    if (!(ohms > 0)) return null;
+    var exp = Math.floor(Math.log10(ohms) + 1e-9) - 1;
+    var two = Math.round(ohms / Math.pow(10, exp));
+    if (two >= 100) { two = Math.round(two / 10); exp += 1; }
+    var d1 = Math.floor(two / 10), d2 = two % 10;
+    return { d1: d1, d2: d2, mult: exp };   // mult: -2 silver, -1 gold, 0..9
+  }
+  function multColor(m) { return m === -1 ? GOLD : m === -2 ? SILVER : BAND[m]; }
+  function multName(m) { return m === -1 ? 'gold' : m === -2 ? 'silver' : BAND_NAMES[m]; }
+  function fmtOhms(o) {
+    if (o >= 1e6) return (+(o / 1e6).toPrecision(3)) + ' MΩ';
+    if (o >= 1e3) return (+(o / 1e3).toPrecision(3)) + ' kΩ';
+    return (+o.toPrecision(3)) + ' Ω';
+  }
+
+  /* ---- Scene ---- */
+  function Scene(w, h, title) { this.w = w; this.h = h; this.title = title || ''; this.parts = []; this.over = []; }
+  Scene.prototype.add = function (s) { this.parts.push(s); return this; };
+  Scene.prototype.top = function (s) { this.over.push(s); return this; };
+  Scene.prototype.svg = function (cls) {
+    return '<svg class="bench ' + (cls || '') + '" viewBox="0 0 ' + this.w + ' ' + this.h + '" role="img" aria-label="' + esc(this.title) +
+      '" xmlns="http://www.w3.org/2000/svg">' + this.parts.join('') + this.over.join('') + '</svg>';
+  };
+
+  /* ---- Breadboard ---- */
+  var P = 16;
+  var ROWY = { 't-': 18, 't+': 34, j: 64, i: 80, h: 96, g: 112, f: 128, e: 164, d: 180, c: 196, b: 212, a: 228, 'b-': 258, 'b+': 274 };
+  function Board(scene, x, y, cols) {
+    this.s = scene; this.x = x; this.y = y; this.cols = cols || 30;
+    this.w = 30 * 2 + (this.cols - 1) * P + 20; this.h = 292;
+  }
+  Board.prototype.p = function (name) {
+    var m = /^([tb][+-]|[a-j])(\d+)$/.exec(name);
+    if (!m) throw new Error('bad hole ' + name);
+    return { x: this.x + 40 + (+m[2] - 1) * P, y: this.y + ROWY[m[1]] };
+  };
+  Board.prototype.draw = function (opts) {
+    opts = opts || {};
+    var s = [], x = this.x, y = this.y, c, r, hx;
+    s.push('<rect x="' + x + '" y="' + y + '" width="' + this.w + '" height="' + this.h + '" rx="7" class="bb-body"/>');
+    s.push('<rect x="' + (x + 6) + '" y="' + (y + 144) + '" width="' + (this.w - 12) + '" height="4" rx="2" class="bb-channel"/>');
+    // rail stripes
+    [['t-', -8, 'bb-neg'], ['t+', 8, 'bb-pos'], ['b-', -8, 'bb-neg'], ['b+', 8, 'bb-pos']].forEach(function (rr) {
+      var yy = y + ROWY[rr[0]] + rr[1];
+      s.push('<line x1="' + (x + 30) + '" y1="' + yy + '" x2="' + (x + this.w - 30) + '" y2="' + yy + '" class="' + rr[2] + '"/>');
+      s.push('<text x="' + (x + 14) + '" y="' + (y + ROWY[rr[0]] + 4) + '" class="bb-rail-l">' + (rr[0][1] === '+' ? '+' : '−') + '</text>');
+      s.push('<text x="' + (x + this.w - 14) + '" y="' + (y + ROWY[rr[0]] + 4) + '" class="bb-rail-l">' + (rr[0][1] === '+' ? '+' : '−') + '</text>');
+    }, this);
+    var hl = opts.highlight || {};
+    for (c = 1; c <= this.cols; c++) {
+      hx = x + 40 + (c - 1) * P;
+      for (r in ROWY) {
+        var key = r + c, cls = hl[key] ? 'bb-hole on' : 'bb-hole';
+        s.push('<rect x="' + (hx - 3.5) + '" y="' + (y + ROWY[r] - 3.5) + '" width="7" height="7" rx="1.4" class="' + cls + '" data-h="' + key + '"/>');
+      }
+      if (c === 1 || c % 5 === 0) {
+        s.push('<text x="' + hx + '" y="' + (y + 52) + '" class="bb-num">' + c + '</text>');
+        s.push('<text x="' + hx + '" y="' + (y + 246) + '" class="bb-num">' + c + '</text>');
+      }
+    }
+    'jihgfedcba'.split('').forEach(function (L) {
+      s.push('<text x="' + (x + 22) + '" y="' + (y + ROWY[L] + 3.5) + '" class="bb-let">' + L + '</text>');
+      s.push('<text x="' + (x + this.w - 22) + '" y="' + (y + ROWY[L] + 3.5) + '" class="bb-let">' + L + '</text>');
+    }, this);
+    this.s.add(s.join(''));
+    return this;
+  };
+  // All holes electrically joined to a given hole
+  Board.prototype.group = function (name) {
+    var m = /^([tb][+-]|[a-j])(\d+)$/.exec(name), out = [], c, rows;
+    if (!m) return out;
+    if (m[1].length === 2) { for (c = 1; c <= this.cols; c++) out.push(m[1] + c); return out; }
+    rows = 'abcde'.indexOf(m[1]) >= 0 ? 'abcde' : 'fghij';
+    rows.split('').forEach(function (L) { out.push(L + m[2]); });
+    return out;
+  };
+
+  /* ---- Parts ---- */
+  function lead(a, b) { return '<line x1="' + f(a.x) + '" y1="' + f(a.y) + '" x2="' + f(b.x) + '" y2="' + f(b.y) + '" class="lead"/>'; }
+  function foot(p) { return '<circle cx="' + f(p.x) + '" cy="' + f(p.y) + '" r="2.3" class="foot"/>'; }
+
+  function resistor(scene, a, b, ohms, label, opt) {
+    opt = opt || {};
+    var dx = b.x - a.x, dy = b.y - a.y, L = Math.sqrt(dx * dx + dy * dy), ang = Math.atan2(dy, dx) * 180 / Math.PI;
+    var cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2, bl = opt.bl || Math.min(30, L - 6), bw = opt.bw || 10, bd = bands(ohms), bwid = bl * 0.107;
+    var g = [lead(a, b), foot(a), foot(b)];
+    g.push('<g transform="translate(' + f(cx) + ' ' + f(cy) + ') rotate(' + f(ang) + ')">');
+    g.push('<rect x="' + f(-bl / 2) + '" y="' + (-bw / 2) + '" width="' + f(bl) + '" height="' + bw + '" rx="' + f(bw * 0.45) + '" class="res-body"/>');
+    if (bd) {
+      var cols = [BAND[bd.d1], BAND[bd.d2], multColor(bd.mult), GOLD], xs = [-0.34, -0.17, 0, 0.3];
+      cols.forEach(function (c, i) {
+        g.push('<rect x="' + f(xs[i] * bl - bwid / 2) + '" y="' + (-bw / 2 + 0.6) + '" width="' + f(bwid) + '" height="' + (bw - 1.2) + '" fill="' + c + '"/>');
+      });
+    }
+    g.push('</g>');
+    if (label) {
+      var lx = cx + (opt.lx || 0), ly = cy + (opt.ly != null ? opt.ly : (Math.abs(dy) > Math.abs(dx) ? 4 : -11));
+      if (opt.lx == null && Math.abs(dy) > Math.abs(dx)) lx = cx + 9;
+      var anchor = opt.anchor || (Math.abs(dy) > Math.abs(dx) ? 'start' : 'middle');
+      g.push('<text x="' + f(lx) + '" y="' + f(ly) + '" class="part-l" text-anchor="' + anchor + '">' + esc(label) + '</text>');
+    }
+    scene.top(g.join(''));
+  }
+
+  function wire(scene, pts, color, opt) {
+    opt = opt || {};
+    var d = 'M' + f(pts[0].x) + ' ' + f(pts[0].y);
+    for (var i = 1; i < pts.length; i++) d += ' L' + f(pts[i].x) + ' ' + f(pts[i].y);
+    var col = WIRE[color] || color;
+    var s = '<path d="' + d + '" class="wire-o"/><path d="' + d + '" class="wire" stroke="' + col + '"' + (opt.dash ? ' stroke-dasharray="5 4"' : '') + '/>';
+    s += foot(pts[0]) + foot(pts[pts.length - 1]);
+    (opt.under ? scene.add : scene.top).call(scene, s);
+  }
+
+  // Three-pin potentiometer: pins in holes a,b,c (T1, wiper, T2). Knob drawn on side 'up' or 'down'.
+  function pot(scene, pins, opt) {
+    opt = opt || {};
+    var mid = pins[1], dir = opt.down ? 1 : -1, kx = mid.x, ky = mid.y + dir * 24, g = [];
+    pins.forEach(function (p) { g.push('<line x1="' + f(p.x) + '" y1="' + f(p.y) + '" x2="' + f(p.x) + '" y2="' + f(ky - dir * 8) + '" class="lead"/>' + foot(p)); });
+    g.push('<rect x="' + f(pins[0].x - 9) + '" y="' + f(ky - 14) + '" width="' + f(pins[2].x - pins[0].x + 18) + '" height="28" rx="4" class="pot-body"/>');
+    g.push('<circle cx="' + f(kx) + '" cy="' + f(ky) + '" r="11" class="pot-knob"/>');
+    var a = ((opt.turn == null ? 0.5 : opt.turn) * 270 - 135 - 90) * Math.PI / 180;
+    g.push('<line x1="' + f(kx) + '" y1="' + f(ky) + '" x2="' + f(kx + 9 * Math.cos(a)) + '" y2="' + f(ky + 9 * Math.sin(a)) + '" class="pot-ptr"/>');
+    if (opt.label) g.push('<text x="' + f(pins[2].x + 14) + '" y="' + f(ky + 4) + '" class="part-l">' + esc(opt.label) + '</text>');
+    if (opt.pinLabels !== false) {
+      ['T1', 'W', 'T2'].forEach(function (t, i) {
+        g.push('<text x="' + f(pins[i].x) + '" y="' + f(dir < 0 ? ky - 18 : ky + 25) + '" class="pin-l">' + t + '</text>');
+      });
+    }
+    scene.top(g.join(''));
+  }
+
+  // Generic handheld DMM. Returns jack positions {com, pos}.
+  function meter(scene, x, y, opt) {
+    opt = opt || {};
+    var w = 132, h = 84, g = [];
+    g.push('<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="9" class="dmm-body"/>');
+    g.push('<rect x="' + (x + 10) + '" y="' + (y + 10) + '" width="' + (w - 20) + '" height="34" rx="3" class="dmm-lcd"/>');
+    g.push('<text x="' + (x + w - 16) + '" y="' + (y + 33) + '" class="dmm-read" text-anchor="end">' + esc(opt.read || '') + '</text>');
+    var modes = [['Ω', 'R'], ['V', 'V'], ['A', 'A']];
+    modes.forEach(function (m, i) {
+      var mx = x + 22 + i * 22, on = opt.mode === m[1];
+      g.push('<rect x="' + (mx - 9) + '" y="' + (y + 50) + '" width="18" height="14" rx="3" class="dmm-mode' + (on ? ' on' : '') + '"/>');
+      g.push('<text x="' + mx + '" y="' + (y + 61) + '" class="dmm-mode-t' + (on ? ' on' : '') + '">' + m[0] + '</text>');
+    });
+    var com = { x: x + w - 42, y: y + h - 12 }, pos = { x: x + w - 20, y: y + h - 12 };
+    g.push('<circle cx="' + com.x + '" cy="' + com.y + '" r="5.5" class="jack-com"/><circle cx="' + pos.x + '" cy="' + pos.y + '" r="5.5" class="jack-pos"/>');
+    g.push('<text x="' + com.x + '" y="' + (com.y - 9) + '" class="jack-l">COM</text><text x="' + pos.x + '" y="' + (pos.y - 9) + '" class="jack-l">+</text>');
+    if (opt.label) g.push('<text x="' + (x + w / 2) + '" y="' + (opt.labelAbove ? y - 6 : y + h + 13) + '" class="part-l" text-anchor="middle">' + esc(opt.label) + '</text>');
+    scene.top(g.join(''));
+    return { com: com, pos: pos };
+  }
+
+  // Generic bench DC supply. Returns terminals {neg, pos}.
+  function supply(scene, x, y, opt) {
+    opt = opt || {};
+    var w = 150, h = 92, g = [];
+    g.push('<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" class="psu-body"/>');
+    g.push('<rect x="' + (x + 10) + '" y="' + (y + 10) + '" width="64" height="24" rx="2" class="dmm-lcd"/><text x="' + (x + 70) + '" y="' + (y + 27) + '" class="psu-read" text-anchor="end">' + esc(opt.v || '0.00') + ' V</text>');
+    g.push('<rect x="' + (x + 10) + '" y="' + (y + 40) + '" width="64" height="24" rx="2" class="dmm-lcd"/><text x="' + (x + 70) + '" y="' + (y + 57) + '" class="psu-read" text-anchor="end">' + esc(opt.i || '0.000') + ' A</text>');
+    g.push('<circle cx="' + (x + 100) + '" cy="' + (y + 22) + '" r="10" class="pot-knob"/><circle cx="' + (x + 100) + '" cy="' + (y + 52) + '" r="10" class="pot-knob"/>');
+    g.push('<text x="' + (x + 116) + '" y="' + (y + 26) + '" class="jack-l" text-anchor="start">V</text><text x="' + (x + 116) + '" y="' + (y + 56) + '" class="jack-l" text-anchor="start">A</text>');
+    var pos = { x: x + 104, y: y + h - 12 }, neg = { x: x + 128, y: y + h - 12 };
+    g.push('<circle cx="' + pos.x + '" cy="' + pos.y + '" r="6" class="jack-pos"/><circle cx="' + neg.x + '" cy="' + neg.y + '" r="6" class="jack-com"/>');
+    g.push('<text x="' + (pos.x - 12) + '" y="' + (pos.y + 4) + '" class="jack-l" text-anchor="end">+</text><text x="' + (neg.x + 11) + '" y="' + (neg.y + 4) + '" class="jack-l" text-anchor="start">−</text>');
+    g.push('<text x="' + (x + 12) + '" y="' + (y + h - 8) + '" class="part-l">' + esc(opt.label || 'DC supply') + '</text>');
+    scene.top(g.join(''));
+    return { pos: pos, neg: neg };
+  }
+
+  function note(scene, x, y, text, opt) {
+    opt = opt || {};
+    scene.top('<text x="' + x + '" y="' + y + '" class="' + (opt.cls || 'note-l') + '" text-anchor="' + (opt.anchor || 'start') + '">' + esc(text) + '</text>');
+  }
+  function arrow(scene, a, b) {
+    scene.top('<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" class="callout-line" marker-end="url(#arr)"/>');
+  }
+  function defs(scene) {
+    scene.add('<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arr-head"/></marker></defs>');
+  }
+
+  /* ---- Schematics ---- */
+  function Sch(w, h, title) { Scene.call(this, w, h, title); }
+  Sch.prototype = Object.create(Scene.prototype);
+  Sch.prototype.line = function (pts) {
+    var d = 'M' + pts.map(function (p) { return p[0] + ' ' + p[1]; }).join(' L');
+    return this.add('<path d="' + d + '" class="sch-w"/>');
+  };
+  Sch.prototype.dot = function (x, y) { return this.add('<circle cx="' + x + '" cy="' + y + '" r="3.4" class="sch-dot"/>'); };
+  Sch.prototype.term = function (x, y, label, pos) {
+    pos = pos || 'l';
+    var dx = pos === 'l' ? -10 : pos === 'r' ? 10 : 0, dy = pos === 't' ? -10 : pos === 'b' ? 18 : 5;
+    this.add('<circle cx="' + x + '" cy="' + y + '" r="4" class="sch-term"/>');
+    return this.add('<text x="' + (x + dx) + '" y="' + (y + dy) + '" class="sch-tl" text-anchor="' + (pos === 'l' ? 'end' : pos === 'r' ? 'start' : 'middle') + '">' + esc(label) + '</text>');
+  };
+  // Zig-zag resistor between two points on a horizontal or vertical line
+  Sch.prototype.R = function (x1, y1, x2, y2, name, val, side) {
+    var horiz = y1 === y2, len = horiz ? x2 - x1 : y2 - y1, zl = 36, s = (len - zl) / 2, pts = [], i, n = 6, amp = 7;
+    if (horiz) {
+      pts.push([x1, y1], [x1 + s, y1]);
+      for (i = 0; i < n; i++) pts.push([x1 + s + (i + 0.5) * zl / n, y1 + (i % 2 ? amp : -amp)]);
+      pts.push([x1 + s + zl, y1], [x2, y2]);
+    } else {
+      pts.push([x1, y1], [x1, y1 + s]);
+      for (i = 0; i < n; i++) pts.push([x1 + (i % 2 ? amp : -amp), y1 + s + (i + 0.5) * zl / n]);
+      pts.push([x1, y1 + s + zl], [x2, y2]);
+    }
+    this.line(pts);
+    var cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
+    if (horiz) {
+      var up = side === 'b' ? 1 : -1;
+      this.add('<text x="' + cx + '" y="' + (cy + (up < 0 ? -14 : 24)) + '" class="sch-n" text-anchor="middle">' + esc(name) + '</text>');
+      this.add('<text x="' + cx + '" y="' + (cy + (up < 0 ? 26 : -14)) + '" class="sch-v" text-anchor="middle">' + esc(val) + '</text>');
+    } else {
+      var lx = side === 'l' ? cx - 14 : cx + 14, an = side === 'l' ? 'end' : 'start';
+      this.add('<text x="' + lx + '" y="' + (cy - 2) + '" class="sch-n" text-anchor="' + an + '">' + esc(name) + '</text>');
+      this.add('<text x="' + lx + '" y="' + (cy + 15) + '" class="sch-v" text-anchor="' + an + '">' + esc(val) + '</text>');
+    }
+    return this;
+  };
+  // Vertical potentiometer with wiper arrow from the right (or left)
+  Sch.prototype.pot = function (x, y1, y2, name, val, wiperTo, opt) {
+    opt = opt || {};
+    this.R(x, y1, x, y2, '', '');
+    var wy = (y1 + y2) / 2, wx = wiperTo;
+    var dir = wx > x ? 1 : -1;
+    this.add('<path d="M' + wx + ' ' + wy + ' L' + (x + dir * 11) + ' ' + wy + '" class="sch-w"/>');
+    this.add('<path d="M' + (x + dir * 10) + ' ' + wy + ' l' + (dir * 7) + ' -4 l0 8 z" class="sch-arrow"/>');
+    this.add('<text x="' + (x - dir * 14) + '" y="' + (wy - 2) + '" class="sch-n" text-anchor="' + (dir > 0 ? 'end' : 'start') + '">' + esc(name) + '</text>');
+    this.add('<text x="' + (x - dir * 14) + '" y="' + (wy + 15) + '" class="sch-v" text-anchor="' + (dir > 0 ? 'end' : 'start') + '">' + esc(val) + '</text>');
+    if (opt.pins !== false) {
+      this.add('<text x="' + (x + 6) + '" y="' + (y1 + 14) + '" class="sch-pin">3</text>');
+      this.add('<text x="' + (x + 6) + '" y="' + (y2 - 6) + '" class="sch-pin">1</text>');
+      this.add('<text x="' + (x + dir * 22) + '" y="' + (wy - 6) + '" class="sch-pin" text-anchor="middle">2</text>');
+    }
+    return this;
+  };
+  // Vertical DC source (battery symbol), + on top
+  Sch.prototype.batt = function (x, y1, y2, label) {
+    var cy = (y1 + y2) / 2;
+    this.line([[x, y1], [x, cy - 8]]); this.line([[x, cy + 8], [x, y2]]);
+    this.add('<line x1="' + (x - 16) + '" y1="' + (cy - 8) + '" x2="' + (x + 16) + '" y2="' + (cy - 8) + '" class="sch-w"/>');
+    this.add('<line x1="' + (x - 8) + '" y1="' + (cy - 2) + '" x2="' + (x + 8) + '" y2="' + (cy - 2) + '" class="sch-w thick"/>');
+    this.add('<line x1="' + (x - 16) + '" y1="' + (cy + 4) + '" x2="' + (x + 16) + '" y2="' + (cy + 4) + '" class="sch-w"/>');
+    this.add('<line x1="' + (x - 8) + '" y1="' + (cy + 10) + '" x2="' + (x + 8) + '" y2="' + (cy + 10) + '" class="sch-w thick"/>');
+    this.add('<text x="' + (x + 20) + '" y="' + (cy - 12) + '" class="sch-v">+</text>');
+    this.add('<text x="' + (x - 22) + '" y="' + (cy + 5) + '" class="sch-n" text-anchor="end">' + esc(label) + '</text>');
+    return this;
+  };
+  // Meter symbol: circle with letter, placed on a line segment
+  Sch.prototype.meterSym = function (x, y, letter) {
+    this.add('<circle cx="' + x + '" cy="' + y + '" r="14" class="sch-meter"/>');
+    return this.add('<text x="' + x + '" y="' + (y + 5) + '" class="sch-ml" text-anchor="middle">' + esc(letter) + '</text>');
+  };
+
+  return {
+    Scene: Scene, Board: Board, Sch: Sch, resistor: resistor, wire: wire, pot: pot, meter: meter, supply: supply,
+    note: note, arrow: arrow, defs: defs, bands: bands, BAND: BAND, BAND_NAMES: BAND_NAMES, GOLD: GOLD, SILVER: SILVER,
+    multColor: multColor, multName: multName, fmtOhms: fmtOhms, esc: esc
+  };
+})();
+
+/* Shared content helpers for the lab pages */
+var C = (function () {
+  'use strict';
+  // Row of inputs: ids is a prefix + list of column keys; ans matches keys (or null for unchecked)
+  function row(label, unit, prefix, keys, ans, extra) {
+    return { label: label, unit: unit, cells: keys.map(function (k, i) {
+      var c = { id: prefix + '_' + k };
+      if (ans && ans[i] != null) c.ans = ans[i];
+      if (extra) for (var e in extra) c[e] = extra[e];
+      return c;
+    }) };
+  }
+  function pctRow(label, prefixA, prefixM, keys, id) {
+    return { label: label, cells: keys.map(function (k) { return { id: id + '_' + k, pct: [prefixA + '_' + k, prefixM + '_' + k] }; }) };
+  }
+  var reminders = { t: 'callout', k: 'tip', title: 'Tinkercad reminders (full walkthrough in the Tinkercad Tutorial)', html:
+    '<ul><li>Sign in at <strong>tinkercad.com</strong>, choose <strong>Create → Circuit</strong>, and rename the design <strong>ELEC103_LabX_YourLastName</strong>.</li>' +
+    '<li>Click a part to open its <strong>Inspector</strong>, where you set its name and value. Set a multimeter’s <strong>Mode</strong> before you start the simulation.</li>' +
+    '<li>Meters only show readings while <strong>Start Simulation</strong> is running. Stop the simulation before you change any wiring.</li>' +
+    '<li>Screenshot with <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (Windows) or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd> (Mac), then paste it into the screenshot box.</li></ul>' };
+  var ohmRules = { t: 'callout', k: 'caution', title: 'Ohmmeter rules — the same as on a real bench', html:
+    '<ul><li><strong>Never</strong> measure resistance with a power source connected. Disconnect the supply first.</li>' +
+    '<li>Use <strong>one ohmmeter at a time</strong> on a connected circuit. An ohmmeter measures by pushing its own small test current through the circuit, so two ohmmeters on the same circuit can upset each other’s readings.</li></ul>' };
+  var pctNote = { t: 'callout', title: 'Why compare to your prediction?', html: '<p>Tinkercad parts are ideal, with no tolerance, so a correct circuit should match your calculation almost exactly. A big difference is a clue: the most common causes are a wrong value, a wrong unit (Ω instead of kΩ), a meter in the wrong mode, or a wire in the wrong hole.</p>' };
+  return { row: row, pctRow: pctRow, reminders: reminders, ohmRules: ohmRules, pctNote: pctNote };
+})();
+window.LAB = (function () {
+  var POS = ['ccw', 'q1', 'half', 'q3', 'cw'], POSH = ['Knob position', 'Full CCW', '¼ turn', '½ turn', '¾ turn', 'Full CW'];
+  function lbl(s, p, t) { s.top('<text x="' + p.x + '" y="' + p.y + '" class="sch-tl" text-anchor="middle">' + t + '</text>'); }
+  function schSeries() {
+    var s = new Draw.Sch(480, 230, 'Series network: A, R1 1 kilohm, R2 4 kilohm, R3 10 kilohm, R4 2 kilohm, B');
+    s.term(40, 50, 'A'); s.line([[40, 50], [70, 50]]); s.R(70, 50, 170, 50, 'R1', '1 kΩ'); s.line([[170, 50], [230, 50]]); s.R(230, 50, 330, 50, 'R2', '4 kΩ');
+    s.line([[330, 50], [420, 50], [420, 70]]); s.R(420, 70, 420, 170, 'R3', '10 kΩ', 'r'); s.line([[420, 170], [420, 190], [300, 190]]);
+    s.R(200, 190, 300, 190, 'R4', '2 kΩ', 'b'); s.line([[200, 190], [40, 190]]); s.term(40, 190, 'B');
+    return s.svg();
+  }
+  function schParallel() {
+    var s = new Draw.Sch(480, 240, 'Parallel network: R1 1 kilohm, R2 4 kilohm, R3 10 kilohm and R4 2 kilohm, each connected directly between A and B');
+    s.term(40, 50, 'A'); s.term(40, 200, 'B'); s.line([[40, 50], [420, 50]]); s.line([[40, 200], [420, 200]]);
+    [[120, 'R1', '1 kΩ'], [220, 'R2', '4 kΩ'], [320, 'R3', '10 kΩ'], [420, 'R4', '2 kΩ']].forEach(function (r, i) {
+      s.R(r[0], 50, r[0], 200, r[1], r[2], 'r'); if (i < 3) { s.dot(r[0], 50); s.dot(r[0], 200); }
+    });
+    return s.svg();
+  }
+  function schSP() {
+    var s = new Draw.Sch(480, 240, 'Series-parallel network: A, R1 10 kilohm to a node; from that node R2 12 kilohm down to a lower node, in parallel with R3 8 kilohm plus R4 4 kilohm; then R5 4 kilohm from the lower node to B');
+    s.term(30, 50, 'A'); s.line([[30, 50], [60, 50]]); s.R(60, 50, 160, 50, 'R1', '10 kΩ'); s.line([[160, 50], [420, 50], [420, 70]]); s.dot(250, 50);
+    s.R(250, 50, 250, 200, 'R2', '12 kΩ', 'r'); s.dot(250, 200);
+    s.R(420, 70, 420, 180, 'R3', '8 kΩ', 'r'); s.line([[420, 180], [420, 200], [400, 200]]); s.R(290, 200, 400, 200, 'R4', '4 kΩ', 'b'); s.line([[290, 200], [250, 200]]);
+    s.line([[250, 200], [160, 200]]); s.R(60, 200, 160, 200, 'R5', '4 kΩ', 'b'); s.line([[60, 200], [30, 200]]); s.term(30, 200, 'B');
+    return s.svg();
+  }
+  function schPot(rheo) {
+    var s = new Draw.Sch(480, 260, rheo ? 'Potentiometer wired as a rheostat: the wiper, pin 2, is joined to pin 1, so A and B are the same point' : 'Potentiometer circuit: C, R1 10 kilohm, to pin 3 of a 25 kilohm potentiometer; the wiper, pin 2, goes to A; pin 1 goes to node B; R3 5 kilohm runs from B to D');
+    s.term(40, 40, 'C'); s.line([[40, 40], [70, 40]]); s.R(70, 40, 170, 40, 'R1', '10 kΩ'); s.line([[170, 40], [300, 40], [300, 70]]);
+    s.pot(300, 70, 180, 'R2', '25 kΩ', 380);
+    s.line([[380, 125], [440, 125]]); s.term(440, 125, 'A', 'r');
+    if (rheo) { s.dot(380, 125); s.line([[380, 125], [380, 200], [300, 200]]); s.dot(300, 200); }
+    s.line([[300, 180], [300, 225]]); s.dot(300, 225); s.line([[300, 225], [440, 225]]); s.term(440, 225, 'B', 'r');
+    s.line([[300, 225], [170, 225]]); s.R(70, 225, 170, 225, 'R3', '5 kΩ', 'b'); s.line([[70, 225], [40, 225]]); s.term(40, 225, 'D');
+    return s.svg();
+  }
+  function bbParallel() {
+    var s = new Draw.Sch(580, 330, 'Breadboard: four resistors stand across the center channel in columns 6, 11, 16 and 21. Red jumpers join each top end to the top positive rail, which is A. Black jumpers join each bottom end to the bottom negative rail, which is B.');
+    var b = new Draw.Board(s, 16, 18).draw();
+    [[6, 1000, 'R1'], [11, 4000, 'R2'], [16, 10000, 'R3'], [21, 2000, 'R4']].forEach(function (r) {
+      Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
+      Draw.resistor(s, b.p('f' + r[0]), b.p('e' + r[0]), r[1], r[2]);
+      Draw.wire(s, [b.p('a' + r[0]), b.p('b-' + r[0])], 'black');
+    });
+    Draw.note(s, 300, 14, 'A = top + rail   ·   B = bottom − rail', { anchor: 'middle' });
+    return s.svg();
+  }
+  function bbSP() {
+    var s = new Draw.Scene(580, 320, 'Breadboard: A is column 3 top half. R1 runs from column 3 to column 7 in row i. R2 stands across the channel in column 7. R3 runs from column 7 to column 11 in row h. R4 stands across the channel in column 11. A green jumper in row a joins column 11 back to column 7 bottom. R5 runs from column 7 to column 3 in row c, and B is column 3 bottom half.');
+    var b = new Draw.Board(s, 16, 18).draw();
+    Draw.resistor(s, b.p('i3'), b.p('i7'), 10000, 'R1', { ly: -9 });
+    Draw.resistor(s, b.p('f7'), b.p('e7'), 12000, 'R2');
+    Draw.resistor(s, b.p('h7'), b.p('h11'), 8000, 'R3', { ly: 17 });
+    Draw.resistor(s, b.p('f11'), b.p('e11'), 4000, 'R4');
+    Draw.wire(s, [b.p('a11'), b.p('a7')], 'green');
+    Draw.resistor(s, b.p('c7'), b.p('c3'), 4000, 'R5', { ly: 16 });
+    lbl(s, { x: b.p('j3').x, y: b.p('j3').y - 6 }, 'A'); lbl(s, { x: b.p('a3').x, y: b.p('a3').y + 20 }, 'B');
+    return s.svg();
+  }
+  function bbPot(rheo) {
+    var s = new Draw.Scene(580, 320, rheo ? 'The same breadboard with a yellow jumper in row h joining the wiper column to Terminal 1' : 'Breadboard: a potentiometer with Terminal 1 in column 14, the wiper in 15 and Terminal 2 in 16, all in row j. R3 runs from column 10 to column 14 in row i; R1 runs from column 16 to column 20 in row i. D is column 10, B is column 14, A is column 15, and C is column 20.');
+    var b = new Draw.Board(s, 16, 30).draw();
+    Draw.pot(s, [b.p('j14'), b.p('j15'), b.p('j16')], { label: 'R2 25 kΩ' });
+    Draw.resistor(s, b.p('i10'), b.p('i14'), 5000, 'R3', { ly: 17 });
+    Draw.resistor(s, b.p('i16'), b.p('i20'), 10000, 'R1', { ly: 17 });
+    if (rheo) Draw.wire(s, [b.p('h14'), b.p('h15')], 'yellow');
+    [['g10', 'D'], ['g14', 'B'], ['g15', 'A'], ['g20', 'C']].forEach(function (x, i) { var p = b.p(x[0]); lbl(s, { x: p.x + (i === 1 ? -3 : i === 2 ? 3 : 0), y: p.y + 30 }, x[1]); });
+    return s.svg();
+  }
+  function tRT(id, ans) {
+    return { t: 'data', title: 'Total resistance, A to B', head: ['', 'Calculated', 'Measured in Tinkercad', '% difference'], rows: [
+      { label: 'R<sub>T</sub>', unit: 'kΩ', cells: [{ id: id + '_c', ans: ans }, { id: id + '_m', ans: ans }, { id: id + '_p', pct: [id + '_c', id + '_m'] }] }] };
+  }
+  function potTable(p, ab, cd, tolAB, tolCD) {
+    return { t: 'data', title: 'Readings as you turn the knob', head: POSH, rows: [
+      { label: 'Predicted A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
+      { label: 'Measured A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
+      { label: 'Predicted C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pcd_' + k, ans: cd[i], tol: tolCD[i] }; }) },
+      { label: 'Measured C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mcd_' + k, ans: cd[i], tol: tolCD[i] }; }) }
+    ] };
+  }
+  var T3 = [0.4, 3, 3, 3, 0.4];
+  return {
+    key: 'elec103-lab2-v1', no: 'Lab 2', file: 'ELEC103_Lab2', title: 'Measuring Resistance',
+    lede: 'Predict and measure resistance in series, parallel, and series-parallel networks, then see what a potentiometer’s wiper really does.',
+    sections: [
+      { id: 'start', tab: 'Start here', title: 'Before you begin', blocks: [
+        { t: 'student' },
+        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate total resistance for series, parallel, and series-parallel networks, and confirm it by measurement.</li><li>Identify the three terminals of a potentiometer and explain how the wiper divides its resistance.</li><li>Tell the difference between a potentiometer used as a three-terminal part and one wired as a <strong>rheostat</strong>.</li></ul>' +
+          '<h3>Background</h3><p><strong>Series:</strong> <span class="eq">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + …</span> The total is always larger than the largest resistor.</p>' +
+          '<p><strong>Parallel:</strong> <span class="eq">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + …</span> The total is always smaller than the smallest resistor.</p>' +
+          '<p><strong>Potentiometer:</strong> a fixed resistance between its two outer terminals, with a movable <strong>wiper</strong> in between. Turning the knob changes the resistance from an outer terminal to the wiper, but the outer-to-outer resistance never changes. Connecting the wiper to one outer terminal turns the pot into a two-terminal <strong>rheostat</strong> — a variable resistor.</p>' +
+          '<p>Enter resistances in <strong>kΩ</strong>. You can type <em>540 Ω</em> or <em>0.54k</em> and the page converts it.</p>' },
+        C.reminders, C.ohmRules, C.pctNote
+      ] },
+      { id: 'series', tab: 'Series', title: 'Series network', blocks: [
+        { t: 'fig', draw: schSeries, cap: 'Figure 1. Series network.' },
+        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> Calculate the total resistance between A and B.</p>' },
+        { t: 'text', id: 'wA', label: 'Show your calculation', rows: 3, work: true },
+        { t: 'step', n: 2, html: '<p><strong>Build and measure.</strong> Build Figure 1 (you built this kind of chain in Lab 1). Connect the ohmmeter from A to B and start the simulation.</p>' },
+        tRT('rA', 17),
+        { t: 'shot', id: 'A', label: 'the series network with the meter reading visible' },
+        { t: 'step', n: 3, html: '<p><strong>Change one thing.</strong> Stop the simulation and change R3 from 10 kΩ to 20 kΩ. Predict the new total, measure it, then change R3 back.</p>' },
+        { t: 'nums', items: [{ id: 'a3p', label: 'Predicted with R3 = 20 kΩ', unit: 'kΩ', ans: 27 }, { id: 'a3m', label: 'Measured', unit: 'kΩ', ans: 27 }] }
+      ] },
+      { id: 'par', tab: 'Parallel', title: 'Parallel network', blocks: [
+        { t: 'fig', draw: schParallel, cap: 'Figure 2. Parallel network — the same four resistors, now side by side.' },
+        { t: 'fig', draw: bbParallel, wide: true, cap: 'Figure 3. One way to build it. Each resistor bridges the center channel; the top rail is A and the bottom rail is B.' },
+        { t: 'step', n: 4, html: '<p><strong>Predict.</strong> Calculate R<sub>T</sub> between A and B.</p>' },
+        { t: 'text', id: 'wB', label: 'Show your calculation', rows: 3, work: true },
+        { t: 'step', n: 5, html: '<p><strong>Build and measure.</strong> Build the circuit and connect the ohmmeter between the two rails.</p>' },
+        tRT('rB', 0.5405),
+        { t: 'shot', id: 'B', label: 'the parallel network with the meter reading visible' },
+        { t: 'step', n: 6, html: '<p>Your total should be smaller than the smallest resistor (1 kΩ). Is it? Explain in a sentence or two why adding more parallel branches always <strong>lowers</strong> the total resistance.</p>' },
+        { t: 'text', id: 'q6', label: 'Your answer', rows: 3 }
+      ] },
+      { id: 'sp', tab: 'Series-parallel', title: 'Series-parallel network', blocks: [
+        { t: 'fig', draw: schSP, cap: 'Figure 4. Series-parallel network.' },
+        { t: 'fig', draw: bbSP, wide: true, cap: 'Figure 5. One way to build it. Trace it against Figure 4 before you start: R2 crosses the channel, and R3 and R4 make a second path around it.' },
+        { t: 'step', n: 7, html: '<p><strong>Predict.</strong> Decide which resistors are in series and which are in parallel. Reduce the network one step at a time and calculate R<sub>T</sub> between A and B.</p>' },
+        { t: 'text', id: 'wC', label: 'Show each reduction step', rows: 5, work: true },
+        { t: 'step', n: 8, html: '<p><strong>Build and measure.</strong></p>' },
+        tRT('rC', 20),
+        { t: 'shot', id: 'C', label: 'the series-parallel network with the meter reading visible' },
+        { t: 'step', n: 9, html: '<p><strong>Open a branch.</strong> Stop the simulation and delete one end of R2 so its branch is open. Predict and measure R<sub>T</sub>, then explain why it went up.</p>' },
+        { t: 'nums', items: [{ id: 'c9p', label: 'Predicted with R2 open', unit: 'kΩ', ans: 30 }, { id: 'c9m', label: 'Measured', unit: 'kΩ', ans: 30 }] },
+        { t: 'text', id: 'q9', label: 'Why did it increase?', rows: 3 }
+      ] },
+      { id: 'pot', tab: 'Potentiometer', title: 'Potentiometer, three-terminal connection', blocks: [
+        { t: 'fig', draw: function () { return schPot(false); }, cap: 'Figure 6. A 25 kΩ potentiometer between R1 and R3.' },
+        { t: 'fig', draw: function () { return bbPot(false); }, wide: true, cap: 'Figure 7. One way to build it. In Tinkercad, hover over a pot terminal to see its name: schematic pin 1 is <strong>Terminal 1</strong>, pin 2 is the <strong>Wiper</strong>, and pin 3 is <strong>Terminal 2</strong>.' },
+        { t: 'callout', k: 'tip', title: 'Turning the knob', html: '<p>Set the pot to 25 kΩ in the Inspector. To turn it, <strong>click and drag the knob while the simulation is running</strong>. The exact ¼, ½, and ¾ positions are approximate — get close and record what you see.</p>' },
+        { t: 'step', n: 10, html: '<p><strong>Predict</strong> both “Predicted” rows before you build. Think about which parts are between A and B, and which are between C and D.</p>' },
+        { t: 'step', n: 11, html: '<p>Build the circuit. Connect <strong>one</strong> ohmmeter between <strong>A and B</strong>, start the simulation, and sweep the knob from full counter-clockwise to full clockwise, recording A–B at each position.</p>' },
+        { t: 'step', n: 12, html: '<p>Stop the simulation, move the probes to <strong>C and D</strong>, and repeat the sweep.</p>' },
+        potTable('d', [[0, 25], [6.25, 18.75], 12.5, [18.75, 6.25], [25, 0]], [40, 40, 40, 40, 40], T3, [0.5, 0.5, 0.5, 0.5, 0.5]),
+        { t: 'shot', id: 'D', label: 'the potentiometer circuit with a reading visible' },
+        { t: 'step', n: 13, html: '<p>(a) What happened to the A–B resistance as you turned the knob, and did it increase clockwise or counter-clockwise? (b) What happened to the C–D resistance? (c) Explain <strong>why</strong> C–D behaved that way.</p>' },
+        { t: 'text', id: 'q13', label: 'Your observations', rows: 6 },
+        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Connect a <strong>second</strong> ohmmeter so that A–B and C–D are measured at the same time. Do the readings still match your one-meter readings? Use the ohmmeter rules to explain what you see, and what would happen on a real bench.</p>' },
+        { t: 'text', id: 'inv', label: 'What you saw (optional)', rows: 3, optional: true }
+      ] },
+      { id: 'rheo', tab: 'Rheostat', title: 'Potentiometer wired as a rheostat', blocks: [
+        { t: 'fig', draw: function () { return schPot(true); }, cap: 'Figure 8. The same circuit with the wiper joined to pin 1.' },
+        { t: 'fig', draw: function () { return bbPot(true); }, wide: true, cap: 'Figure 9. Add the yellow jumper between the wiper column and Terminal 1.' },
+        { t: 'step', n: 14, html: '<p>Add the jumper from the <strong>Wiper</strong> to <strong>Terminal 1</strong>. Before measuring, fill in both “Predicted” rows.</p>' },
+        { t: 'step', n: 15, html: '<p>Using <strong>one</strong> ohmmeter, sweep the knob and record A–B. Then move the probes to C–D and sweep again.</p>' },
+        potTable('e', [0, 0, 0, 0, 0], [[15, 40], [21.25, 33.75], 27.5, [33.75, 21.25], [40, 15]], [0.05, 0.05, 0.05, 0.05, 0.05], [0.5, 3, 3, 3, 0.5]),
+        { t: 'shot', id: 'E', label: 'the rheostat circuit with a reading visible' },
+        { t: 'step', n: 16, html: '<p>(a) Why does A–B read about 0 Ω at every knob position? (b) What are the smallest and largest C–D readings, and where do those numbers come from? (c) In your own words, what is the difference between a potentiometer and a rheostat?</p>' },
+        { t: 'text', id: 'q16', label: 'Your observations', rows: 6 }
+      ] },
+      { id: 'wrap', tab: 'Conclusion', title: 'Conclusion', blocks: [
+        { t: 'html', html: '<p>In a short paragraph, summarize how resistances combine in series and in parallel, and how the way the potentiometer was wired decided whether a resistance changed as you turned the knob.</p>' },
+        { t: 'text', id: 'concl', label: 'Conclusion', rows: 8 },
+        { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas.</p>' }
+      ] }
+    ]
+  };
+})();
+
+/* ==========================================================================
+   Lab engine: renders window.LAB, saves work in this browser, checks values,
+   collects screenshots, draws graphs, and builds a printable lab report.
+   ========================================================================== */
+(function () {
+  'use strict';
+  var LAB = window.LAB;
+  var KEY = LAB.key;
+  var SHOT_PREFIX = KEY + '-shot-';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var esc = Draw.esc;
+
+  /* ---------- Storage ---------- */
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  var st = load();
+  st.v = st.v || {}; st.t = st.t || {}; st.q = st.q || {}; st.ck = st.ck || {}; st.visited = st.visited || []; st.stu = st.stu || {};
+  var saveTimer = null;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      saveTimer = null;
+      try { localStorage.setItem(KEY, JSON.stringify(st)); setSaved('Saved in this browser'); }
+      catch (e) { setSaved('Could not save — browser storage is full or blocked. Download a backup from the Report tab.'); }
+    }, 250);
+  }
+  function flush() { if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} } }
+  window.addEventListener('pagehide', flush);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
+  function setSaved(msg) { var n = $('#saveStatus'); if (n) n.textContent = msg; }
+  function getShot(id) { try { return localStorage.getItem(SHOT_PREFIX + id); } catch (e) { return null; } }
+  function putShot(id, data) {
+    try { if (data) localStorage.setItem(SHOT_PREFIX + id, data); else localStorage.removeItem(SHOT_PREFIX + id); return true; }
+    catch (e) { return false; }
+  }
+  var shotMem = {}; // fallback when storage refuses an image
+
+  /* ---------- Display preferences (shared with the chapter modules) ---------- */
+  var PREF_KEY = 'elec103-prefs-v1';
+  function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch (e) { return {}; } }
+  function savePrefs(p) { try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch (e) {} }
+  var prefs = loadPrefs();
+  var SCALES = [0.85, 0.925, 1, 1.1, 1.2, 1.35];
+  var scaleIdx = typeof prefs.scale === 'number' ? prefs.scale : 2;
+  var THEMES = [{ key: 'system', icon: '\u25D0', label: 'System theme' }, { key: 'light', icon: '\u2600', label: 'Light' }, { key: 'dark', icon: '\u263D', label: 'Dark' }];
+  var themeIdx = 0;
+  THEMES.forEach(function (t, i) { if (t.key === prefs.theme) themeIdx = i; });
+  function applyScale() {
+    scaleIdx = Math.max(0, Math.min(SCALES.length - 1, scaleIdx));
+    document.documentElement.style.setProperty('--ui-scale', SCALES[scaleIdx]);
+    $('#textSizeLabel').textContent = Math.round(SCALES[scaleIdx] * 100) + '%';
+    $('#textSmaller').disabled = scaleIdx === 0; $('#textLarger').disabled = scaleIdx === SCALES.length - 1;
+    prefs.scale = scaleIdx; savePrefs(prefs);
+  }
+  function applyTheme() {
+    var th = THEMES[themeIdx];
+    document.documentElement.setAttribute('data-theme', th.key);
+    $('#themeIcon').textContent = th.icon; $('#themeLabel').textContent = th.label;
+    $('#themeBtn').setAttribute('aria-pressed', th.key === 'dark' ? 'true' : 'false');
+    prefs.theme = th.key; savePrefs(prefs);
+  }
+
+  /* ---------- Numbers ---------- */
+  var PREFIX = { p: 1e-12, n: 1e-9, u: 1e-6, '\u00B5': 1e-6, '\u03BC': 1e-6, m: 1e-3, k: 1e3, K: 1e3, M: 1e6, G: 1e9 };
+  function unitScale(u) {
+    if (!u) return 1;
+    var c = u.charAt(0);
+    return (u.length > 1 && PREFIX[c]) ? PREFIX[c] : 1;
+  }
+  // Returns the value expressed in the row's unit, or NaN.
+  function parseVal(raw, unit) {
+    if (raw == null) return NaN;
+    var s = String(raw).trim().replace(/\u2212/g, '-').replace(/,/g, '').replace(/\s+/g, '');
+    if (!s) return NaN;
+    var m = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)([pnu\u00B5\u03BCmkKMG]?)(.*)$/i.exec(s);
+    if (!m) return NaN;
+    var num = parseFloat(m[1]);
+    var pre = m[2], rest = m[3];
+    // "e" exponent handled; case matters for m/M
+    if (pre && /^[pnu\u00B5\u03BCmkKMG]$/.test(pre)) {
+      if (rest && !/^(ohms?|\u03A9|\u2126|v|a|w|s|mho)?$/i.test(rest)) return NaN;
+      return num * PREFIX[pre] / unitScale(unit);
+    }
+    if (rest && !/^(ohms?|\u03A9|\u2126|v|a|w|s|%)?$/i.test(rest)) return NaN;
+    // An explicit base unit with no prefix ("540 Ω" in a kΩ box) means the base unit
+    if (rest && rest !== '%' && unitScale(unit) !== 1) return num / unitScale(unit);
+    return num;
+  }
+  function fmt(n, d) {
+    if (!isFinite(n)) return '';
+    var a = Math.abs(n);
+    if (a !== 0 && (a < 0.01 || a >= 1e5)) return n.toPrecision(3);
+    return (+n.toFixed(d == null ? 3 : d)).toString();
+  }
+
+  /* ---------- DOM helper ---------- */
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'html') n.innerHTML = attrs[k];
+      else if (k === 'text') n.textContent = attrs[k];
+      else if (k === 'cls') n.className = attrs[k];
+      else if (attrs[k] !== null && attrs[k] !== undefined && attrs[k] !== false) n.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function (k) { if (k) n.appendChild(typeof k === 'string' ? document.createTextNode(k) : k); });
+    return n;
+  }
+  var uid = 0;
+  function nid(p) { uid += 1; return (p || 'x') + uid; }
+
+  /* ---------- Registry of gradable items ---------- */
+  var CELLS = {};      // id -> {ans, tol, unit, label, section}
+  var ITEMS = [];      // {kind, id, label, section} for completeness
+  var listeners = [];  // re-render hooks on value change
+  function changed() { listeners.forEach(function (fn) { fn(); }); updateProgress(); }
+
+  function matches(x, ans, tol) {
+    var list = Array.isArray(ans) ? ans : [ans];
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i], t = tol != null ? tol : Math.max(Math.abs(a) * 0.02, 0.005);
+      if (Math.abs(x - a) <= t) return true;
+    }
+    return false;
+  }
+  function judge(id) {
+    var c = CELLS[id], raw = st.v[id];
+    if (!c || c.ans == null) return null;
+    if (raw == null || String(raw).trim() === '') return { state: 'empty', msg: 'not filled in yet' };
+    if (c.sel) return raw === c.ans ? { state: 'ok' } : { state: 'bad', msg: 'check the color chart again' };
+    var x = parseVal(raw, c.unit);
+    if (isNaN(x)) return { state: 'bad', msg: 'enter a number (you may add a prefix, like 4.7k)' };
+    if (matches(x, c.ans, c.tol)) return { state: 'ok' };
+    var list = Array.isArray(c.ans) ? c.ans : [c.ans];
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a !== 0 && (matches(x, a * 1000, Math.abs(a * 1000) * 0.03) || matches(x, a / 1000, Math.abs(a / 1000) * 0.03)))
+        return { state: 'bad', msg: 'off by a factor of 1000 — check your prefix (k, m) against the ' + (c.unit || 'row') + ' unit' };
+      if (a !== 0 && matches(-x, a, c.tol)) return { state: 'bad', msg: 'right size, wrong sign — are the meter probes reversed?' };
+    }
+    return { state: 'bad', msg: c.hint || 'not what we expected — recheck the calculation or the circuit' };
+  }
+
+  /* ---------- Block renderers ---------- */
+  var R = {};
+  R.html = function (b) { return el('div', { cls: b.wide ? 'prose wide' : 'prose', html: b.html }); };
+  R.step = function (b) {
+    return el('div', { cls: 'step' }, [el('span', { cls: 'step-n', text: 'Step ' + b.n }), el('div', { cls: 'step-b', html: b.html })]);
+  };
+  R.callout = function (b) {
+    var n = el('aside', { cls: 'callout ' + (b.k || '') });
+    if (b.title) n.appendChild(el('h4', { text: b.title }));
+    n.appendChild(el('div', { html: b.html }));
+    return n;
+  };
+  R.fig = function (b) {
+    var svg = typeof b.draw === 'function' ? b.draw() : b.svg;
+    var fig = el('figure', { cls: 'fig' + (b.wide ? ' wide' : '') + (b.small ? ' small' : '') });
+    var holder = el('div', { cls: 'fig-art', html: svg });
+    var s = holder.querySelector('svg');
+    if (s && b.alt) s.setAttribute('aria-label', b.alt);
+    fig.appendChild(holder);
+    if (b.cap) fig.appendChild(el('figcaption', { html: b.cap }));
+    return fig;
+  };
+  R.student = function () {
+    var box = el('div', { cls: 'student' });
+    [['name', 'Your name', 'text', 'name'], ['section', 'Course section', 'text', 'off'], ['date', 'Date', 'date', 'off'], ['design', 'Tinkercad design name', 'text', 'off']].forEach(function (f) {
+      var id = nid('stu');
+      if (f[0] === 'date' && !st.stu.date) st.stu.date = new Date().toISOString().slice(0, 10);
+      var inp = el('input', { id: id, type: f[2], autocomplete: f[3] });
+      inp.value = st.stu[f[0]] || '';
+      inp.addEventListener('input', function () { st.stu[f[0]] = inp.value; save(); updateProgress(); });
+      box.appendChild(el('div', { cls: 'field' }, [el('label', { 'for': id, text: f[1] }), inp]));
+    });
+    return box;
+  };
+
+  function cellInput(c, rowLabel, colLabel, unit, sec) {
+    var td = el('td');
+    if (c === null || c === undefined) { td.className = 'na'; td.innerHTML = '<span aria-label="not used">—</span>'; return td; }
+    if (typeof c === 'string') { td.innerHTML = c; td.className = 'given'; return td; }
+    var label = rowLabel + ', ' + colLabel;
+    if (c.pct) {
+      var out = el('output', { cls: 'pct', 'aria-label': label + ' (calculated automatically)' });
+      var upd = function () {
+        var cA = CELLS[c.pct[0]] || {}, cB = CELLS[c.pct[1]] || {};
+        var a = parseVal(st.v[c.pct[0]], cA.unit), m = parseVal(st.v[c.pct[1]], cB.unit);
+        out.textContent = (isFinite(a) && isFinite(m) && a !== 0) ? fmt(Math.abs(m - a) / Math.abs(a) * 100, 2) + ' %' : '—';
+        if (isFinite(a) && isFinite(m) && a === 0) out.textContent = Math.abs(m) < 0.01 ? '0 %' : 'n/a';
+        st.v[c.id] = out.textContent;
+      };
+      listeners.push(upd); setTimeout(upd, 0);
+      td.appendChild(out); td.className = 'auto';
+      CELLS[c.id] = { auto: true, label: label, section: sec };
+      return td;
+    }
+    CELLS[c.id] = { ans: c.ans, tol: c.tol, unit: c.unit || unit, label: label, section: sec, sel: !!c.sel, hint: c.hint };
+    ITEMS.push({ kind: 'value', id: c.id, label: label, section: sec, optional: c.optional });
+    var inp;
+    if (c.sel) {
+      inp = el('select', { 'aria-label': label });
+      inp.appendChild(el('option', { value: '', text: 'choose…' }));
+      c.sel.forEach(function (o) { inp.appendChild(el('option', { value: o, text: o })); });
+      inp.value = st.v[c.id] || '';
+      inp.addEventListener('change', function () { st.v[c.id] = inp.value; save(); changed(); td.removeAttribute('data-state'); });
+    } else {
+      inp = el('input', { type: 'text', inputmode: c.free ? null : 'decimal', autocomplete: 'off', spellcheck: 'false', 'aria-label': label + (c.unit || unit ? ' in ' + (c.unit || unit) : ''), cls: c.free ? 'free' : null });
+      inp.value = st.v[c.id] || '';
+      inp.addEventListener('input', function () { st.v[c.id] = inp.value; save(); changed(); td.removeAttribute('data-state'); });
+    }
+    td.appendChild(inp);
+    if (c.unit) td.appendChild(el('span', { cls: 'u', text: c.unit, 'aria-hidden': 'true' }));
+    td.setAttribute('data-cell', c.id);
+    return td;
+  }
+
+  function checkButton(wrap, ids) {
+    var fb = el('div', { cls: 'feedback', 'aria-live': 'polite' });
+    var btn = el('button', { type: 'button', cls: 'btn check', text: 'Check my values' });
+    btn.addEventListener('click', function () {
+      var ok = 0, total = 0, notes = [];
+      ids.forEach(function (id) {
+        var j = judge(id); if (!j) return;
+        total++;
+        var td = wrap.querySelector('[data-cell="' + id + '"]');
+        if (td) td.setAttribute('data-state', j.state);
+        if (j.state === 'ok') ok++;
+        else notes.push('<li><strong>' + esc(CELLS[id].label) + ':</strong> ' + esc(j.msg) + '</li>');
+      });
+      if (!total) { fb.innerHTML = '<p>These values depend on your own choices, so there is nothing to check automatically.</p>'; return; }
+      fb.innerHTML = '<p class="fb-sum">' + (ok === total ? '✓ All ' + total + ' values look right.' : ok + ' of ' + total + ' look right.') + '</p>' +
+        (notes.length ? '<ul>' + notes.join('') + '</ul>' : '');
+    });
+    return [el('div', { cls: 'check-row' }, [btn]), fb];
+  }
+
+  R.data = function (b, sec) {
+    var wrap = el('div', { cls: 'datablock' });
+    if (b.title) wrap.appendChild(el('h4', { cls: 'data-title', html: b.title }));
+    var scroller = el('div', { cls: 'table-scroll', tabindex: '0', role: 'region', 'aria-label': (b.title || 'Data table').replace(/<[^>]+>/g, '') });
+    var t = el('table', { cls: b.check === false && !b.rows.some(function (r) { return r.cells.some(function (c) { return c && c.id; }); }) ? 'data ref' : 'data' });
+    var trh = el('tr');
+    b.head.forEach(function (h, i) { trh.appendChild(el('th', { scope: 'col', html: h })); });
+    t.appendChild(el('thead', null, [trh]));
+    var tb = el('tbody'), ids = [];
+    b.rows.forEach(function (r) {
+      var tr = el('tr');
+      tr.appendChild(el('th', { scope: 'row', html: r.label + (r.unit ? ' <span class="unit">(' + r.unit + ')</span>' : '') }));
+      r.cells.forEach(function (c, j) {
+        var td = cellInput(c, r.label.replace(/<[^>]+>/g, ''), String(b.head[j + 1]).replace(/<[^>]+>/g, ''), r.unit, sec);
+        if (c && c.id && !c.pct) ids.push(c.id);
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); scroller.appendChild(t); wrap.appendChild(scroller);
+    if (b.check !== false) checkButton(wrap, ids).forEach(function (n) { wrap.appendChild(n); });
+    wrap._report = function () { return reportTable(b); };
+    return wrap;
+  };
+  R.nums = function (b, sec) {
+    var wrap = el('div', { cls: 'nums' }), ids = [];
+    if (b.title) wrap.appendChild(el('h4', { cls: 'data-title', html: b.title }));
+    var row = el('div', { cls: 'nums-row' });
+    b.items.forEach(function (it) {
+      var id = it.id; ids.push(id);
+      CELLS[id] = { ans: it.ans, tol: it.tol, unit: it.unit, label: it.label.replace(/<[^>]+>/g, ''), section: sec, hint: it.hint };
+      ITEMS.push({ kind: 'value', id: id, label: CELLS[id].label, section: sec, optional: it.optional });
+      var inp = el('input', { id: 'in-' + id, type: 'text', inputmode: it.free ? null : 'decimal', autocomplete: 'off', cls: it.free ? 'free' : null });
+      inp.value = st.v[id] || '';
+      inp.addEventListener('input', function () { st.v[id] = inp.value; save(); changed(); f.removeAttribute('data-state'); });
+      var f = el('div', { cls: 'field num', 'data-cell': id }, [el('label', { 'for': 'in-' + id, html: it.label + (it.unit ? ' <span class="unit">(' + it.unit + ')</span>' : '') }), inp]);
+      row.appendChild(f);
+    });
+    wrap.appendChild(row);
+    if (b.check !== false) checkButton(wrap, ids).forEach(function (n) { wrap.appendChild(n); });
+    return wrap;
+  };
+  R.text = function (b, sec) {
+    var id = 'tx-' + b.id;
+    ITEMS.push({ kind: 'text', id: b.id, label: b.label.replace(/<[^>]+>/g, ''), section: sec, optional: b.optional });
+    var ta = el('textarea', { id: id, rows: b.rows || 4 });
+    ta.value = st.t[b.id] || '';
+    ta.addEventListener('input', function () { st.t[b.id] = ta.value; save(); updateProgress(); });
+    return el('div', { cls: 'field textans' + (b.work ? ' work' : '') }, [el('label', { 'for': id, html: b.label }), ta]);
+  };
+
+  /* Screenshots */
+  function compress(file, cb) {
+    var rd = new FileReader();
+    rd.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var max = 1600, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / w);
+        var cv = document.createElement('canvas'); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+        var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+        cx.drawImage(img, 0, 0, cv.width, cv.height);
+        cb(cv.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = function () { cb(null); };
+      img.src = rd.result;
+    };
+    rd.readAsDataURL(file);
+  }
+  var activeShot = null;
+  R.shot = function (b, sec) {
+    ITEMS.push({ kind: 'shot', id: b.id, label: b.label, section: sec, optional: b.optional });
+    var wrap = el('div', { cls: 'shot' });
+    wrap.appendChild(el('h4', { cls: 'data-title', html: 'Screenshot: ' + b.label }));
+    var zone = el('div', { cls: 'shot-zone', tabindex: '0', role: 'group', 'aria-label': 'Screenshot area for ' + b.label + '. Focus here and press Control V or Command V to paste.' });
+    var msg = el('p', { cls: 'shot-msg', 'aria-live': 'polite' });
+    var file = el('input', { type: 'file', accept: 'image/*', id: 'f-' + b.id, cls: 'sr-file' });
+    var pick = el('label', { 'for': 'f-' + b.id, cls: 'btn', text: 'Choose image file' });
+    var paste = el('button', { type: 'button', cls: 'btn', text: 'Paste from clipboard' });
+    var clear = el('button', { type: 'button', cls: 'btn ghost', text: 'Remove' });
+    function show() {
+      var data = getShot(b.id) || shotMem[b.id];
+      zone.innerHTML = '';
+      if (data) { zone.appendChild(el('img', { src: data, alt: 'Your screenshot: ' + b.label })); clear.hidden = false; zone.classList.add('has'); }
+      else { zone.appendChild(el('p', { cls: 'shot-empty', html: 'Take your screenshot (<kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>), click here, and press <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>V</kbd>. You can also drop an image file here.' })); clear.hidden = true; zone.classList.remove('has'); }
+    }
+    function accept(f) {
+      if (!f || !/^image\//.test(f.type)) { msg.textContent = 'That is not an image. Paste or choose a PNG or JPG screenshot.'; return; }
+      msg.textContent = 'Adding screenshot…';
+      compress(f, function (data) {
+        if (!data) { msg.textContent = 'That image could not be read. Try saving it as PNG first.'; return; }
+        if (putShot(b.id, data)) { delete shotMem[b.id]; msg.textContent = 'Screenshot saved.'; }
+        else { shotMem[b.id] = data; msg.textContent = 'Screenshot added, but browser storage is full, so it will be lost if you close this tab. Build your report before leaving.'; }
+        show(); updateProgress();
+      });
+    }
+    zone.addEventListener('focus', function () { activeShot = accept; });
+    zone.addEventListener('click', function () { zone.focus(); });
+    zone.addEventListener('dragover', function (e) { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', function () { zone.classList.remove('drag'); });
+    zone.addEventListener('drop', function (e) { e.preventDefault(); zone.classList.remove('drag'); accept(e.dataTransfer.files[0]); });
+    file.addEventListener('change', function () { accept(file.files[0]); file.value = ''; });
+    paste.addEventListener('click', function () {
+      if (!navigator.clipboard || !navigator.clipboard.read) { msg.textContent = 'Your browser blocks this button. Click the screenshot area and press Ctrl+V (Cmd+V on a Mac) instead.'; zone.focus(); return; }
+      navigator.clipboard.read().then(function (items) {
+        for (var i = 0; i < items.length; i++) {
+          var type = items[i].types.filter(function (t) { return /^image\//.test(t); })[0];
+          if (type) return items[i].getType(type).then(function (blob) { accept(new File([blob], 'shot', { type: type })); });
+        }
+        msg.textContent = 'No image found on the clipboard. Take the screenshot first, then paste.';
+      }).catch(function () { msg.textContent = 'Clipboard access was blocked. Click the screenshot area and press Ctrl+V (Cmd+V on a Mac).'; zone.focus(); });
+    });
+    clear.addEventListener('click', function () { putShot(b.id, null); delete shotMem[b.id]; msg.textContent = 'Screenshot removed.'; show(); updateProgress(); });
+    show();
+    wrap.appendChild(zone);
+    wrap.appendChild(el('div', { cls: 'shot-actions' }, [paste, pick, file, clear]));
+    wrap.appendChild(msg);
+    return wrap;
+  };
+  document.addEventListener('paste', function (e) {
+    var z = document.activeElement;
+    if (!z || !z.classList || !z.classList.contains('shot-zone') || !activeShot) return;
+    var items = (e.clipboardData || {}).items || [];
+    for (var i = 0; i < items.length; i++) if (/^image\//.test(items[i].type)) { e.preventDefault(); activeShot(items[i].getAsFile()); return; }
+  });
+
+  /* Graph from the student's own entries */
+  function graphSVG(b) {
+    var W = 560, H = 360, L = 58, Rt = 20, T = 34, B = 50, pw = W - L - Rt, ph = H - T - B;
+    var X = function (v) { return L + v / b.x.max * pw; }, Y = function (v) { return T + ph - v / b.y.max * ph; };
+    var s = ['<svg viewBox="0 0 ' + W + ' ' + H + '" class="graph" role="img" aria-label="' + esc(b.title) + '" xmlns="http://www.w3.org/2000/svg">'];
+    s.push('<text x="' + (W / 2) + '" y="20" class="g-title" text-anchor="middle">' + esc(b.title) + '</text>');
+    var v, minor = b.x.minor || b.x.step / 2, yminor = b.y.minor || b.y.step / 2;
+    for (v = 0; v <= b.x.max + 1e-9; v += minor) s.push('<line x1="' + X(v) + '" y1="' + T + '" x2="' + X(v) + '" y2="' + (T + ph) + '" class="g-minor"/>');
+    for (v = 0; v <= b.y.max + 1e-9; v += yminor) s.push('<line x1="' + L + '" y1="' + Y(v) + '" x2="' + (L + pw) + '" y2="' + Y(v) + '" class="g-minor"/>');
+    for (v = 0; v <= b.x.max + 1e-9; v += b.x.step) {
+      s.push('<line x1="' + X(v) + '" y1="' + T + '" x2="' + X(v) + '" y2="' + (T + ph) + '" class="g-major"/>');
+      s.push('<text x="' + X(v) + '" y="' + (T + ph + 17) + '" class="g-tick" text-anchor="middle">' + +v.toFixed(2) + '</text>');
+    }
+    for (v = 0; v <= b.y.max + 1e-9; v += b.y.step) {
+      s.push('<line x1="' + L + '" y1="' + Y(v) + '" x2="' + (L + pw) + '" y2="' + Y(v) + '" class="g-major"/>');
+      s.push('<text x="' + (L - 8) + '" y="' + (Y(v) + 4) + '" class="g-tick" text-anchor="end">' + +v.toFixed(2) + '</text>');
+    }
+    s.push('<text x="' + (L + pw / 2) + '" y="' + (H - 10) + '" class="g-axis" text-anchor="middle">' + esc(b.x.label) + '</text>');
+    s.push('<text transform="translate(16 ' + (T + ph / 2) + ') rotate(-90)" class="g-axis" text-anchor="middle">' + esc(b.y.label) + '</text>');
+    var any = false;
+    b.series.forEach(function (se, k) {
+      var pts = [];
+      se.points.forEach(function (p) {
+        var xv = typeof p[0] === 'number' ? p[0] : parseVal(st.v[p[0]], (CELLS[p[0]] || {}).unit);
+        var yv = parseVal(st.v[p[1]], (CELLS[p[1]] || {}).unit);
+        if (isFinite(xv) && isFinite(yv)) pts.push([xv, yv]);
+      });
+      if (!pts.length) return;
+      any = true;
+      var cls = 'g-s' + (k % 4);
+      if (b.fit === 'origin' && pts.length >= 2) {
+        var sxy = 0, sxx = 0; pts.forEach(function (p) { sxy += p[0] * p[1]; sxx += p[0] * p[0]; });
+        var m = sxy / sxx, xe = Math.min(b.x.max, b.y.max / (m || 1e-9));
+        s.push('<line x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(xe) + '" y2="' + Y(m * xe) + '" class="g-line ' + cls + '"/>');
+        s.push('<text x="' + (X(xe) - 4) + '" y="' + (Y(m * xe) - 6) + '" class="g-lab ' + cls + '" text-anchor="end">' + esc(se.name) + '</text>');
+      } else if (b.fit === 'curve' && pts.length >= 2) {
+        var sorted = pts.slice().sort(function (a, c) { return a[0] - c[0]; });
+        s.push('<polyline points="' + sorted.map(function (p) { return X(Math.min(p[0], b.x.max)) + ',' + Y(Math.min(p[1], b.y.max)); }).join(' ') + '" class="g-line ' + cls + '" fill="none"/>');
+      }
+      pts.forEach(function (p) {
+        if (p[0] > b.x.max || p[1] > b.y.max || p[0] < 0 || p[1] < 0) return;
+        s.push('<circle cx="' + X(p[0]) + '" cy="' + Y(p[1]) + '" r="4.5" class="g-pt ' + cls + '"/>');
+      });
+    });
+    if (!any) s.push('<text x="' + (L + pw / 2) + '" y="' + (T + ph / 2) + '" class="g-empty" text-anchor="middle">Your points appear here as you enter measurements.</text>');
+    s.push('</svg>');
+    return s.join('');
+  }
+  R.graph = function (b) {
+    var fig = el('figure', { cls: 'fig graphfig' });
+    var art = el('div', { cls: 'fig-art' });
+    var legend = el('p', { cls: 'legend' });
+    b.series.forEach(function (se, k) { legend.appendChild(el('span', { cls: 'lg g-s' + (k % 4), html: '<i></i>' + esc(se.name) })); });
+    function draw() { art.innerHTML = graphSVG(b); }
+    listeners.push(draw); draw();
+    fig.appendChild(art); fig.appendChild(legend);
+    if (b.cap) fig.appendChild(el('figcaption', { html: b.cap }));
+    fig._report = function () { return graphSVG(b); };
+    return fig;
+  };
+
+  /* Self-check quiz */
+  R.quiz = function (b, sec) {
+    var wrap = el('div', { cls: 'quiz' });
+    if (b.title) wrap.appendChild(el('h4', { cls: 'data-title', html: b.title }));
+    var score = el('p', { cls: 'quiz-score', 'aria-live': 'polite' });
+    var saved = st.q[b.id] = st.q[b.id] || {};
+    function rescore() {
+      var right = 0, done = 0;
+      b.qs.forEach(function (q, i) { if (saved[i] != null) { done++; if (saved[i] === q.a) right++; } });
+      score.textContent = done ? right + ' of ' + b.qs.length + ' correct so far' : b.qs.length + ' questions — answers are checked as you go and do not count toward a grade.';
+    }
+    b.qs.forEach(function (q, i) {
+      var fs = el('fieldset', { cls: 'q' });
+      fs.appendChild(el('legend', { html: '<span class="qn">' + (i + 1) + '.</span> ' + q.q }));
+      if (q.fig) fs.appendChild(el('div', { cls: 'q-fig', html: typeof q.fig === 'function' ? q.fig() : q.fig }));
+      var why = el('div', { cls: 'why', 'aria-live': 'polite' });
+      var name = nid('q');
+      q.opts.forEach(function (o, j) {
+        var rid = name + '-' + j;
+        var r = el('input', { type: 'radio', name: name, id: rid, value: j });
+        if (saved[i] === j) r.checked = true;
+        r.addEventListener('change', function () { saved[i] = j; save(); mark(); rescore(); });
+        fs.appendChild(el('div', { cls: 'opt' }, [r, el('label', { 'for': rid, html: o })]));
+      });
+      function mark() {
+        if (saved[i] == null) { why.innerHTML = ''; fs.removeAttribute('data-state'); return; }
+        var ok = saved[i] === q.a;
+        fs.setAttribute('data-state', ok ? 'ok' : 'bad');
+        why.innerHTML = '<p><strong>' + (ok ? '✓ Correct.' : '✗ Not quite.') + '</strong> ' + (q.why || '') + '</p>';
+      }
+      mark();
+      fs.appendChild(why);
+      wrap.appendChild(fs);
+    });
+    wrap.appendChild(score); rescore();
+    ITEMS.push({ kind: 'quiz', id: b.id, label: b.title || 'Self-check', section: sec, optional: true, n: b.qs.length, qs: b.qs });
+    return wrap;
+  };
+
+  R.checklist = function (b, sec) {
+    var wrap = el('div', { cls: 'checklist' });
+    if (b.title) wrap.appendChild(el('h4', { cls: 'data-title', html: b.title }));
+    b.items.forEach(function (it, i) {
+      var id = b.id + '-' + i, cid = 'ck-' + id;
+      var c = el('input', { type: 'checkbox', id: cid });
+      c.checked = !!st.ck[id];
+      c.addEventListener('change', function () { st.ck[id] = c.checked; save(); updateProgress(); });
+      wrap.appendChild(el('div', { cls: 'ck' }, [c, el('label', { 'for': cid, html: it })]));
+    });
+    ITEMS.push({ kind: 'check', id: b.id, label: b.title || 'Checklist', section: sec, n: b.items.length, items: b.items, optional: true });
+    return wrap;
+  };
+
+  /* Interactive breadboard: click or choose a hole to light up everything connected to it */
+  R.bb = function (b) {
+    var wrap = el('div', { cls: 'tool' });
+    wrap.appendChild(el('div', { cls: 'tool-head' }, [el('h3', { text: b.title || 'Breadboard explorer' })]));
+    var body = el('div', { cls: 'tool-body' });
+    var art = el('div', { cls: 'fig-art bb-live' });
+    var status = el('p', { cls: 'bb-status', 'aria-live': 'polite' });
+    var colSel = el('select', { id: 'bbcol', 'aria-label': 'Column number' }), rowSel = el('select', { id: 'bbrow', 'aria-label': 'Row' });
+    for (var c = 1; c <= 30; c++) colSel.appendChild(el('option', { value: c, text: c }));
+    [['j', 'row j'], ['i', 'row i'], ['h', 'row h'], ['g', 'row g'], ['f', 'row f'], ['e', 'row e'], ['d', 'row d'], ['c', 'row c'], ['b', 'row b'], ['a', 'row a'], ['t+', 'top + rail'], ['t-', 'top − rail'], ['b+', 'bottom + rail'], ['b-', 'bottom − rail']]
+      .forEach(function (r) { rowSel.appendChild(el('option', { value: r[0], text: r[1] })); });
+    colSel.value = '12'; rowSel.value = 'c';
+    var sc, board;
+    function render(hole) {
+      sc = new Draw.Scene(560, 312, 'Breadboard with the holes connected to ' + hole + ' highlighted');
+      board = new Draw.Board(sc, 10, 10);
+      var hl = {}; board.group(hole).forEach(function (h) { hl[h] = 1; });
+      board.draw({ highlight: hl });
+      art.innerHTML = sc.svg('clickable');
+      var sel = art.querySelector('[data-h="' + hole + '"]'); if (sel) sel.classList.add('picked');
+      var g = board.group(hole), m = /^([tb][+-]|[a-j])(\d+)$/.exec(hole);
+      status.innerHTML = m[1].length === 2
+        ? '<strong>' + (m[1][0] === 't' ? 'Top ' : 'Bottom ') + (m[1][1] === '+' ? '+' : '−') + ' rail:</strong> all ' + g.length + ' holes along this rail are connected. The other rails are separate.'
+        : '<strong>Hole ' + m[1] + m[2] + ':</strong> connected to ' + g.filter(function (h) { return h !== hole; }).join(', ') + ' — the five holes of column ' + m[2] + ', rows ' + ('abcde'.indexOf(m[1]) >= 0 ? 'a–e' : 'f–j') + '. Nothing crosses the center channel.';
+    }
+    art.addEventListener('click', function (e) {
+      var h = e.target.getAttribute && e.target.getAttribute('data-h');
+      if (!h) return;
+      var m = /^([tb][+-]|[a-j])(\d+)$/.exec(h);
+      rowSel.value = m[1]; colSel.value = m[2]; render(h);
+    });
+    function fromSel() { render(rowSel.value + colSel.value); }
+    colSel.addEventListener('change', fromSel); rowSel.addEventListener('change', fromSel);
+    body.appendChild(el('div', { cls: 'bb-controls' }, [el('span', { text: 'Pick a hole:' }), rowSel, colSel, el('span', { cls: 'hint', text: 'or click any hole in the drawing' })]));
+    body.appendChild(art); body.appendChild(status);
+
+    // Connection challenge
+    var qp = el('p', { cls: 'bb-q' }), qfb = el('p', { cls: 'bb-fb', 'aria-live': 'polite' }), streak = 0, cur;
+    var yes = el('button', { type: 'button', cls: 'btn', text: 'Connected' }), no = el('button', { type: 'button', cls: 'btn', text: 'Not connected' }), nxt = el('button', { type: 'button', cls: 'btn ghost', text: 'New pair' });
+    var ROWS = 'abcdefghij';
+    function rnd(n) { return Math.floor(Math.random() * n); }
+    function newQ() {
+      var r1 = ROWS[rnd(10)], c1 = 1 + rnd(30), r2, c2, t = rnd(4);
+      if (t === 0) { r2 = ROWS[rnd(10)]; c2 = c1; }
+      else if (t === 1) { r2 = r1; c2 = Math.max(1, Math.min(30, c1 + (rnd(2) ? 1 : -1))); }
+      else if (t === 2) { r2 = ('abcde'.indexOf(r1) >= 0 ? 'abcde' : 'fghij')[rnd(5)]; c2 = c1; }
+      else { r1 = ['t+', 't-', 'b+', 'b-'][rnd(4)]; r2 = rnd(2) ? r1 : ['t+', 't-', 'b+', 'b-'][rnd(4)]; c2 = 1 + rnd(30); }
+      var h1 = r1 + c1, h2 = r2 + c2;
+      if (h1 === h2) return newQ();
+      cur = { h1: h1, h2: h2, conn: new Draw.Board(new Draw.Scene(1, 1), 0, 0).group(h1).indexOf(h2) >= 0 };
+      var name = function (h) { var m = /^([tb][+-]|[a-j])(\d+)$/.exec(h); return m[1].length === 2 ? (m[1][0] === 't' ? 'top ' : 'bottom ') + m[1][1] + ' rail at column ' + m[2] : 'hole ' + m[1] + m[2]; };
+      qp.innerHTML = 'Are <strong>' + name(h1) + '</strong> and <strong>' + name(h2) + '</strong> connected?';
+      qfb.textContent = '';
+    }
+    function answer(said) {
+      var ok = said === cur.conn; streak = ok ? streak + 1 : 0;
+      qfb.innerHTML = (ok ? '✓ Right. ' : '✗ Not quite. ') + (cur.conn ? 'They share a connected strip.' : 'They are in different strips.') + ' Streak: ' + streak;
+      var h = cur.h1; var m = /^([tb][+-]|[a-j])(\d+)$/.exec(h); rowSel.value = m[1]; colSel.value = m[2]; render(h);
+    }
+    yes.addEventListener('click', function () { answer(true); }); no.addEventListener('click', function () { answer(false); }); nxt.addEventListener('click', newQ);
+    body.appendChild(el('div', { cls: 'bb-quiz' }, [el('h4', { text: 'Quick practice' }), qp, el('div', { cls: 'btnrow' }, [yes, no, nxt]), qfb]));
+    newQ(); render('c12');
+    wrap.appendChild(body);
+    return wrap;
+  };
+
+  /* Resistor color code tool */
+  R.bands = function (b) {
+    var wrap = el('div', { cls: 'tool' });
+    wrap.appendChild(el('div', { cls: 'tool-head' }, [el('h3', { text: b.title || 'Color code decoder' })]));
+    var body = el('div', { cls: 'tool-body' });
+    var inp = el('input', { id: 'bandIn', type: 'text', inputmode: 'decimal', value: '4.7k', autocomplete: 'off' });
+    var art = el('div', { cls: 'fig-art band-art' }), out = el('p', { cls: 'band-out', 'aria-live': 'polite' });
+    function draw() {
+      var ohms = parseVal(inp.value, 'Ω');
+      if (!(ohms > 0) || ohms > 99e9) { out.textContent = 'Type a resistance such as 220, 4.7k, or 1M.'; art.innerHTML = ''; return; }
+      var bd = Draw.bands(ohms), sc = new Draw.Scene(300, 60, 'Resistor color bands');
+      Draw.resistor(sc, { x: 10, y: 30 }, { x: 290, y: 30 }, ohms, null, { bl: 150, bw: 34 });
+      art.innerHTML = sc.svg('big-res');
+      var real = (bd.d1 * 10 + bd.d2) * Math.pow(10, bd.mult);
+      out.innerHTML = 'Bands: <strong>' + Draw.BAND_NAMES[bd.d1] + ' – ' + Draw.BAND_NAMES[bd.d2] + ' – ' + Draw.multName(bd.mult) + ' – gold</strong> = ' +
+        bd.d1 + bd.d2 + ' × ' + (bd.mult >= 0 ? Math.pow(10, bd.mult).toLocaleString() : Math.pow(10, bd.mult)) + ' = ' + Draw.fmtOhms(real) + ' ±5%' +
+        (Math.abs(real - ohms) / ohms > 0.001 ? ' <em>(rounded to two significant digits — only two digit bands are available)</em>' : '');
+    }
+    inp.addEventListener('input', draw);
+    body.appendChild(el('div', { cls: 'field inline' }, [el('label', { 'for': 'bandIn', text: 'Resistance' }), inp]));
+    body.appendChild(art); body.appendChild(out);
+    // Read-the-resistor practice
+    var VALS = [100, 150, 220, 330, 470, 680, 1000, 1200, 1500, 2200, 2700, 3300, 4700, 5600, 6800, 8200, 10000, 22000, 47000, 100000];
+    var q = el('div', { cls: 'fig-art band-art' }), ans = el('input', { id: 'bandAns', type: 'text', autocomplete: 'off' }), fb = el('p', { 'aria-live': 'polite' }), val;
+    var chk = el('button', { type: 'button', cls: 'btn', text: 'Check' }), nx = el('button', { type: 'button', cls: 'btn ghost', text: 'Another one' });
+    function newOne() {
+      val = VALS[Math.floor(Math.random() * VALS.length)];
+      var sc = new Draw.Scene(300, 60, 'Mystery resistor'); Draw.resistor(sc, { x: 10, y: 30 }, { x: 290, y: 30 }, val, null, { bl: 150, bw: 34 });
+      var bd = Draw.bands(val);
+      q.innerHTML = sc.svg('big-res');
+      q.querySelector('svg').setAttribute('aria-label', 'Resistor with bands ' + Draw.BAND_NAMES[bd.d1] + ', ' + Draw.BAND_NAMES[bd.d2] + ', ' + Draw.multName(bd.mult) + ', gold');
+      ans.value = ''; fb.textContent = '';
+    }
+    chk.addEventListener('click', function () {
+      var v = parseVal(ans.value, 'Ω');
+      fb.innerHTML = Math.abs(v - val) < 0.5 ? '✓ Right — ' + Draw.fmtOhms(val) + '.' : '✗ Not quite. It is ' + Draw.fmtOhms(val) + '. Read the first two bands as digits, then add the number of zeros the third band says.';
+    });
+    nx.addEventListener('click', newOne);
+    body.appendChild(el('div', { cls: 'bb-quiz' }, [el('h4', { text: 'Read this one' }), q, el('div', { cls: 'field inline' }, [el('label', { 'for': 'bandAns', text: 'Value (Ω, or use k)' }), ans, chk, nx]), fb]));
+    draw(); newOne();
+    wrap.appendChild(body);
+    return wrap;
+  };
+
+  /* Numbered hotspots over a drawing */
+  R.hotspots = function (b) {
+    var wrap = el('div', { cls: 'tool' });
+    wrap.appendChild(el('div', { cls: 'tool-head' }, [el('h3', { text: b.title })]));
+    var body = el('div', { cls: 'tool-body hs' });
+    var art = el('div', { cls: 'fig-art' , html: typeof b.draw === 'function' ? b.draw() : b.svg });
+    var list = el('div', { cls: 'hs-list', role: 'tablist', 'aria-label': b.title });
+    var detail = el('div', { cls: 'hs-detail', role: 'tabpanel', 'aria-live': 'polite' });
+    var btns = [];
+    b.spots.forEach(function (sp, i) {
+      var bt = el('button', { type: 'button', role: 'tab', 'aria-selected': i === 0 ? 'true' : 'false', tabindex: i === 0 ? '0' : '-1', html: '<span class="hs-n">' + (i + 1) + '</span>' + esc(sp.title) });
+      bt.addEventListener('click', function () { pick(i); });
+      bt.addEventListener('keydown', function (e) {
+        var k = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
+        if (k) { e.preventDefault(); pick((i + k + b.spots.length) % b.spots.length); btns[(i + k + b.spots.length) % b.spots.length].focus(); }
+      });
+      btns.push(bt); list.appendChild(bt);
+    });
+    function pick(i) {
+      btns.forEach(function (x, j) { x.setAttribute('aria-selected', j === i ? 'true' : 'false'); x.tabIndex = j === i ? 0 : -1; });
+      detail.innerHTML = '<h4>' + esc(b.spots[i].title) + '</h4>' + b.spots[i].html;
+      art.querySelectorAll('.hs-dot').forEach(function (d) { d.classList.toggle('on', +d.getAttribute('data-i') === i); });
+    }
+    art.addEventListener('click', function (e) { var t = e.target.closest && e.target.closest('.hs-dot'); if (t) pick(+t.getAttribute('data-i')); });
+    body.appendChild(art);
+    body.appendChild(el('div', { cls: 'hs-side' }, [list, detail]));
+    wrap.appendChild(body);
+    setTimeout(function () { pick(0); }, 0);
+    return wrap;
+  };
+
+  /* ---------- Layout ---------- */
+  var sections = LAB.sections.slice();
+  sections.push({ id: 'report', tab: 'Report', title: 'Build and submit your report', report: true, blocks: [] });
+  var tablist = $('#tablist'), mainWrap = $('#main .wrap'), panels = [], tabs = [];
+
+  $('#labNo').textContent = LAB.no;
+  $('#labTitle').appendChild(document.createTextNode(LAB.title));
+  $('#labLede').textContent = LAB.lede;
+  document.title = LAB.no + ': ' + LAB.title + ' — ELEC 103';
+
+  sections.forEach(function (sec, i) {
+    var tab = el('button', { type: 'button', role: 'tab', id: 'tab-' + i, 'aria-controls': 'panel-' + i, 'aria-selected': 'false', tabindex: '-1', cls: sec.report ? 'extra' : '' });
+    tab.innerHTML = (sec.report ? '' : '<span class="num">' + (sec.num || (i + 1)) + '</span>') + esc(sec.tab) + '<span class="done" aria-hidden="true"></span>';
+    tab.addEventListener('click', function () { show(i, true); });
+    tab.addEventListener('keydown', function (e) {
+      var k = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (e.key === 'Home') { e.preventDefault(); show(0, true); tabs[0].focus(); }
+      if (e.key === 'End') { e.preventDefault(); show(tabs.length - 1, true); tabs[tabs.length - 1].focus(); }
+      if (k) { e.preventDefault(); var n = (i + k + tabs.length) % tabs.length; show(n, true); tabs[n].focus(); }
+    });
+    tabs.push(tab); tablist.appendChild(tab);
+
+    var panel = el('section', { cls: 'panel', id: 'panel-' + i, role: 'tabpanel', 'aria-labelledby': 'tab-' + i, tabindex: '-1', hidden: 'hidden' });
+    var col = el('div', { cls: 'col' });
+    col.appendChild(el('h2', { html: (sec.report ? '' : '<span class="sec-no">' + esc(LAB.no + ' · Part ' + (sec.num || (i + 1))) + '</span>') + esc(sec.title) }));
+    if (sec.intro) col.appendChild(el('p', { cls: 'intro', html: sec.intro }));
+    sec._nodes = [];
+    sec.blocks.forEach(function (bk) {
+      var fn = R[bk.t]; if (!fn) return;
+      var node = fn(bk, i);
+      node._block = bk; sec._nodes.push(node);
+      col.appendChild(node);
+    });
+    panel.appendChild(col);
+    // Next / previous
+    var nav = el('div', { cls: 'pn' });
+    if (i > 0) { var pv = el('button', { type: 'button', cls: 'btn ghost', text: '← ' + sections[i - 1].tab }); pv.addEventListener('click', function () { show(i - 1, true, true); }); nav.appendChild(pv); }
+    if (i < sections.length - 1) { var nx = el('button', { type: 'button', cls: 'btn primary', text: 'Next: ' + sections[i + 1].tab }); nx.addEventListener('click', function () { show(i + 1, true, true); }); nav.appendChild(nx); }
+    if (!sec.report) col.appendChild(nav);
+    panels.push(panel); mainWrap.appendChild(panel);
+  });
+
+  function show(i, user, scroll) {
+    tabs.forEach(function (t, j) { t.setAttribute('aria-selected', j === i ? 'true' : 'false'); t.tabIndex = j === i ? 0 : -1; });
+    panels.forEach(function (p, j) { p.hidden = j !== i; });
+    var id = sections[i].id;
+    if (st.visited.indexOf(id) < 0 && !sections[i].report) { st.visited.push(id); save(); }
+    st.last = i; save();
+    if (sections[i].report) buildReportPanel();
+    if (scroll) { window.scrollTo(0, 0); panels[i].focus({ preventScroll: true }); }
+    updateProgress();
+  }
+
+  /* ---------- Progress ---------- */
+  function filled(it) {
+    if (it.kind === 'value') return st.v[it.id] != null && String(st.v[it.id]).trim() !== '';
+    if (it.kind === 'text') return !!(st.t[it.id] && st.t[it.id].trim());
+    if (it.kind === 'shot') return !!(getShot(it.id) || shotMem[it.id]);
+    if (it.kind === 'quiz') { var q = st.q[it.id] || {}; return Object.keys(q).length >= it.n; }
+    if (it.kind === 'check') { for (var i = 0; i < it.n; i++) if (!st.ck[it.id + '-' + i]) return false; return true; }
+    return false;
+  }
+  function required() { return ITEMS.filter(function (it) { return !it.optional; }); }
+  function updateProgress() {
+    var req = required(), done = req.filter(filled).length;
+    $('#progressLabel').textContent = req.length ? done + ' of ' + req.length + ' items complete' : st.visited.length + ' of ' + LAB.sections.length + ' parts opened';
+    $('#progressBar').style.width = (req.length ? Math.round(done / req.length * 100) : Math.round(st.visited.length / LAB.sections.length * 100)) + '%';
+    var bar = $('#progressBarWrap'); bar.setAttribute('aria-valuenow', String(done)); bar.setAttribute('aria-valuemax', String(req.length));
+    sections.forEach(function (sec, i) {
+      if (sec.report) return;
+      var mine = req.filter(function (it) { return it.section === i; });
+      var complete = mine.length ? mine.every(filled) : st.visited.indexOf(sec.id) >= 0;
+      tabs[i].querySelector('.done').textContent = complete ? ' ✓' : '';
+      tabs[i].setAttribute('aria-label', sec.tab + (complete ? ', complete' : ''));
+    });
+    st.pct = req.length ? Math.round(done / req.length * 100) : null;
+  }
+
+  /* ---------- Report ---------- */
+  function valueText(id) { var v = st.v[id]; return v == null || String(v).trim() === '' ? '' : String(v); }
+  function reportTable(b) {
+    var h = '<table class="rt"><thead><tr>' + b.head.map(function (x) { return '<th>' + x + '</th>'; }).join('') + '</tr></thead><tbody>';
+    b.rows.forEach(function (r) {
+      h += '<tr><th>' + r.label + (r.unit ? ' (' + r.unit + ')' : '') + '</th>';
+      r.cells.forEach(function (c) {
+        if (c === null || c === undefined) h += '<td>—</td>';
+        else if (typeof c === 'string') h += '<td>' + c + '</td>';
+        else { var v = valueText(c.id); h += '<td>' + (v ? esc(v) + (c.unit && !c.pct ? ' ' + c.unit : '') : '<span class="blank">blank</span>') + '</td>'; }
+      });
+      h += '</tr>';
+    });
+    return h + '</tbody></table>';
+  }
+  function reportHTML() {
+    var s = st.stu, out = [];
+    out.push('<header class="rh"><p class="rh-course">ELEC 103 · Electrical Skills and Techniques · Brookdale Community College</p><h1>' + esc(LAB.no + ': ' + LAB.title) + '</h1>');
+    out.push('<table class="rmeta"><tr><th>Name</th><td>' + esc(s.name || '') + '</td><th>Section</th><td>' + esc(s.section || '') + '</td></tr><tr><th>Date</th><td>' + esc(s.date || '') + '</td><th>Tinkercad design</th><td>' + esc(s.design || '') + '</td></tr></table>');
+    var req = required(), done = req.filter(filled).length;
+    out.push('<p class="rh-done">' + done + ' of ' + req.length + ' required items completed.</p></header>');
+    LAB.sections.forEach(function (sec, i) {
+      var parts = [];
+      sec._nodes.forEach(function (n) {
+        var b = n._block;
+        if (b.t === 'data') parts.push((b.title ? '<h3>' + b.title + '</h3>' : '') + reportTable(b));
+        else if (b.t === 'nums') parts.push('<div class="rnums">' + (b.title ? '<h3>' + b.title + '</h3>' : '') + b.items.map(function (it) { var v = valueText(it.id); return '<p><strong>' + it.label + ':</strong> ' + (v ? esc(v) + (it.unit ? ' ' + it.unit : '') : '<span class="blank">blank</span>') + '</p>'; }).join('') + '</div>');
+        else if (b.t === 'text') { var t = st.t[b.id]; parts.push('<div class="rtext"><h3>' + b.label + '</h3>' + (t && t.trim() ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '<p class="blank">blank</p>') + '</div>'); }
+        else if (b.t === 'shot') { var d = getShot(b.id) || shotMem[b.id]; parts.push('<div class="rshot"><h3>Screenshot: ' + esc(b.label) + '</h3>' + (d ? '<img src="' + d + '" alt="Screenshot: ' + esc(b.label) + '">' : '<p class="blank">No screenshot added</p>') + '</div>'); }
+        else if (b.t === 'graph') parts.push('<div class="rgraph">' + graphSVG(b) + '</div>');
+        else if (b.t === 'quiz') { var q = st.q[b.id] || {}, right = 0, n = 0; b.qs.forEach(function (qq, k) { if (q[k] != null) { n++; if (q[k] === qq.a) right++; } }); parts.push('<p><strong>' + esc(b.title || 'Self-check') + ':</strong> ' + right + ' of ' + b.qs.length + ' correct (' + n + ' answered)</p>'); }
+        else if (b.t === 'checklist') { parts.push('<div><h3>' + (b.title || 'Checklist') + '</h3><ul class="rck">' + b.items.map(function (it, k) { return '<li>' + (st.ck[b.id + '-' + k] ? '☑ ' : '☐ ') + it + '</li>'; }).join('') + '</ul></div>'); }
+      });
+      if (parts.length) out.push('<section class="rsec"><h2>Part ' + (sec.num || (i + 1)) + ': ' + esc(sec.title) + '</h2>' + parts.join('') + '</section>');
+    });
+    return out.join('');
+  }
+  function buildReportPanel() {
+    var i = sections.length - 1, col = panels[i].querySelector('.col');
+    while (col.children.length > 1) col.removeChild(col.lastChild);
+    var req = required(), missing = req.filter(function (it) { return !filled(it); });
+    if (!req.length) {
+      col.appendChild(el('p', { html: 'This module has no report to submit. Your quiz results are saved in this browser.' }));
+    } else {
+      col.appendChild(el('p', { html: missing.length ? '<strong>' + (req.length - missing.length) + ' of ' + req.length + '</strong> required items are complete. You can build the report now, and blanks will show as “blank.”' : '<strong>Everything is complete.</strong> Build your report and upload it to Canvas.' }));
+      if (!st.stu.name) col.appendChild(el('p', { cls: 'warnline', html: 'Your name is missing — add it in Part 1 so it appears on the report.' }));
+      if (missing.length) {
+        var byS = {};
+        missing.forEach(function (it) { (byS[it.section] = byS[it.section] || []).push(it); });
+        var ul = el('ul', { cls: 'missing' });
+        Object.keys(byS).forEach(function (k) {
+          var sec = sections[k];
+          var li = el('li');
+          var go = el('button', { type: 'button', cls: 'linkbtn', text: 'Part ' + (sec.num || (+k + 1)) + ': ' + sec.tab });
+          go.addEventListener('click', function () { show(+k, true, true); });
+          li.appendChild(go);
+          li.appendChild(el('span', { text: ' — ' + byS[k].length + ' item' + (byS[k].length === 1 ? '' : 's') + ' left: ' + byS[k].slice(0, 4).map(function (x) { return x.label; }).join('; ') + (byS[k].length > 4 ? '; …' : '') }));
+          ul.appendChild(li);
+        });
+        col.appendChild(el('h3', { text: 'Still to do' }));
+        col.appendChild(ul);
+      }
+    }
+    col.appendChild(el('h3', { text: 'Submit' }));
+    col.appendChild(el('ol', { cls: 'howto', html: '<li>Select <strong>Save report as PDF</strong>. In the print window, choose <strong>Save as PDF</strong> (or <strong>Microsoft Print to PDF</strong>) as the printer.</li><li>Name the file with your last name, for example <em>' + esc(LAB.file || 'ELEC103_Lab') + '_Rivera.pdf</em>.</li><li>Upload the PDF to the matching assignment in Canvas.</li>' }));
+    var pdf = el('button', { type: 'button', cls: 'btn primary', text: 'Save report as PDF' });
+    pdf.addEventListener('click', printReport);
+    var prev = el('button', { type: 'button', cls: 'btn', text: 'Preview report' });
+    var box = el('div', { cls: 'preview', hidden: 'hidden' });
+    prev.addEventListener('click', function () { box.hidden = !box.hidden; prev.textContent = box.hidden ? 'Preview report' : 'Hide preview'; if (!box.hidden) box.innerHTML = '<div class="report-doc">' + reportHTML() + '</div>'; });
+    col.appendChild(el('div', { cls: 'btnrow' }, [pdf, prev]));
+    col.appendChild(box);
+
+    col.appendChild(el('h3', { text: 'Move your work to another computer' }));
+    col.appendChild(el('p', { html: 'Your work is saved only in this browser. Download a backup file before switching computers or clearing your browser, then load it on the other computer.' }));
+    var dl = el('button', { type: 'button', cls: 'btn', text: 'Download backup file' });
+    var upl = el('label', { cls: 'btn', 'for': 'restoreFile', text: 'Load backup file' });
+    var fi = el('input', { type: 'file', id: 'restoreFile', accept: '.json,application/json', cls: 'sr-file' });
+    var rmsg = el('p', { 'aria-live': 'polite' });
+    dl.addEventListener('click', function () {
+      var shots = {};
+      ITEMS.forEach(function (it) { if (it.kind === 'shot') { var d = getShot(it.id) || shotMem[it.id]; if (d) shots[it.id] = d; } });
+      var blob = new Blob([JSON.stringify({ key: KEY, state: st, shots: shots })], { type: 'application/json' });
+      var a = el('a', { href: URL.createObjectURL(blob), download: (LAB.file || KEY) + '_backup.json' });
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      rmsg.textContent = 'Backup downloaded.';
+    });
+    fi.addEventListener('change', function () {
+      var f = fi.files[0]; if (!f) return;
+      var rd = new FileReader();
+      rd.onload = function () {
+        try {
+          var d = JSON.parse(rd.result);
+          if (d.key !== KEY) { rmsg.textContent = 'That backup is for a different lab.'; return; }
+          localStorage.setItem(KEY, JSON.stringify(d.state));
+          Object.keys(d.shots || {}).forEach(function (k) { putShot(k, d.shots[k]); });
+          rmsg.textContent = 'Backup loaded. Reloading…';
+          setTimeout(function () { location.reload(); }, 600);
+        } catch (e) { rmsg.textContent = 'That file could not be read as a backup.'; }
+      };
+      rd.readAsText(f);
+    });
+    col.appendChild(el('div', { cls: 'btnrow' }, [dl, upl, fi]));
+    col.appendChild(rmsg);
+  }
+  var oldTitle = null;
+  function preparePrint() {
+    $('#printReport').innerHTML = reportHTML();
+    if (oldTitle === null) oldTitle = document.title;
+    var last = (st.stu.name || '').trim().split(/\s+/).pop() || 'Student';
+    document.title = (LAB.file || 'ELEC103_Lab') + '_' + last.replace(/[^A-Za-z0-9-]/g, '');
+    document.body.classList.add('printing');
+  }
+  function endPrint() {
+    document.body.classList.remove('printing');
+    if (oldTitle !== null) { document.title = oldTitle; oldTitle = null; }
+  }
+  window.addEventListener('beforeprint', function () { if (!document.body.classList.contains('printing')) preparePrint(); });
+  window.addEventListener('afterprint', endPrint);
+  function printReport() { preparePrint(); setTimeout(function () { window.print(); }, 60); }
+
+  /* ---------- Reset ---------- */
+  $('#resetAll').addEventListener('click', function () {
+    if (!window.confirm('Erase all of your work in this lab, including screenshots? This cannot be undone. Download a backup first if you might need it.')) return;
+    try {
+      localStorage.removeItem(KEY);
+      ITEMS.forEach(function (it) { if (it.kind === 'shot') localStorage.removeItem(SHOT_PREFIX + it.id); });
+    } catch (e) {}
+    location.reload();
+  });
+
+  $('#textSmaller').addEventListener('click', function () { scaleIdx--; applyScale(); });
+  $('#textLarger').addEventListener('click', function () { scaleIdx++; applyScale(); });
+  $('#themeBtn').addEventListener('click', function () { themeIdx = (themeIdx + 1) % THEMES.length; applyTheme(); });
+  applyScale(); applyTheme();
+
+  var start = typeof st.last === 'number' && st.last < sections.length ? st.last : 0;
+  show(start, false);
+  listeners.forEach(function (fn) { fn(); });
+  updateProgress();
+  setSaved(ITEMS.some(filled) ? 'Your earlier work was restored from this browser' : 'Work saves automatically in this browser');
+})();
+
+</script>
+</body>
+</html>
