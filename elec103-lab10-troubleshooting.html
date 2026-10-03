@@ -2294,5 +2294,83 @@ window.LAB = (function () {
 })();
 
 </script>
+<!-- Hide/show menu: collapses the section tabs and progress row to a slim bar -->
+<style>
+.navtog-btn { min-height: 32px; padding: .25rem .6rem; font-family: var(--font-ui); font-size: .76rem; border: 1px solid var(--rule); background: var(--surface); color: var(--ink-soft); border-radius: var(--r-sm); cursor: pointer; display: inline-flex; align-items: center; gap: .35rem; }
+.navtog-btn:hover { background: var(--rule-soft); color: var(--ink); }
+.nav-slim { display: none; align-items: center; gap: .5rem; padding: .35rem 0; font-family: var(--font-ui); font-size: .84rem; color: var(--ink-soft); }
+.nav-slim .ns-cur { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); font-weight: 600; }
+.nav-slim .ns-arrow { min-width: 36px; justify-content: center; }
+html.nav-hidden .chapter-nav .tablist, html.nav-hidden .chapter-nav .progress-row { display: none !important; }
+html.nav-hidden .chapter-nav .nav-slim { display: flex; }
+@media print { .nav-slim, .navtog-btn { display: none !important; } }
+</style>
+<script>
+(function () {
+  'use strict';
+  var KEY = 'elec103-nav-v1';
+  var nav = document.querySelector('.chapter-nav');
+  var tablist = document.getElementById('tablist');
+  if (!nav || !tablist) return;
+  var wrap = nav.querySelector('.wrap') || nav;
+  var prefsRow = nav.querySelector('.viewprefs') || nav.querySelector('.progress-row');
+
+  function hiddenPref() { try { return localStorage.getItem(KEY) === 'hidden'; } catch (e) { return false; } }
+  function savePref(h) { try { localStorage.setItem(KEY, h ? 'hidden' : 'shown'); } catch (e) {} }
+
+  // "Hide menu" button in the existing settings row
+  var hideBtn = document.createElement('button');
+  hideBtn.type = 'button'; hideBtn.className = 'navtog-btn'; hideBtn.id = 'navHideBtn';
+  hideBtn.setAttribute('aria-controls', 'tablist');
+  hideBtn.innerHTML = '<span aria-hidden="true">\u25B4</span>Hide menu';
+  prefsRow.insertBefore(hideBtn, prefsRow.firstChild);
+
+  // Slim bar shown while the menu is hidden
+  var slim = document.createElement('div');
+  slim.className = 'nav-slim'; slim.setAttribute('role', 'group'); slim.setAttribute('aria-label', 'Section navigation');
+  var prev = document.createElement('button'); prev.type = 'button'; prev.className = 'navtog-btn ns-arrow'; prev.setAttribute('aria-label', 'Previous section'); prev.textContent = '\u2039';
+  var cur = document.createElement('span'); cur.className = 'ns-cur'; cur.setAttribute('aria-live', 'polite');
+  var next = document.createElement('button'); next.type = 'button'; next.className = 'navtog-btn ns-arrow'; next.setAttribute('aria-label', 'Next section'); next.textContent = '\u203A';
+  var showBtn = document.createElement('button'); showBtn.type = 'button'; showBtn.className = 'navtog-btn'; showBtn.setAttribute('aria-controls', 'tablist');
+  showBtn.innerHTML = '<span aria-hidden="true">\u25BE</span>Show menu';
+  slim.appendChild(prev); slim.appendChild(cur); slim.appendChild(next); slim.appendChild(showBtn);
+  wrap.appendChild(slim);
+
+  function tabs() { return Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]')); }
+  function curIndex() { var t = tabs(); for (var i = 0; i < t.length; i++) if (t[i].getAttribute('aria-selected') === 'true') return i; return 0; }
+  function label(t) { var parts = []; Array.prototype.forEach.call(t.childNodes, function (n) { var x = (n.textContent || '').trim(); if (x) parts.push(x); }); return (parts.join(' ') || t.getAttribute('aria-label') || '').replace(/\s*\u2713\s*/g, ' ').replace(/,\s*complete$/i, '').replace(/\s+/g, ' ').trim(); }
+  function refresh() {
+    var t = tabs(), i = curIndex();
+    if (!t.length) return;
+    cur.textContent = label(t[i]);
+    prev.disabled = i === 0; next.disabled = i === t.length - 1;
+  }
+  function go(d) {
+    var t = tabs(), i = curIndex() + d;
+    if (i < 0 || i >= t.length) return;
+    t[i].click();
+    window.scrollTo(0, 0);
+    setTimeout(refresh, 0);
+  }
+  prev.addEventListener('click', function () { go(-1); });
+  next.addEventListener('click', function () { go(1); });
+
+  function apply(h, focus) {
+    document.documentElement.classList.toggle('nav-hidden', h);
+    hideBtn.setAttribute('aria-expanded', h ? 'false' : 'true');
+    showBtn.setAttribute('aria-expanded', h ? 'false' : 'true');
+    refresh();
+    if (focus) (h ? showBtn : hideBtn).focus();
+  }
+  hideBtn.addEventListener('click', function () { savePref(true); apply(true, true); });
+  showBtn.addEventListener('click', function () { savePref(false); apply(false, true); });
+
+  // Keep the slim bar's section name current however the section changes
+  if (window.MutationObserver) new MutationObserver(refresh).observe(tablist, { subtree: true, attributes: true, attributeFilter: ['aria-selected'], childList: true });
+  apply(hiddenPref(), false);
+  setTimeout(refresh, 50);
+})();
+</script>
+
 </body>
 </html>
