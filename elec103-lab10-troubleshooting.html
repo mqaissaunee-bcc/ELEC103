@@ -725,6 +725,52 @@ table.data.ref td { font-family: var(--font-ui); text-align: left; white-space: 
 .sk-frame { border: 1px solid var(--rule); border-radius: var(--r-md); overflow: hidden; background: #fff; }
 .sk-canvas { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; }
 
+/* ---------- Figure pop-out ---------- */
+.fig-foot { display: flex; gap: .6rem; align-items: flex-start; justify-content: space-between; margin-top: .5rem; }
+.fig-foot figcaption { margin-top: 0; flex: 1 1 auto; }
+.fig-pop { min-height: 34px; padding: .25rem .7rem; font-size: .78rem; flex: 0 0 auto; }
+@media print { .fig-pop { display: none !important; } }
+
+/* ---------- Side-panel mode: a narrow column beside Tinkercad ---------- */
+html.side .wrap { padding-left: .8rem; padding-right: .8rem; }
+html.side .masthead { padding: .55rem 0; }
+html.side .masthead .wrap { display: block; }
+html.side .masthead .course-line, html.side .masthead .lede { display: none; }
+html.side .masthead h1 { font-size: 1.15rem; margin: 0; line-height: 1.25; }
+html.side .masthead h1 .ch { display: inline; margin-right: .4rem; font-size: .8rem; }
+html.side .nav-slim { flex-wrap: wrap; gap: .35rem; }
+html.side .nav-slim .ns-cur { flex-basis: 100%; order: -1; font-size: .82rem; }
+html.side main { padding-top: .6rem; }
+html.side .panel .col { max-width: none; }
+html.side .panel h2 { font-size: 1.35rem; }
+html.side .prose, html.side .step-b { font-size: .95em; }
+html.side .step { grid-template-columns: 1fr; margin: 1rem 0 .4rem; }
+html.side .fig, html.side .shot, html.side .quiz, html.side .textans { margin: 1rem 0; }
+html.side .fig-art { padding: .4rem; }
+html.side .fig-art svg { min-width: 0; }
+html.side .fig-foot { flex-direction: column; }
+html.side .student { grid-template-columns: 1fr; padding: .7rem; }
+html.side .callout { padding: .7rem .8rem; }
+html.side .shot-zone { min-height: 6.5rem; }
+html.side .btn { min-height: 40px; padding: .4rem .7rem; }
+html.side .pn { margin-top: 1.6rem; }
+/* data tables become stacked cards: one block per row, each cell labeled with its column */
+html.side .table-scroll { overflow-x: auto; border: none; background: none; }
+html.side .prose .table-scroll { border: 1px solid var(--rule); background: var(--surface); }
+html.side table.data:not(.static), html.side table.data:not(.static) tbody, html.side table.data:not(.static) tr,
+html.side table.data:not(.static) tbody th, html.side table.data:not(.static) td { display: block; width: auto; min-width: 0; }
+html.side table.data:not(.static) thead { display: none; }
+html.side table.data:not(.static) tr { border: 1px solid var(--rule); border-radius: var(--r-md); background: var(--surface); margin-bottom: .55rem; overflow: hidden; }
+html.side table.data:not(.static) tbody th { white-space: normal; padding: .45rem .7rem; }
+html.side table.data:not(.static) td { display: flex; align-items: center; gap: .5rem; text-align: left; white-space: normal; border: none; border-top: 1px solid var(--rule-soft); padding: .35rem .7rem; }
+html.side table.data:not(.static) td::before { content: attr(data-col); flex: 1 1 auto; font-weight: 600; font-size: .82rem; color: var(--ink-soft); }
+html.side table.data:not(.static) td.na { display: none; }
+html.side table.data:not(.static) td input { width: 7.5rem; }
+html.side table.data:not(.static) td select { width: 8.5rem; }
+html.side table.data.ref td { display: block; }
+html.side table.data.ref td::before { display: block; margin-bottom: .1rem; }
+html.side .hs { grid-template-columns: 1fr; }
+
 </style>
 </head>
 <body>
@@ -1423,9 +1469,37 @@ window.LAB = (function () {
     var s = holder.querySelector('svg');
     if (s && b.alt) s.setAttribute('aria-label', b.alt);
     fig.appendChild(holder);
-    if (b.cap) fig.appendChild(el('figcaption', { html: b.cap }));
+    var pop = el('button', { type: 'button', cls: 'btn fig-pop', html: 'Pop out <span aria-hidden="true">↗</span>', 'aria-label': 'Open this figure in a floating window' });
+    pop.addEventListener('click', function () { popFigure(holder.innerHTML, b.cap || '', (b.alt || (b.cap || 'Figure').replace(/<[^>]+>/g, '')).slice(0, 80)); });
+    var row = el('div', { cls: 'fig-foot' }, [pop]);
+    if (b.cap) row.insertBefore(el('figcaption', { html: b.cap }), pop);
+    fig.appendChild(row);
     return fig;
   };
+  function popFigure(svg, cap, title) {
+    var css = Array.prototype.map.call(document.querySelectorAll('style'), function (s) { return s.textContent; }).join('\n') +
+      '\nbody.popfig{margin:0;padding:10px;background:var(--paper);color:var(--ink);font-family:var(--font-ui);}' +
+      '.pf-art{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:6px;}' +
+      '.pf-art svg{display:block;width:100%;height:auto;min-width:0;}.pf-cap{font-size:12px;color:var(--ink-soft);margin:6px 2px 0;line-height:1.4;}';
+    var theme = document.documentElement.getAttribute('data-theme') || 'system';
+    var body = '<div class="pf-art">' + svg + '</div>' + (cap ? '<p class="pf-cap">' + cap + '</p>' : '');
+    function fill(w) {
+      var d = w.document;
+      d.documentElement.setAttribute('data-theme', theme);
+      d.title = title;
+      var stl = d.createElement('style'); stl.textContent = css; d.head.appendChild(stl);
+      d.body.className = 'popfig'; d.body.innerHTML = body;
+    }
+    function fallback() {
+      var w = window.open('', 'elec103-figure', 'popup=yes,width=640,height=480');
+      if (!w) { window.alert('Your browser blocked the pop-up window. Allow pop-ups for this site and try again.'); return; }
+      w.document.open(); w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body></body></html>'); w.document.close();
+      fill(w); w.focus();
+    }
+    if (window.documentPictureInPicture && window.documentPictureInPicture.requestWindow) {
+      window.documentPictureInPicture.requestWindow({ width: 560, height: 420 }).then(fill).catch(fallback);
+    } else fallback();
+  }
   R.student = function () {
     var box = el('div', { cls: 'student' });
     [['name', 'Your name', 'text', 'name'], ['section', 'Course section', 'text', 'off'], ['date', 'Date', 'date', 'off'], ['design', 'Tinkercad design name', 'text', 'off']].forEach(function (f) {
@@ -1440,7 +1514,7 @@ window.LAB = (function () {
   };
 
   function cellInput(c, rowLabel, colLabel, unit, sec) {
-    var td = el('td');
+    var td = el('td', { 'data-col': colLabel });
     if (c === null || c === undefined) { td.className = 'na'; td.innerHTML = '<span aria-label="not used">—</span>'; return td; }
     if (typeof c === 'string') { td.innerHTML = c; td.className = 'given'; return td; }
     var label = rowLabel + ', ' + colLabel;
@@ -2118,6 +2192,7 @@ window.LAB = (function () {
     var id = sections[i].id;
     if (st.visited.indexOf(id) < 0 && !sections[i].report) { st.visited.push(id); save(); }
     st.last = i; save();
+    try { sessionStorage.setItem(KEY + '-tab', String(i)); } catch (e) {}
     if (sections[i].report) buildReportPanel();
     if (scroll) { window.scrollTo(0, 0); panels[i].focus({ preventScroll: true }); }
     updateProgress();
@@ -2281,15 +2356,73 @@ window.LAB = (function () {
     location.reload();
   });
 
+  /* ---------- Side-panel mode and pop-out lab window ---------- */
+  var SIDE_KEY = 'elec103-side-v1';
+  var forcePanel = /[?&]panel=1/.test(location.search);
+  var narrowMQ = window.matchMedia ? window.matchMedia('(max-width: 640px)') : { matches: false };
+  function sidePref() { try { return localStorage.getItem(SIDE_KEY); } catch (e) { return null; } }
+  function sideOn() { var p = sidePref(); return forcePanel || p === 'on' || (p !== 'off' && narrowMQ.matches); }
+  var sideBtns = [], wasSide = null;
+  function applySide() {
+    var on = sideOn();
+    document.documentElement.classList.toggle('side', on);
+    sideBtns.forEach(function (bt) { bt.setAttribute('aria-pressed', on ? 'true' : 'false'); bt.textContent = on ? 'Full width' : 'Side panel'; });
+    if (on !== wasSide) {
+      var navHiddenPref = false; try { navHiddenPref = localStorage.getItem('elec103-nav-v1') === 'hidden'; } catch (e) {}
+      document.documentElement.classList.toggle('nav-hidden', on || navHiddenPref);
+      wasSide = on;
+    }
+  }
+  function sideToggle() {
+    var on = !sideOn();
+    try { localStorage.setItem(SIDE_KEY, on ? 'on' : 'off'); } catch (e) {}
+    wasSide = null; applySide();
+  }
+  function popLab() {
+    var w = 460, h = (screen.availHeight || 800);
+    var left = (screen.availLeft || 0) + (screen.availWidth || 1280) - w, top = screen.availTop || 0;
+    var url = location.href.replace(/#.*$/, ''); url += (url.indexOf('?') >= 0 ? '&' : '?') + 'panel=1';
+    var win = window.open(url, 'elec103-panel-' + KEY, 'popup=yes,width=' + w + ',height=' + h + ',left=' + left + ',top=' + top);
+    if (!win) window.alert('Your browser blocked the pop-up window. Allow pop-ups for this site and try again.');
+    else win.focus();
+  }
+  function mkSideBtn(cls) { var bt = el('button', { type: 'button', cls: cls, 'aria-pressed': 'false', text: 'Side panel' }); bt.addEventListener('click', sideToggle); sideBtns.push(bt); return bt; }
+  function mkPopBtn(cls) { var bt = el('button', { type: 'button', cls: cls, html: 'Pop out <span aria-hidden="true">↗</span>', title: 'Open this lab in its own narrow window beside Tinkercad' }); bt.addEventListener('click', popLab); return bt; }
+  var vp = document.querySelector('.viewprefs');
+  if (vp) { vp.insertBefore(mkPopBtn('prefbtn'), vp.firstChild); vp.insertBefore(mkSideBtn('prefbtn'), vp.firstChild); }
+  function attachSlim() {   // the slim bar is added by the menu script, which runs after this one
+    var slim = document.querySelector('.nav-slim');
+    if (slim) { var last = slim.lastChild; slim.insertBefore(mkSideBtn('navtog-btn'), last); if (!forcePanel) slim.insertBefore(mkPopBtn('navtog-btn'), last); }
+    wasSide = null; applySide();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachSlim); else setTimeout(attachSlim, 0);
+  if (narrowMQ.addEventListener) narrowMQ.addEventListener('change', applySide); else if (narrowMQ.addListener) narrowMQ.addListener(applySide);
+  if (forcePanel) document.title = LAB.no + ' · side panel';
+
+  // Two windows on the same lab: when the other window saves, refresh this one the next time it is used
+  var stale = false;
+  window.addEventListener('storage', function (ev) { if (ev.key && ev.key.indexOf(KEY) === 0) stale = true; });
+  function refreshIfStale() {
+    if (!stale || document.visibilityState === 'hidden') return;
+    try { sessionStorage.setItem(KEY + '-scroll', String(window.scrollY)); } catch (e) {}
+    location.reload();
+  }
+  window.addEventListener('focus', refreshIfStale);
+  document.addEventListener('visibilitychange', refreshIfStale);
+  document.addEventListener('pointerdown', refreshIfStale, true);
+  applySide();
+
   $('#textSmaller').addEventListener('click', function () { scaleIdx--; applyScale(); });
   $('#textLarger').addEventListener('click', function () { scaleIdx++; applyScale(); });
   $('#themeBtn').addEventListener('click', function () { themeIdx = (themeIdx + 1) % THEMES.length; applyTheme(); });
   applyScale(); applyTheme();
 
-  var start = typeof st.last === 'number' && st.last < sections.length ? st.last : 0;
+  var winTab = null; try { winTab = sessionStorage.getItem(KEY + '-tab'); } catch (e) {}
+  var start = winTab !== null && +winTab < sections.length ? +winTab : (typeof st.last === 'number' && st.last < sections.length ? st.last : 0);
   show(start, false);
   listeners.forEach(function (fn) { fn(); });
   updateProgress();
+  try { var sy = sessionStorage.getItem(KEY + '-scroll'); if (sy !== null) { sessionStorage.removeItem(KEY + '-scroll'); setTimeout(function () { window.scrollTo(0, +sy); }, 30); } } catch (e) {}
   setSaved(ITEMS.some(filled) ? 'Your earlier work was restored from this browser' : 'Work saves automatically in this browser');
 })();
 
