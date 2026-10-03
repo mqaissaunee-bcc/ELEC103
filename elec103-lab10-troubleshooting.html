@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 2: Measuring Resistance — ELEC 103</title>
-<meta name="description" content="ELEC 103 Tinkercad Lab 2: resistance in series, parallel, and series-parallel networks, potentiometers, and rheostats.">
+<title>Lab 10: Troubleshooting Capstone — ELEC 103</title>
+<meta name="description" content="ELEC 103 Tinkercad Lab 10: a partner-swap troubleshooting capstone — build hidden faults, then find your partner's faults by measurement.">
 <style>
 :root {
   /* Palette drawn from the resistor color code and the lab bench */
@@ -1150,161 +1150,114 @@ var C = (function () {
   return { row: row, pctRow: pctRow, reminders: reminders, ohmRules: ohmRules, pctNote: pctNote };
 })();
 window.LAB = (function () {
-  var POS = ['ccw', 'q1', 'half', 'q3', 'cw'], POSH = ['Knob position', 'Full CCW', '¼ turn', '½ turn', '¾ turn', 'Full CW'];
-  function lbl(s, p, t) { s.top('<text x="' + p.x + '" y="' + p.y + '" class="sch-tl" text-anchor="middle">' + t + '</text>'); }
-  function schSeries() {
-    var s = new Draw.Sch(480, 230, 'Series network: A, R1 1 kilohm, R2 4 kilohm, R3 10 kilohm, R4 2 kilohm, B');
-    s.term(40, 50, 'A'); s.line([[40, 50], [70, 50]]); s.R(70, 50, 170, 50, 'R1', '1 kΩ'); s.line([[170, 50], [230, 50]]); s.R(230, 50, 330, 50, 'R2', '4 kΩ');
-    s.line([[330, 50], [420, 50], [420, 70]]); s.R(420, 70, 420, 170, 'R3', '10 kΩ', 'r'); s.line([[420, 170], [420, 190], [300, 190]]);
-    s.R(200, 190, 300, 190, 'R4', '2 kΩ', 'b'); s.line([[200, 190], [40, 190]]); s.term(40, 190, 'B');
+  function lbl(s, x, y, t, a) { s.top('<text x="' + x + '" y="' + y + '" class="sch-tl" text-anchor="' + (a || 'middle') + '">' + t + '</text>'); }
+  function schRef() {
+    var s = new Draw.Sch(440, 260, 'Reference circuit: 12 volts; R1 2 kilohm from node A to node B; R2 3 kilohm and R3 6 kilohm in parallel from B to C; R4 2 kilohm from C to D, the reference');
+    s.batt(60, 60, 210, '12 V'); s.line([[60, 60], [60, 30], [120, 30]]); s.R(120, 30, 210, 30, 'R1', '2 kΩ'); s.line([[210, 30], [330, 30]]);
+    s.dot(260, 30); s.R(260, 30, 260, 150, 'R2', '3 kΩ', 'l'); s.R(330, 30, 330, 150, 'R3', '6 kΩ', 'r'); s.line([[260, 150], [330, 150]]); s.dot(260, 150);
+    s.line([[260, 150], [260, 160]]); s.R(260, 160, 260, 225, 'R4', '2 kΩ', 'l'); s.line([[260, 225], [260, 240], [60, 240], [60, 210]]); s.dot(260, 240);
+    lbl(s, 100, 22, 'A'); lbl(s, 236, 22, 'B'); lbl(s, 290, 168, 'C'); lbl(s, 276, 256, 'D', 'start');
     return s.svg();
   }
-  function schParallel() {
-    var s = new Draw.Sch(480, 240, 'Parallel network: R1 1 kilohm, R2 4 kilohm, R3 10 kilohm and R4 2 kilohm, each connected directly between A and B');
-    s.term(40, 50, 'A'); s.term(40, 200, 'B'); s.line([[40, 50], [420, 50]]); s.line([[40, 200], [420, 200]]);
-    [[120, 'R1', '1 kΩ'], [220, 'R2', '4 kΩ'], [320, 'R3', '10 kΩ'], [420, 'R4', '2 kΩ']].forEach(function (r, i) {
-      s.R(r[0], 50, r[0], 200, r[1], r[2], 'r'); if (i < 3) { s.dot(r[0], 50); s.dot(r[0], 200); }
-    });
+  function bbRef() {
+    var s = new Draw.Scene(600, 420, 'Breadboard: supply to the top rails; a red jumper to column 4 is node A; R1 from column 4 to 8 in row i; column 8 top half is node B; R2 crosses the channel in column 8; R3 runs from column 8 to 12 in row h, and a green wire carries column 12 across the channel; a green jumper in row a joins columns 12 and 8 bottom, which together are node C; R4 runs from column 12 to 16 in row c; column 16 goes to the bottom negative rail, node D');
+    var b = new Draw.Board(s, 20, 118).draw();
+    Draw.wire(s, [b.p('t+4'), b.p('j4')], 'red');
+    Draw.resistor(s, b.p('i4'), b.p('i8'), 2000, 'R1', { ly: -8 });
+    Draw.resistor(s, b.p('f8'), b.p('e8'), 3000, 'R2');
+    Draw.resistor(s, b.p('h8'), b.p('h12'), 6000, 'R3', { ly: 18 });
+    Draw.wire(s, [b.p('f12'), b.p('e12')], 'green');
+    Draw.wire(s, [b.p('a12'), b.p('a8')], 'green');
+    Draw.resistor(s, b.p('c12'), b.p('c16'), 2000, 'R4', { ly: -9 });
+    Draw.wire(s, [b.p('a16'), b.p('b-16')], 'black');
+    Draw.wire(s, [b.p('t-2'), b.p('b-2')], 'black');
+    var ps = Draw.supply(s, 430, 8, { v: '12.00', i: '0.002' });
+    Draw.wire(s, [ps.pos, { x: ps.pos.x, y: 110 }, { x: b.p('t+28').x, y: 110 }, b.p('t+28')], 'red');
+    Draw.wire(s, [ps.neg, { x: ps.neg.x, y: 104 }, { x: b.p('t-30').x, y: 104 }, b.p('t-30')], 'black');
+    lbl(s, b.p('j4').x - 10, b.p('j4').y + 4, 'A', 'end'); lbl(s, b.p('g8').x - 8, b.p('g8').y + 5, 'B', 'end'); lbl(s, b.p('d8').x - 8, b.p('d8').y + 5, 'C', 'end'); lbl(s, b.p('b-18').x, b.p('b-18').y + 22, 'D (bottom − rail)', 'start');
     return s.svg();
   }
-  function schSP() {
-    var s = new Draw.Sch(480, 240, 'Series-parallel network: A, R1 10 kilohm to a node; from that node R2 12 kilohm down to a lower node, in parallel with R3 8 kilohm plus R4 4 kilohm; then R5 4 kilohm from the lower node to B');
-    s.term(30, 50, 'A'); s.line([[30, 50], [60, 50]]); s.R(60, 50, 160, 50, 'R1', '10 kΩ'); s.line([[160, 50], [420, 50], [420, 70]]); s.dot(250, 50);
-    s.R(250, 50, 250, 200, 'R2', '12 kΩ', 'r'); s.dot(250, 200);
-    s.R(420, 70, 420, 180, 'R3', '8 kΩ', 'r'); s.line([[420, 180], [420, 200], [400, 200]]); s.R(290, 200, 400, 200, 'R4', '4 kΩ', 'b'); s.line([[290, 200], [250, 200]]);
-    s.line([[250, 200], [160, 200]]); s.R(60, 200, 160, 200, 'R5', '4 kΩ', 'b'); s.line([[60, 200], [30, 200]]); s.term(30, 200, 'B');
-    return s.svg();
-  }
-  function schPot(rheo) {
-    var s = new Draw.Sch(480, 260, rheo ? 'Potentiometer wired as a rheostat: the wiper, pin 2, is joined to pin 1, so A and B are the same point' : 'Potentiometer circuit: C, R1 10 kilohm, to pin 3 of a 25 kilohm potentiometer; the wiper, pin 2, goes to A; pin 1 goes to node B; R3 5 kilohm runs from B to D');
-    s.term(40, 40, 'C'); s.line([[40, 40], [70, 40]]); s.R(70, 40, 170, 40, 'R1', '10 kΩ'); s.line([[170, 40], [300, 40], [300, 70]]);
-    s.pot(300, 70, 180, 'R2', '25 kΩ', 380);
-    s.line([[380, 125], [440, 125]]); s.term(440, 125, 'A', 'r');
-    if (rheo) { s.dot(380, 125); s.line([[380, 125], [380, 200], [300, 200]]); s.dot(300, 200); }
-    s.line([[300, 180], [300, 225]]); s.dot(300, 225); s.line([[300, 225], [440, 225]]); s.term(440, 225, 'B', 'r');
-    s.line([[300, 225], [170, 225]]); s.R(70, 225, 170, 225, 'R3', '5 kΩ', 'b'); s.line([[70, 225], [40, 225]]); s.term(40, 225, 'D');
-    return s.svg();
-  }
-  function bbParallel() {
-    var s = new Draw.Sch(580, 330, 'Breadboard: four resistors stand across the center channel in columns 6, 11, 16 and 21. Red jumpers join each top end to the top positive rail, which is A. Black jumpers join each bottom end to the bottom negative rail, which is B.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    [[6, 1000, 'R1'], [11, 4000, 'R2'], [16, 10000, 'R3'], [21, 2000, 'R4']].forEach(function (r) {
-      Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
-      Draw.resistor(s, b.p('f' + r[0]), b.p('e' + r[0]), r[1], r[2]);
-      Draw.wire(s, [b.p('a' + r[0]), b.p('b-' + r[0])], 'black');
-    });
-    Draw.note(s, 300, 14, 'A = top + rail   ·   B = bottom − rail', { anchor: 'middle' });
-    return s.svg();
-  }
-  function bbSP() {
-    var s = new Draw.Scene(580, 320, 'Breadboard: A is column 3 top half. R1 runs from column 3 to column 7 in row i. R2 stands across the channel in column 7. R3 runs from column 7 to column 11 in row h. R4 stands across the channel in column 11. A green jumper in row a joins column 11 back to column 7 bottom. R5 runs from column 7 to column 3 in row c, and B is column 3 bottom half.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    Draw.resistor(s, b.p('i3'), b.p('i7'), 10000, 'R1', { ly: -9 });
-    Draw.resistor(s, b.p('f7'), b.p('e7'), 12000, 'R2');
-    Draw.resistor(s, b.p('h7'), b.p('h11'), 8000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('f11'), b.p('e11'), 4000, 'R4');
-    Draw.wire(s, [b.p('a11'), b.p('a7')], 'green');
-    Draw.resistor(s, b.p('c7'), b.p('c3'), 4000, 'R5', { ly: 16 });
-    lbl(s, { x: b.p('j3').x, y: b.p('j3').y - 6 }, 'A'); lbl(s, { x: b.p('a3').x, y: b.p('a3').y + 20 }, 'B');
-    return s.svg();
-  }
-  function bbPot(rheo) {
-    var s = new Draw.Scene(580, 320, rheo ? 'The same breadboard with a yellow jumper in row h joining the wiper column to Terminal 1' : 'Breadboard: a potentiometer with Terminal 1 in column 14, the wiper in 15 and Terminal 2 in 16, all in row j. R3 runs from column 10 to column 14 in row i; R1 runs from column 16 to column 20 in row i. D is column 10, B is column 14, A is column 15, and C is column 20.');
-    var b = new Draw.Board(s, 16, 30).draw();
-    Draw.pot(s, [b.p('j14'), b.p('j15'), b.p('j16')], { label: 'R2 25 kΩ' });
-    Draw.resistor(s, b.p('i10'), b.p('i14'), 5000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('i16'), b.p('i20'), 10000, 'R1', { ly: 17 });
-    if (rheo) Draw.wire(s, [b.p('h14'), b.p('h15')], 'yellow');
-    [['g10', 'D'], ['g14', 'B'], ['g15', 'A'], ['g20', 'C']].forEach(function (x, i) { var p = b.p(x[0]); lbl(s, { x: p.x + (i === 1 ? -3 : i === 2 ? 3 : 0), y: p.y + 30 }, x[1]); });
-    return s.svg();
-  }
-  function tRT(id, ans) {
-    return { t: 'data', title: 'Total resistance, A to B', head: ['', 'Calculated', 'Measured in Tinkercad', '% difference'], rows: [
-      { label: 'R<sub>T</sub>', unit: 'kΩ', cells: [{ id: id + '_c', ans: ans }, { id: id + '_m', ans: ans }, { id: id + '_p', pct: [id + '_c', id + '_m'] }] }] };
-  }
-  function potTable(p, ab, cd, tolAB, tolCD) {
-    return { t: 'data', title: 'Readings as you turn the knob', head: POSH, rows: [
-      { label: 'Predicted A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Measured A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Predicted C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pcd_' + k, ans: cd[i], tol: tolCD[i] }; }) },
-      { label: 'Measured C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mcd_' + k, ans: cd[i], tol: tolCD[i] }; }) }
-    ] };
-  }
-  var T3 = [0.4, 3, 3, 3, 0.4];
+  var FAULTS = [
+    { title: 'R2 open', build: 'Pull one leg of R2 out of its column and plug it into an empty column, so R2 connects to nothing at that end.' },
+    { title: 'R3 open', build: 'Move one leg of R3 into an empty column so its branch is broken.' },
+    { title: 'R2 shorted', build: 'Add a short jumper wire connecting the two columns R2’s legs are in.' },
+    { title: 'R4 shorted', build: 'Add a jumper wire connecting the two columns R4’s legs are in.' },
+    { title: 'R1 wrong value', build: 'Set R1 to 20 kΩ instead of 2 kΩ.' },
+    { title: 'R4 wrong value', build: 'Set R4 to 1 kΩ instead of 2 kΩ.' },
+    { title: 'Supply set wrong', build: 'Set the power supply to 9 V instead of 12 V.' },
+    { title: 'Current limit too low', build: 'Set the power supply’s current limit to 1 mA, so it cannot deliver the 2 mA the circuit needs.' }
+  ];
+  var N = ['a', 'b', 'c', 'd'];
   return {
-    key: 'elec103-lab2-v1', no: 'Lab 2', file: 'ELEC103_Lab2', title: 'Measuring Resistance',
-    lede: 'Predict and measure resistance in series, parallel, and series-parallel networks, then see what a potentiometer’s wiper really does.',
+    key: 'elec103-lab10-v1', no: 'Lab 10', file: 'ELEC103_Lab10', title: 'Troubleshooting Capstone',
+    lede: 'You build a broken circuit for your partner, your partner builds one for you, and each of you finds the faults by measurement alone.',
     sections: [
       { id: 'start', tab: 'Start here', title: 'Before you begin', blocks: [
         { t: 'student' },
-        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate total resistance for series, parallel, and series-parallel networks, and confirm it by measurement.</li><li>Identify the three terminals of a potentiometer and explain how the wiper divides its resistance.</li><li>Tell the difference between a potentiometer used as a three-terminal part and one wired as a <strong>rheostat</strong>.</li></ul>' +
-          '<h3>Background</h3><p><strong>Series:</strong> <span class="eq">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + …</span> The total is always larger than the largest resistor.</p>' +
-          '<p><strong>Parallel:</strong> <span class="eq">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + …</span> The total is always smaller than the smallest resistor.</p>' +
-          '<p><strong>Potentiometer:</strong> a fixed resistance between its two outer terminals, with a movable <strong>wiper</strong> in between. Turning the knob changes the resistance from an outer terminal to the wiper, but the outer-to-outer resistance never changes. Connecting the wiper to one outer terminal turns the pot into a two-terminal <strong>rheostat</strong> — a variable resistor.</p>' +
-          '<p>Enter resistances in <strong>kΩ</strong>. You can type <em>540 Ω</em> or <em>0.54k</em> and the page converts it.</p>' },
-        C.reminders, C.ohmRules, C.pctNote
+        { t: 'nums', check: false, items: [{ id: 'partner', label: 'Your partner’s name', free: true }] },
+        { t: 'html', html: '<h3>How this lab works</h3><ol><li>You both build the same <strong>reference circuit</strong> and confirm it works.</li><li>The page secretly gives each of you <strong>two faults</strong>. You add them to a copy of your circuit and share it with your partner.</li><li>You troubleshoot your partner’s circuit <strong>by measurement only</strong>, write up your diagnosis, and fix it.</li><li>You compare notes: your partner tells you whether you found their faults, and you tell them about yours.</li></ol>' +
+          '<h3>What you will be able to do</h3><ul><li>Predict how specific faults change voltages and currents.</li><li>Locate faults by comparing measured node voltages with expected values.</li><li>Write a diagnosis supported by evidence, the way a technician documents a repair.</li></ul>' },
+        { t: 'callout', k: 'caution', title: 'The one rule', html: '<p>While troubleshooting, <strong>do not open the Inspector</strong> on your partner’s parts and do not zoom in to inspect the wiring until <em>after</em> you have written your diagnosis. Find the faults with the meter, the way you would inside a sealed product. Your grade depends on the evidence you collect, not just on getting the right answer.</p>' },
+        C.reminders
       ] },
-      { id: 'series', tab: 'Series', title: 'Series network', blocks: [
-        { t: 'fig', draw: schSeries, cap: 'Figure 1. Series network.' },
-        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> Calculate the total resistance between A and B.</p>' },
-        { t: 'text', id: 'wA', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 2, html: '<p><strong>Build and measure.</strong> Build Figure 1 (you built this kind of chain in Lab 1). Connect the ohmmeter from A to B and start the simulation.</p>' },
-        tRT('rA', 17),
-        { t: 'shot', id: 'A', label: 'the series network with the meter reading visible' },
-        { t: 'step', n: 3, html: '<p><strong>Change one thing.</strong> Stop the simulation and change R3 from 10 kΩ to 20 kΩ. Predict the new total, measure it, then change R3 back.</p>' },
-        { t: 'nums', items: [{ id: 'a3p', label: 'Predicted with R3 = 20 kΩ', unit: 'kΩ', ans: 27 }, { id: 'a3m', label: 'Measured', unit: 'kΩ', ans: 27 }] }
+      { id: 'ref', tab: 'Reference circuit', title: 'Build and verify the reference circuit', blocks: [
+        { t: 'fig', draw: schRef, cap: 'Figure 1. The reference circuit. D is the reference point (0 V).' },
+        { t: 'fig', draw: bbRef, wide: true, cap: 'Figure 2. One way to build it. Node C is both halves of columns 8 and 12 below the channel, joined by the green wires.' },
+        { t: 'step', n: 1, html: '<p><strong>Predict</strong> the node voltages (black probe on D), the total current, and the current in each parallel branch.</p>' },
+        { t: 'text', id: 'w1', label: 'Your analysis', rows: 6, work: true },
+        { t: 'step', n: 2, html: '<p>Build the circuit in a design named <strong>ELEC103_Lab10_Ref_YourLastName</strong> and measure.</p>' },
+        { t: 'data', title: 'Node voltages, reference D', head: ['Node', 'A', 'B', 'C', 'D'], rows: [
+          C.row('Predicted', 'V', 'r_p', N, [12, 8, 4, 0]), C.row('Measured', 'V', 'r_m', N, [12, 8, 4, 0])] },
+        { t: 'data', title: 'Currents', head: ['', 'I<sub>T</sub>', 'I<sub>R2</sub>', 'I<sub>R3</sub>'], rows: [
+          C.row('Predicted', 'mA', 'r_ip', ['t', '2', '3'], [2, 1.333, 0.6667]), C.row('Measured', 'mA', 'r_im', ['t', '2', '3'], [2, 1.333, 0.6667])] },
+        { t: 'shot', id: 'ref', label: 'your working reference circuit with a meter reading visible' }
       ] },
-      { id: 'par', tab: 'Parallel', title: 'Parallel network', blocks: [
-        { t: 'fig', draw: schParallel, cap: 'Figure 2. Parallel network — the same four resistors, now side by side.' },
-        { t: 'fig', draw: bbParallel, wide: true, cap: 'Figure 3. One way to build it. Each resistor bridges the center channel; the top rail is A and the bottom rail is B.' },
-        { t: 'step', n: 4, html: '<p><strong>Predict.</strong> Calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wB', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 5, html: '<p><strong>Build and measure.</strong> Build the circuit and connect the ohmmeter between the two rails.</p>' },
-        tRT('rB', 0.5405),
-        { t: 'shot', id: 'B', label: 'the parallel network with the meter reading visible' },
-        { t: 'step', n: 6, html: '<p>Your total should be smaller than the smallest resistor (1 kΩ). Is it? Explain in a sentence or two why adding more parallel branches always <strong>lowers</strong> the total resistance.</p>' },
-        { t: 'text', id: 'q6', label: 'Your answer', rows: 3 }
+      { id: 'sig', tab: 'Fault signatures', title: 'Predict what faults look like', blocks: [
+        { t: 'html', html: '<p>Troubleshooting is much faster when you already know what each fault does to the readings. Work out these four by calculation — no building needed. Remember that an open part carries no current and a shorted part has no voltage across it.</p>' },
+        { t: 'data', title: 'Predicted readings for each fault (reference D)', head: ['Fault', 'V<sub>B</sub>', 'V<sub>C</sub>', 'I<sub>T</sub>'], rows: [
+          { label: 'No fault', unit: '', cells: ['8 V', '4 V', '2 mA'] },
+          { label: 'R3 open', cells: [{ id: 's_r3_b', ans: 8.571, unit: 'V' }, { id: 's_r3_c', ans: 3.429, unit: 'V' }, { id: 's_r3_i', ans: 1.714, unit: 'mA' }] },
+          { label: 'R4 shorted', cells: [{ id: 's_r4_b', ans: 6, unit: 'V' }, { id: 's_r4_c', ans: 0, unit: 'V', tol: 0.02 }, { id: 's_r4_i', ans: 3, unit: 'mA' }] },
+          { label: 'R2 shorted', cells: [{ id: 's_r2_b', ans: 6, unit: 'V' }, { id: 's_r2_c', ans: 6, unit: 'V' }, { id: 's_r2_i', ans: 3, unit: 'mA' }] },
+          { label: 'Supply at 9 V', cells: [{ id: 's_v_b', ans: 6, unit: 'V' }, { id: 's_v_c', ans: 3, unit: 'V' }, { id: 's_v_i', ans: 1.5, unit: 'mA' }] }] },
+        { t: 'step', n: 3, html: '<p>Two of these faults give the same V<sub>B</sub> and the same total current. Which reading tells them apart? Then describe a measurement strategy: in what order would you measure the nodes to find a fault quickly?</p>' },
+        { t: 'text', id: 'q3', label: 'Your answer', rows: 5 }
       ] },
-      { id: 'sp', tab: 'Series-parallel', title: 'Series-parallel network', blocks: [
-        { t: 'fig', draw: schSP, cap: 'Figure 4. Series-parallel network.' },
-        { t: 'fig', draw: bbSP, wide: true, cap: 'Figure 5. One way to build it. Trace it against Figure 4 before you start: R2 crosses the channel, and R3 and R4 make a second path around it.' },
-        { t: 'step', n: 7, html: '<p><strong>Predict.</strong> Decide which resistors are in series and which are in parallel. Reduce the network one step at a time and calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wC', label: 'Show each reduction step', rows: 5, work: true },
-        { t: 'step', n: 8, html: '<p><strong>Build and measure.</strong></p>' },
-        tRT('rC', 20),
-        { t: 'shot', id: 'C', label: 'the series-parallel network with the meter reading visible' },
-        { t: 'step', n: 9, html: '<p><strong>Open a branch.</strong> Stop the simulation and delete one end of R2 so its branch is open. Predict and measure R<sub>T</sub>, then explain why it went up.</p>' },
-        { t: 'nums', items: [{ id: 'c9p', label: 'Predicted with R2 open', unit: 'kΩ', ans: 30 }, { id: 'c9m', label: 'Measured', unit: 'kΩ', ans: 30 }] },
-        { t: 'text', id: 'q9', label: 'Why did it increase?', rows: 3 }
+      { id: 'make', tab: 'Build the faults', title: 'Build your partner’s broken circuit', blocks: [
+        { t: 'step', n: 4, html: '<p>From your dashboard, <strong>duplicate</strong> your reference design and name the copy <strong>ELEC103_Lab10_Faulted_YourLastName</strong>. Work only in the copy.</p>' },
+        { t: 'step', n: 5, html: '<p>Choose your faults below. Keep this screen away from your partner.</p>' },
+        { t: 'secret', id: 'faults', title: 'Faults I built', pick: 2, items: FAULTS },
+        { t: 'step', n: 6, html: '<p>Build both faults into the copy. Make them tidy — a troubleshooter should have to <em>measure</em> to find them, not spot a wire sticking out at an odd angle. Then measure your own faulted circuit so you know what your partner will see.</p>' },
+        { t: 'data', check: false, title: 'Your faulted circuit (reference D)', head: ['Node', 'A', 'B', 'C', 'I<sub>T</sub>'], rows: [
+          { label: 'Measured', cells: [{ id: 'mf_a', unit: 'V' }, { id: 'mf_b', unit: 'V' }, { id: 'mf_c', unit: 'V' }, { id: 'mf_i', unit: 'mA' }] }] },
+        { t: 'step', n: 7, html: '<p><strong>Share it.</strong> Open the faulted design and use Tinkercad’s <strong>Share</strong> (or <strong>Invite</strong>) option to get a link, and send it to your partner. Your partner may need to make their own copy before they can run it.</p>' },
+        { t: 'checklist', id: 'ck_make', title: 'Before you send it', items: ['My faults are built into the copy, not my reference design.', 'I measured my faulted circuit and recorded the readings above.', 'I sent my partner the link to the faulted design.'] }
       ] },
-      { id: 'pot', tab: 'Potentiometer', title: 'Potentiometer, three-terminal connection', blocks: [
-        { t: 'fig', draw: function () { return schPot(false); }, cap: 'Figure 6. A 25 kΩ potentiometer between R1 and R3.' },
-        { t: 'fig', draw: function () { return bbPot(false); }, wide: true, cap: 'Figure 7. One way to build it. In Tinkercad, hover over a pot terminal to see its name: schematic pin 1 is <strong>Terminal 1</strong>, pin 2 is the <strong>Wiper</strong>, and pin 3 is <strong>Terminal 2</strong>.' },
-        { t: 'callout', k: 'tip', title: 'Turning the knob', html: '<p>Set the pot to 25 kΩ in the Inspector. To turn it, <strong>click and drag the knob while the simulation is running</strong>. The exact ¼, ½, and ¾ positions are approximate — get close and record what you see.</p>' },
-        { t: 'step', n: 10, html: '<p><strong>Predict</strong> both “Predicted” rows before you build. Think about which parts are between A and B, and which are between C and D.</p>' },
-        { t: 'step', n: 11, html: '<p>Build the circuit. Connect <strong>one</strong> ohmmeter between <strong>A and B</strong>, start the simulation, and sweep the knob from full counter-clockwise to full clockwise, recording A–B at each position.</p>' },
-        { t: 'step', n: 12, html: '<p>Stop the simulation, move the probes to <strong>C and D</strong>, and repeat the sweep.</p>' },
-        potTable('d', [[0, 25], [6.25, 18.75], 12.5, [18.75, 6.25], [25, 0]], [40, 40, 40, 40, 40], T3, [0.5, 0.5, 0.5, 0.5, 0.5]),
-        { t: 'shot', id: 'D', label: 'the potentiometer circuit with a reading visible' },
-        { t: 'step', n: 13, html: '<p>(a) What happened to the A–B resistance as you turned the knob, and did it increase clockwise or counter-clockwise? (b) What happened to the C–D resistance? (c) Explain <strong>why</strong> C–D behaved that way.</p>' },
-        { t: 'text', id: 'q13', label: 'Your observations', rows: 6 },
-        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Connect a <strong>second</strong> ohmmeter so that A–B and C–D are measured at the same time. Do the readings still match your one-meter readings? Use the ohmmeter rules to explain what you see, and what would happen on a real bench.</p>' },
-        { t: 'text', id: 'inv', label: 'What you saw (optional)', rows: 3, optional: true }
+      { id: 'find', tab: 'Troubleshoot', title: 'Troubleshoot your partner’s circuit', blocks: [
+        { t: 'step', n: 8, html: '<p>Open your partner’s faulted design. Without opening the Inspector, measure every node voltage and the total current. Compare each reading with the reference values and your fault signatures.</p>' },
+        { t: 'data', check: false, title: 'Partner’s circuit, first measurements (reference D)', head: ['Node', 'A', 'B', 'C', 'I<sub>T</sub>'], rows: [
+          { label: 'Expected (no fault)', cells: ['12 V', '8 V', '4 V', '2 mA'] },
+          { label: 'Measured', cells: [{ id: 'pf_a', unit: 'V' }, { id: 'pf_b', unit: 'V' }, { id: 'pf_c', unit: 'V' }, { id: 'pf_i', unit: 'mA' }] }] },
+        { t: 'step', n: 9, html: '<p>Use additional measurements — the voltage across each resistor, or the current in each branch — to narrow it down. Record each measurement you take and what it told you.</p>' },
+        { t: 'text', id: 'log', label: 'Measurement log: what you measured, what you found, and what it ruled in or out', rows: 9 },
+        { t: 'step', n: 10, html: '<p>Write your diagnosis. Some faults can hide others, so once you think you have found one, imagine it fixed and ask whether the remaining readings still make sense.</p>' },
+        { t: 'text', id: 'dx1', label: 'Fault 1: what it is, and the evidence', rows: 4 },
+        { t: 'text', id: 'dx2', label: 'Fault 2: what it is, and the evidence', rows: 4 },
+        { t: 'step', n: 11, html: '<p>Now repair the circuit (you may open the Inspector at this point). Measure the node voltages again to prove it matches the reference.</p>' },
+        { t: 'data', title: 'After the repair (reference D)', head: ['Node', 'A', 'B', 'C', 'D'], rows: [C.row('Measured', 'V', 'fx', N, [12, 8, 4, 0])] },
+        { t: 'shot', id: 'fixed', label: 'your partner’s circuit after the repair, with a reading visible' }
       ] },
-      { id: 'rheo', tab: 'Rheostat', title: 'Potentiometer wired as a rheostat', blocks: [
-        { t: 'fig', draw: function () { return schPot(true); }, cap: 'Figure 8. The same circuit with the wiper joined to pin 1.' },
-        { t: 'fig', draw: function () { return bbPot(true); }, wide: true, cap: 'Figure 9. Add the yellow jumper between the wiper column and Terminal 1.' },
-        { t: 'step', n: 14, html: '<p>Add the jumper from the <strong>Wiper</strong> to <strong>Terminal 1</strong>. Before measuring, fill in both “Predicted” rows.</p>' },
-        { t: 'step', n: 15, html: '<p>Using <strong>one</strong> ohmmeter, sweep the knob and record A–B. Then move the probes to C–D and sweep again.</p>' },
-        potTable('e', [0, 0, 0, 0, 0], [[15, 40], [21.25, 33.75], 27.5, [33.75, 21.25], [40, 15]], [0.05, 0.05, 0.05, 0.05, 0.05], [0.5, 3, 3, 3, 0.5]),
-        { t: 'shot', id: 'E', label: 'the rheostat circuit with a reading visible' },
-        { t: 'step', n: 16, html: '<p>(a) Why does A–B read about 0 Ω at every knob position? (b) What are the smallest and largest C–D readings, and where do those numbers come from? (c) In your own words, what is the difference between a potentiometer and a rheostat?</p>' },
-        { t: 'text', id: 'q16', label: 'Your observations', rows: 6 }
+      { id: 'debrief', tab: 'Debrief', title: 'Compare notes', blocks: [
+        { t: 'step', n: 12, html: '<p>Meet with your partner. Tell each other which faults you built and compare them with the diagnoses.</p>' },
+        { t: 'text', id: 'conf', label: 'Did you correctly identify both of your partner’s faults? If not, what did you miss and why?', rows: 4 },
+        { t: 'text', id: 'theirs', label: 'Did your partner find your faults? What made them easy or hard to find?', rows: 3 },
+        { t: 'step', n: 13, html: '<p><strong>Reflection.</strong> What was the single most useful measurement you made? If you had to troubleshoot a real circuit inside a box tomorrow, what would you do first, and what would you avoid?</p>' },
+        { t: 'text', id: 'refl', label: 'Your reflection', rows: 6 }
       ] },
       { id: 'wrap', tab: 'Conclusion', title: 'Conclusion', blocks: [
-        { t: 'html', html: '<p>In a short paragraph, summarize how resistances combine in series and in parallel, and how the way the potentiometer was wired decided whether a resistance changed as you turned the knob.</p>' },
+        { t: 'html', html: '<p>In a short paragraph, describe a step-by-step method for troubleshooting a resistor circuit with a voltmeter and ammeter, and explain how opens and shorts each show up in node voltages and current.</p>' },
         { t: 'text', id: 'concl', label: 'Conclusion', rows: 8 },
-        { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas.</p>' }
+        { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas. Your report lists the faults you built so your instructor can check both sides of the swap.</p>' }
       ] }
     ]
   };

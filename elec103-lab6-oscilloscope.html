@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 2: Measuring Resistance — ELEC 103</title>
-<meta name="description" content="ELEC 103 Tinkercad Lab 2: resistance in series, parallel, and series-parallel networks, potentiometers, and rheostats.">
+<title>Lab 6: The Function Generator and Oscilloscope — ELEC 103</title>
+<meta name="description" content="ELEC 103 Tinkercad Lab 6: period, frequency, peak-to-peak, RMS, waveforms, and DC offset with a function generator and oscilloscope.">
 <style>
 :root {
   /* Palette drawn from the resistor color code and the lab bench */
@@ -1150,159 +1150,99 @@ var C = (function () {
   return { row: row, pctRow: pctRow, reminders: reminders, ohmRules: ohmRules, pctNote: pctNote };
 })();
 window.LAB = (function () {
-  var POS = ['ccw', 'q1', 'half', 'q3', 'cw'], POSH = ['Knob position', 'Full CCW', '¼ turn', '½ turn', '¾ turn', 'Full CW'];
-  function lbl(s, p, t) { s.top('<text x="' + p.x + '" y="' + p.y + '" class="sch-tl" text-anchor="middle">' + t + '</text>'); }
-  function schSeries() {
-    var s = new Draw.Sch(480, 230, 'Series network: A, R1 1 kilohm, R2 4 kilohm, R3 10 kilohm, R4 2 kilohm, B');
-    s.term(40, 50, 'A'); s.line([[40, 50], [70, 50]]); s.R(70, 50, 170, 50, 'R1', '1 kΩ'); s.line([[170, 50], [230, 50]]); s.R(230, 50, 330, 50, 'R2', '4 kΩ');
-    s.line([[330, 50], [420, 50], [420, 70]]); s.R(420, 70, 420, 170, 'R3', '10 kΩ', 'r'); s.line([[420, 170], [420, 190], [300, 190]]);
-    s.R(200, 190, 300, 190, 'R4', '2 kΩ', 'b'); s.line([[200, 190], [40, 190]]); s.term(40, 190, 'B');
+  function bench() {
+    var s = new Draw.Scene(560, 190, 'A function generator wired directly to an oscilloscope: positive to positive and negative to negative');
+    var g = Draw.fgen(s, 20, 40, { read: '1.000 kHz' });
+    var o = Draw.scope(s, 360, 30, { cycles: 2, amp: 26 });
+    Draw.wire(s, [g.pos, { x: g.pos.x, y: 170 }, { x: o.pos.x, y: 170 }, o.pos], 'red');
+    Draw.wire(s, [g.neg, { x: g.neg.x, y: 160 }, { x: o.neg.x, y: 160 }, o.neg], 'black');
     return s.svg();
   }
-  function schParallel() {
-    var s = new Draw.Sch(480, 240, 'Parallel network: R1 1 kilohm, R2 4 kilohm, R3 10 kilohm and R4 2 kilohm, each connected directly between A and B');
-    s.term(40, 50, 'A'); s.term(40, 200, 'B'); s.line([[40, 50], [420, 50]]); s.line([[40, 200], [420, 200]]);
-    [[120, 'R1', '1 kΩ'], [220, 'R2', '4 kΩ'], [320, 'R3', '10 kΩ'], [420, 'R4', '2 kΩ']].forEach(function (r, i) {
-      s.R(r[0], 50, r[0], 200, r[1], r[2], 'r'); if (i < 3) { s.dot(r[0], 50); s.dot(r[0], 200); }
-    });
+  function waves() {
+    var s = new Draw.Scene(600, 150, 'Three oscilloscope screens showing a sine wave, a square wave, and a triangle wave');
+    Draw.scope(s, 6, 10, { wave: 'sine', label: 'Sine' }); Draw.scope(s, 210, 10, { wave: 'square', label: 'Square' }); Draw.scope(s, 414, 10, { wave: 'triangle', label: 'Triangle' });
     return s.svg();
   }
-  function schSP() {
-    var s = new Draw.Sch(480, 240, 'Series-parallel network: A, R1 10 kilohm to a node; from that node R2 12 kilohm down to a lower node, in parallel with R3 8 kilohm plus R4 4 kilohm; then R5 4 kilohm from the lower node to B');
-    s.term(30, 50, 'A'); s.line([[30, 50], [60, 50]]); s.R(60, 50, 160, 50, 'R1', '10 kΩ'); s.line([[160, 50], [420, 50], [420, 70]]); s.dot(250, 50);
-    s.R(250, 50, 250, 200, 'R2', '12 kΩ', 'r'); s.dot(250, 200);
-    s.R(420, 70, 420, 180, 'R3', '8 kΩ', 'r'); s.line([[420, 180], [420, 200], [400, 200]]); s.R(290, 200, 400, 200, 'R4', '4 kΩ', 'b'); s.line([[290, 200], [250, 200]]);
-    s.line([[250, 200], [160, 200]]); s.R(60, 200, 160, 200, 'R5', '4 kΩ', 'b'); s.line([[60, 200], [30, 200]]); s.term(30, 200, 'B');
+  function schDiv() {
+    var s = new Draw.Sch(420, 230, 'Schematic: an AC source across R1 3 kilohm in series with R2 1 kilohm; one oscilloscope across the source and one across R2');
+    s.ac(60, 40, 190, 'V_s'); s.line([[60, 40], [60, 30], [220, 30], [220, 50]]); s.R(220, 50, 220, 105, 'R1', '3 kΩ', 'l');
+    s.R(220, 115, 220, 175, 'R2', '1 kΩ', 'l'); s.line([[220, 105], [220, 115]]); s.line([[220, 175], [220, 205], [60, 205], [60, 190]]);
+    s.dot(220, 110); s.dot(220, 205); s.line([[220, 110], [330, 110], [330, 128]]); s.meterSym(330, 142, 'O'); s.line([[330, 156], [330, 205], [220, 205]]);
+    s.add('<text x="350" y="146" class="sch-v">scope 2 (across R2)</text>');
+    s.add('<text x="72" y="22" class="sch-v">scope 1 across the source</text>');
     return s.svg();
   }
-  function schPot(rheo) {
-    var s = new Draw.Sch(480, 260, rheo ? 'Potentiometer wired as a rheostat: the wiper, pin 2, is joined to pin 1, so A and B are the same point' : 'Potentiometer circuit: C, R1 10 kilohm, to pin 3 of a 25 kilohm potentiometer; the wiper, pin 2, goes to A; pin 1 goes to node B; R3 5 kilohm runs from B to D');
-    s.term(40, 40, 'C'); s.line([[40, 40], [70, 40]]); s.R(70, 40, 170, 40, 'R1', '10 kΩ'); s.line([[170, 40], [300, 40], [300, 70]]);
-    s.pot(300, 70, 180, 'R2', '25 kΩ', 380);
-    s.line([[380, 125], [440, 125]]); s.term(440, 125, 'A', 'r');
-    if (rheo) { s.dot(380, 125); s.line([[380, 125], [380, 200], [300, 200]]); s.dot(300, 200); }
-    s.line([[300, 180], [300, 225]]); s.dot(300, 225); s.line([[300, 225], [440, 225]]); s.term(440, 225, 'B', 'r');
-    s.line([[300, 225], [170, 225]]); s.R(70, 225, 170, 225, 'R3', '5 kΩ', 'b'); s.line([[70, 225], [40, 225]]); s.term(40, 225, 'D');
-    return s.svg();
-  }
-  function bbParallel() {
-    var s = new Draw.Sch(580, 330, 'Breadboard: four resistors stand across the center channel in columns 6, 11, 16 and 21. Red jumpers join each top end to the top positive rail, which is A. Black jumpers join each bottom end to the bottom negative rail, which is B.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    [[6, 1000, 'R1'], [11, 4000, 'R2'], [16, 10000, 'R3'], [21, 2000, 'R4']].forEach(function (r) {
-      Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
-      Draw.resistor(s, b.p('f' + r[0]), b.p('e' + r[0]), r[1], r[2]);
-      Draw.wire(s, [b.p('a' + r[0]), b.p('b-' + r[0])], 'black');
-    });
-    Draw.note(s, 300, 14, 'A = top + rail   ·   B = bottom − rail', { anchor: 'middle' });
-    return s.svg();
-  }
-  function bbSP() {
-    var s = new Draw.Scene(580, 320, 'Breadboard: A is column 3 top half. R1 runs from column 3 to column 7 in row i. R2 stands across the channel in column 7. R3 runs from column 7 to column 11 in row h. R4 stands across the channel in column 11. A green jumper in row a joins column 11 back to column 7 bottom. R5 runs from column 7 to column 3 in row c, and B is column 3 bottom half.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    Draw.resistor(s, b.p('i3'), b.p('i7'), 10000, 'R1', { ly: -9 });
-    Draw.resistor(s, b.p('f7'), b.p('e7'), 12000, 'R2');
-    Draw.resistor(s, b.p('h7'), b.p('h11'), 8000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('f11'), b.p('e11'), 4000, 'R4');
-    Draw.wire(s, [b.p('a11'), b.p('a7')], 'green');
-    Draw.resistor(s, b.p('c7'), b.p('c3'), 4000, 'R5', { ly: 16 });
-    lbl(s, { x: b.p('j3').x, y: b.p('j3').y - 6 }, 'A'); lbl(s, { x: b.p('a3').x, y: b.p('a3').y + 20 }, 'B');
-    return s.svg();
-  }
-  function bbPot(rheo) {
-    var s = new Draw.Scene(580, 320, rheo ? 'The same breadboard with a yellow jumper in row h joining the wiper column to Terminal 1' : 'Breadboard: a potentiometer with Terminal 1 in column 14, the wiper in 15 and Terminal 2 in 16, all in row j. R3 runs from column 10 to column 14 in row i; R1 runs from column 16 to column 20 in row i. D is column 10, B is column 14, A is column 15, and C is column 20.');
-    var b = new Draw.Board(s, 16, 30).draw();
-    Draw.pot(s, [b.p('j14'), b.p('j15'), b.p('j16')], { label: 'R2 25 kΩ' });
-    Draw.resistor(s, b.p('i10'), b.p('i14'), 5000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('i16'), b.p('i20'), 10000, 'R1', { ly: 17 });
-    if (rheo) Draw.wire(s, [b.p('h14'), b.p('h15')], 'yellow');
-    [['g10', 'D'], ['g14', 'B'], ['g15', 'A'], ['g20', 'C']].forEach(function (x, i) { var p = b.p(x[0]); lbl(s, { x: p.x + (i === 1 ? -3 : i === 2 ? 3 : 0), y: p.y + 30 }, x[1]); });
-    return s.svg();
-  }
-  function tRT(id, ans) {
-    return { t: 'data', title: 'Total resistance, A to B', head: ['', 'Calculated', 'Measured in Tinkercad', '% difference'], rows: [
-      { label: 'R<sub>T</sub>', unit: 'kΩ', cells: [{ id: id + '_c', ans: ans }, { id: id + '_m', ans: ans }, { id: id + '_p', pct: [id + '_c', id + '_m'] }] }] };
-  }
-  function potTable(p, ab, cd, tolAB, tolCD) {
-    return { t: 'data', title: 'Readings as you turn the knob', head: POSH, rows: [
-      { label: 'Predicted A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Measured A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Predicted C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pcd_' + k, ans: cd[i], tol: tolCD[i] }; }) },
-      { label: 'Measured C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mcd_' + k, ans: cd[i], tol: tolCD[i] }; }) }
-    ] };
-  }
-  var T3 = [0.4, 3, 3, 3, 0.4];
+  var F = ['100', '500', '2k', '10k'];
   return {
-    key: 'elec103-lab2-v1', no: 'Lab 2', file: 'ELEC103_Lab2', title: 'Measuring Resistance',
-    lede: 'Predict and measure resistance in series, parallel, and series-parallel networks, then see what a potentiometer’s wiper really does.',
+    key: 'elec103-lab6-v1', no: 'Lab 6', file: 'ELEC103_Lab6', title: 'The Function Generator and Oscilloscope',
+    lede: 'Make your first AC signals and learn to read them: period, frequency, peak, peak-to-peak, RMS, and offset.',
     sections: [
       { id: 'start', tab: 'Start here', title: 'Before you begin', blocks: [
         { t: 'student' },
-        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate total resistance for series, parallel, and series-parallel networks, and confirm it by measurement.</li><li>Identify the three terminals of a potentiometer and explain how the wiper divides its resistance.</li><li>Tell the difference between a potentiometer used as a three-terminal part and one wired as a <strong>rheostat</strong>.</li></ul>' +
-          '<h3>Background</h3><p><strong>Series:</strong> <span class="eq">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + …</span> The total is always larger than the largest resistor.</p>' +
-          '<p><strong>Parallel:</strong> <span class="eq">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + …</span> The total is always smaller than the smallest resistor.</p>' +
-          '<p><strong>Potentiometer:</strong> a fixed resistance between its two outer terminals, with a movable <strong>wiper</strong> in between. Turning the knob changes the resistance from an outer terminal to the wiper, but the outer-to-outer resistance never changes. Connecting the wiper to one outer terminal turns the pot into a two-terminal <strong>rheostat</strong> — a variable resistor.</p>' +
-          '<p>Enter resistances in <strong>kΩ</strong>. You can type <em>540 Ω</em> or <em>0.54k</em> and the page converts it.</p>' },
-        C.reminders, C.ohmRules, C.pctNote
+        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Set a function generator’s frequency, amplitude, waveform, and DC offset.</li><li>Read period and peak-to-peak voltage from an oscilloscope screen, and calculate frequency and RMS.</li><li>Choose a time-per-division setting that shows the cycles you want.</li><li>Show that Ohm’s law and voltage division work for AC signals too.</li></ul>' +
+          '<h3>Background</h3><p>An AC signal repeats. The <strong>period</strong> T is the time for one full cycle, and the <strong>frequency</strong> is how many cycles happen each second: <span class="eq">f = 1 / T</span>, in hertz (Hz). A 1 ms period is 1000 Hz, or 1 kHz.</p>' +
+          '<p>For a sine wave, the <strong>peak</strong> voltage V<sub>p</sub> is measured from zero to the top, the <strong>peak-to-peak</strong> voltage <span class="eq">V<sub>pp</sub> = 2 V<sub>p</sub></span> from bottom to top, and the <strong>RMS</strong> value <span class="eq">V<sub>rms</sub> = 0.707 V<sub>p</sub></span> is the DC voltage that would deliver the same power. A <strong>DC offset</strong> shifts the whole wave up or down.</p>' +
+          '<p>An <strong>oscilloscope</strong> draws voltage (vertical) against time (horizontal). The screen is divided into a grid; the <strong>time per division</strong> setting says how much time each horizontal division represents. Count divisions, multiply by the setting, and you have a time.</p>' },
+        { t: 'callout', k: 'tip', title: 'The instruments in Tinkercad', html: '<ul><li><strong>Function Generator</strong> — set <strong>Frequency</strong>, <strong>Amplitude</strong>, <strong>DC Offset</strong>, and the waveform (sine, square, triangle) in the Inspector. Its + and − terminals are the output.</li><li><strong>Oscilloscope</strong> — the only setting is <strong>Time Per Division</strong>. Tinkercad sets the vertical scale for you and labels it on the screen, so read voltages from the screen’s labels rather than counting volts per division.</li><li>Count horizontal divisions on the screen to measure time. Zoom in on Tinkercad if the screen is small.</li></ul>' },
+        C.reminders
       ] },
-      { id: 'series', tab: 'Series', title: 'Series network', blocks: [
-        { t: 'fig', draw: schSeries, cap: 'Figure 1. Series network.' },
-        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> Calculate the total resistance between A and B.</p>' },
-        { t: 'text', id: 'wA', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 2, html: '<p><strong>Build and measure.</strong> Build Figure 1 (you built this kind of chain in Lab 1). Connect the ohmmeter from A to B and start the simulation.</p>' },
-        tRT('rA', 17),
-        { t: 'shot', id: 'A', label: 'the series network with the meter reading visible' },
-        { t: 'step', n: 3, html: '<p><strong>Change one thing.</strong> Stop the simulation and change R3 from 10 kΩ to 20 kΩ. Predict the new total, measure it, then change R3 back.</p>' },
-        { t: 'nums', items: [{ id: 'a3p', label: 'Predicted with R3 = 20 kΩ', unit: 'kΩ', ans: 27 }, { id: 'a3m', label: 'Measured', unit: 'kΩ', ans: 27 }] }
+      { id: 'read', tab: 'Reading a screen', title: 'Practice reading an oscilloscope screen', blocks: [
+        { t: 'html', html: '<p>Before you use Tinkercad’s scope, practice the skill every scope measurement depends on. Each screen below shows its settings. Count the divisions in one full cycle and from the bottom of the wave to the top, then calculate. Solve at least three screens.</p>' },
+        { t: 'scopequiz', title: 'Scope trainer', waves: ['sine', 'sine', 'square', 'triangle'] },
+        { t: 'callout', title: 'Method', html: '<p><strong>Period</strong> = (divisions in one cycle) × (time per division). <strong>Frequency</strong> = 1 / period. <strong>Peak-to-peak</strong> = (divisions from bottom to top) × (volts per division). Measure a cycle between two matching points, such as two upward zero crossings.</p>' }
       ] },
-      { id: 'par', tab: 'Parallel', title: 'Parallel network', blocks: [
-        { t: 'fig', draw: schParallel, cap: 'Figure 2. Parallel network — the same four resistors, now side by side.' },
-        { t: 'fig', draw: bbParallel, wide: true, cap: 'Figure 3. One way to build it. Each resistor bridges the center channel; the top rail is A and the bottom rail is B.' },
-        { t: 'step', n: 4, html: '<p><strong>Predict.</strong> Calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wB', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 5, html: '<p><strong>Build and measure.</strong> Build the circuit and connect the ohmmeter between the two rails.</p>' },
-        tRT('rB', 0.5405),
-        { t: 'shot', id: 'B', label: 'the parallel network with the meter reading visible' },
-        { t: 'step', n: 6, html: '<p>Your total should be smaller than the smallest resistor (1 kΩ). Is it? Explain in a sentence or two why adding more parallel branches always <strong>lowers</strong> the total resistance.</p>' },
-        { t: 'text', id: 'q6', label: 'Your answer', rows: 3 }
+      { id: 'first', tab: 'First signal', title: 'Your first signal', blocks: [
+        { t: 'fig', draw: bench, cap: 'Figure 1. The function generator connected straight to the oscilloscope.' },
+        { t: 'step', n: 1, html: '<p>Place a Function Generator and an Oscilloscope. Set the generator to a <strong>sine</strong> wave, <strong>1 kHz</strong>, Amplitude <strong>4 V</strong>, DC Offset <strong>0 V</strong>. Set the scope’s Time Per Division to <strong>0.2 ms</strong>. Connect + to + and − to −, and start the simulation.</p>' },
+        { t: 'step', n: 2, html: '<p>Count the divisions in one cycle and calculate the period and frequency. Then read the highest and lowest voltages from the screen labels.</p>' },
+        { t: 'nums', items: [{ id: 'f_div', label: 'Divisions in one cycle', ans: 5, tol: 0.2 }, { id: 'f_T', label: 'Period', unit: 'ms', ans: 1 }, { id: 'f_f', label: 'Frequency', unit: 'Hz', ans: 1000 }] },
+        { t: 'nums', check: false, items: [{ id: 'f_max', label: 'Highest voltage', unit: 'V' }, { id: 'f_min', label: 'Lowest voltage', unit: 'V' }, { id: 'f_pp', label: 'Peak-to-peak', unit: 'V' }, { id: 'f_p', label: 'Peak', unit: 'V' }] },
+        { t: 'shot', id: 'first', label: 'the oscilloscope showing your 1 kHz sine wave' },
+        { t: 'step', n: 3, html: '<p><strong>Investigate.</strong> You set Amplitude to 4 V. Does Tinkercad’s Amplitude setting mean the <em>peak</em> voltage or the <em>peak-to-peak</em> voltage? Use your readings to decide, and explain how you know. Change the Amplitude to 6 V to test your conclusion.</p>' },
+        { t: 'text', id: 'q3', label: 'Your conclusion and evidence', rows: 4 }
       ] },
-      { id: 'sp', tab: 'Series-parallel', title: 'Series-parallel network', blocks: [
-        { t: 'fig', draw: schSP, cap: 'Figure 4. Series-parallel network.' },
-        { t: 'fig', draw: bbSP, wide: true, cap: 'Figure 5. One way to build it. Trace it against Figure 4 before you start: R2 crosses the channel, and R3 and R4 make a second path around it.' },
-        { t: 'step', n: 7, html: '<p><strong>Predict.</strong> Decide which resistors are in series and which are in parallel. Reduce the network one step at a time and calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wC', label: 'Show each reduction step', rows: 5, work: true },
-        { t: 'step', n: 8, html: '<p><strong>Build and measure.</strong></p>' },
-        tRT('rC', 20),
-        { t: 'shot', id: 'C', label: 'the series-parallel network with the meter reading visible' },
-        { t: 'step', n: 9, html: '<p><strong>Open a branch.</strong> Stop the simulation and delete one end of R2 so its branch is open. Predict and measure R<sub>T</sub>, then explain why it went up.</p>' },
-        { t: 'nums', items: [{ id: 'c9p', label: 'Predicted with R2 open', unit: 'kΩ', ans: 30 }, { id: 'c9m', label: 'Measured', unit: 'kΩ', ans: 30 }] },
-        { t: 'text', id: 'q9', label: 'Why did it increase?', rows: 3 }
+      { id: 'freq', tab: 'Frequency', title: 'Frequency and time per division', blocks: [
+        { t: 'step', n: 4, html: '<p>For each frequency below, choose a Time Per Division that shows about <strong>two cycles</strong> across the screen. Hint: two cycles across 10 divisions means each division is one-fifth of a period. Record your setting, measure the period from the screen, and calculate the frequency.</p>' },
+        { t: 'data', title: 'Sine wave, Amplitude 4 V', head: ['Generator frequency', '100 Hz', '500 Hz', '2 kHz', '10 kHz'], rows: [
+          { label: 'Time per division you chose', cells: F.map(function (k) { return { id: 'td_' + k, free: true }; }) },
+          { label: 'Divisions per cycle', cells: F.map(function (k) { return { id: 'dv_' + k }; }) },
+          C.row('Period measured', 'ms', 'tp', F, [10, 2, 0.5, 0.1]),
+          C.row('Frequency = 1/T', 'Hz', 'tf', F, [100, 500, 2000, 10000])] },
+        { t: 'step', n: 5, html: '<p>Set the generator to 2 kHz but leave the scope at 2 ms per division. Describe what the screen shows and why. Which setting would you change, and in which direction, to see the wave clearly?</p>' },
+        { t: 'text', id: 'q5', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'pot', tab: 'Potentiometer', title: 'Potentiometer, three-terminal connection', blocks: [
-        { t: 'fig', draw: function () { return schPot(false); }, cap: 'Figure 6. A 25 kΩ potentiometer between R1 and R3.' },
-        { t: 'fig', draw: function () { return bbPot(false); }, wide: true, cap: 'Figure 7. One way to build it. In Tinkercad, hover over a pot terminal to see its name: schematic pin 1 is <strong>Terminal 1</strong>, pin 2 is the <strong>Wiper</strong>, and pin 3 is <strong>Terminal 2</strong>.' },
-        { t: 'callout', k: 'tip', title: 'Turning the knob', html: '<p>Set the pot to 25 kΩ in the Inspector. To turn it, <strong>click and drag the knob while the simulation is running</strong>. The exact ¼, ½, and ¾ positions are approximate — get close and record what you see.</p>' },
-        { t: 'step', n: 10, html: '<p><strong>Predict</strong> both “Predicted” rows before you build. Think about which parts are between A and B, and which are between C and D.</p>' },
-        { t: 'step', n: 11, html: '<p>Build the circuit. Connect <strong>one</strong> ohmmeter between <strong>A and B</strong>, start the simulation, and sweep the knob from full counter-clockwise to full clockwise, recording A–B at each position.</p>' },
-        { t: 'step', n: 12, html: '<p>Stop the simulation, move the probes to <strong>C and D</strong>, and repeat the sweep.</p>' },
-        potTable('d', [[0, 25], [6.25, 18.75], 12.5, [18.75, 6.25], [25, 0]], [40, 40, 40, 40, 40], T3, [0.5, 0.5, 0.5, 0.5, 0.5]),
-        { t: 'shot', id: 'D', label: 'the potentiometer circuit with a reading visible' },
-        { t: 'step', n: 13, html: '<p>(a) What happened to the A–B resistance as you turned the knob, and did it increase clockwise or counter-clockwise? (b) What happened to the C–D resistance? (c) Explain <strong>why</strong> C–D behaved that way.</p>' },
-        { t: 'text', id: 'q13', label: 'Your observations', rows: 6 },
-        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Connect a <strong>second</strong> ohmmeter so that A–B and C–D are measured at the same time. Do the readings still match your one-meter readings? Use the ohmmeter rules to explain what you see, and what would happen on a real bench.</p>' },
+      { id: 'shapes', tab: 'Waveforms', title: 'Sine, square, and triangle waves', blocks: [
+        { t: 'fig', draw: waves, wide: true, cap: 'Figure 2. The three waveforms the generator can make.' },
+        { t: 'step', n: 6, html: '<p>At 1 kHz and Amplitude 4 V, switch the generator between sine, square, and triangle. Take a screenshot of the square and triangle waves.</p>' },
+        { t: 'shot', id: 'square', label: 'the square wave' },
+        { t: 'shot', id: 'tri', label: 'the triangle wave' },
+        { t: 'step', n: 7, html: '<p>Do the three waveforms have the same period and the same peak-to-peak voltage? Describe how they differ in shape — in particular, how quickly the square wave changes compared with the others.</p>' },
+        { t: 'text', id: 'q7', label: 'Your answer', rows: 4 },
+        { t: 'step', n: 8, html: '<p><strong>RMS.</strong> Using the peak voltage you measured for the sine wave in Part 3, calculate its RMS value. A sine wave with this RMS value would heat a resistor exactly as much as a DC supply set to that voltage.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'vp', label: 'Peak (from Part 3)', unit: 'V' }, { id: 'vrms', label: 'RMS = 0.707 × V<sub>p</sub>', unit: 'V' }] }
+      ] },
+      { id: 'offset', tab: 'DC offset', title: 'Adding a DC offset', blocks: [
+        { t: 'step', n: 9, html: '<p>Return to a 1 kHz sine wave, Amplitude 4 V, and set the DC Offset to <strong>2 V</strong>. Read the highest and lowest voltages, and calculate the average of the two.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'o_max', label: 'Highest voltage', unit: 'V' }, { id: 'o_min', label: 'Lowest voltage', unit: 'V' }] },
+        { t: 'nums', items: [{ id: 'o_avg', label: '(highest + lowest) / 2', unit: 'V', ans: 2, tol: 0.15 }] },
+        { t: 'shot', id: 'offset', label: 'the sine wave with a 2 V offset' },
+        { t: 'step', n: 10, html: '<p>What did the offset change, and what stayed the same? Find an offset that makes the wave stay entirely <strong>above</strong> 0 V, and explain how you chose it.</p>' },
+        { t: 'text', id: 'q10', label: 'Your answer', rows: 4 }
+      ] },
+      { id: 'ohm', tab: 'AC in a circuit', title: 'Ohm’s law and voltage division with AC', blocks: [
+        { t: 'fig', draw: schDiv, cap: 'Figure 3. An AC source across two resistors, with one oscilloscope across the source and a second across R2.' },
+        { t: 'step', n: 11, html: '<p>Build the circuit with the generator at 1 kHz, sine, offset 0. Use a breadboard for the resistors. Connect one oscilloscope across the generator and a second across <strong>R2</strong>, and set both to 0.2 ms per division.</p>' },
+        { t: 'step', n: 12, html: '<p>Read the peak-to-peak voltage on each scope and calculate the ratio. Then predict the ratio from the resistor values.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'd_src', label: 'V<sub>pp</sub> across the source', unit: 'V' }, { id: 'd_r2', label: 'V<sub>pp</sub> across R2', unit: 'V' }] },
+        { t: 'nums', items: [{ id: 'd_ratio', label: 'Measured ratio, V<sub>R2</sub> / V<sub>source</sub>', ans: 0.25, tol: 0.02 }, { id: 'd_pred', label: 'Predicted ratio, R2 / (R1 + R2)', ans: 0.25, tol: 0.005 }] },
+        { t: 'shot', id: 'div', label: 'both oscilloscopes showing their waveforms' },
+        { t: 'step', n: 13, html: '<p>Calculate the peak current through R2 using Ohm’s law. Do the two waveforms rise and fall at the same times? What does this tell you about using Ohm’s law with AC in a resistor circuit?</p>' },
+        { t: 'text', id: 'q13', label: 'Your answer', rows: 4 },
+        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Put a multimeter in <strong>Voltage</strong> mode across the generator while it makes a 1 kHz sine wave. Record what the meter shows and compare it with your peak and RMS values. Why might a meter and an oscilloscope report different numbers for the same signal?</p>' },
         { t: 'text', id: 'inv', label: 'What you saw (optional)', rows: 3, optional: true }
       ] },
-      { id: 'rheo', tab: 'Rheostat', title: 'Potentiometer wired as a rheostat', blocks: [
-        { t: 'fig', draw: function () { return schPot(true); }, cap: 'Figure 8. The same circuit with the wiper joined to pin 1.' },
-        { t: 'fig', draw: function () { return bbPot(true); }, wide: true, cap: 'Figure 9. Add the yellow jumper between the wiper column and Terminal 1.' },
-        { t: 'step', n: 14, html: '<p>Add the jumper from the <strong>Wiper</strong> to <strong>Terminal 1</strong>. Before measuring, fill in both “Predicted” rows.</p>' },
-        { t: 'step', n: 15, html: '<p>Using <strong>one</strong> ohmmeter, sweep the knob and record A–B. Then move the probes to C–D and sweep again.</p>' },
-        potTable('e', [0, 0, 0, 0, 0], [[15, 40], [21.25, 33.75], 27.5, [33.75, 21.25], [40, 15]], [0.05, 0.05, 0.05, 0.05, 0.05], [0.5, 3, 3, 3, 0.5]),
-        { t: 'shot', id: 'E', label: 'the rheostat circuit with a reading visible' },
-        { t: 'step', n: 16, html: '<p>(a) Why does A–B read about 0 Ω at every knob position? (b) What are the smallest and largest C–D readings, and where do those numbers come from? (c) In your own words, what is the difference between a potentiometer and a rheostat?</p>' },
-        { t: 'text', id: 'q16', label: 'Your observations', rows: 6 }
-      ] },
       { id: 'wrap', tab: 'Conclusion', title: 'Conclusion', blocks: [
-        { t: 'html', html: '<p>In a short paragraph, summarize how resistances combine in series and in parallel, and how the way the potentiometer was wired decided whether a resistance changed as you turned the knob.</p>' },
+        { t: 'html', html: '<p>In a short paragraph, explain how you measure period, frequency, and peak-to-peak voltage on an oscilloscope, how you chose a time-per-division setting, and what DC offset does to a waveform.</p>' },
         { t: 'text', id: 'concl', label: 'Conclusion', rows: 8 },
         { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas.</p>' }
       ] }

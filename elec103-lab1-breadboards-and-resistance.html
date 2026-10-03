@@ -700,6 +700,31 @@ footer.site { border-top: 1px solid var(--rule); padding: 1.5rem 0 2rem; font-fa
 
 table.data.ref td { font-family: var(--font-ui); text-align: left; white-space: normal; }
 
+.led-body { stroke: rgba(0,0,0,.35); stroke-width: .8; }
+.ldr-body { fill: #E7C77C; stroke: #9C7A2F; }
+.ldr-zig { fill: none; stroke: #7A4A24; stroke-width: 1.2; }
+.fg-wave { fill: none; stroke: #15212C; stroke-width: 1.6; }
+.scope-scr { fill: #0E2A1E; }
+.scope-grid { stroke: #2C5A44; stroke-width: .6; }
+.scope-trace { fill: none; stroke: #7DE3A1; stroke-width: 1.8; }
+.sch-led { fill: var(--surface); stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; }
+/* scope trainer */
+.scope-art svg { max-width: 34rem; }
+.st-scr { fill: #0E2A1E; }
+.st-grid { stroke: #2C5A44; stroke-width: 1; }
+.st-axis { stroke: #3F7A5C; stroke-width: 1.4; }
+.st-trace { fill: none; stroke: #7DE3A1; stroke-width: 2.4; }
+.st-lab { font-family: var(--font-num); font-size: 13px; fill: var(--ink); }
+.secret-box { border: 1px dashed var(--rule); border-radius: var(--r-md); padding: .8rem 1rem; background: var(--surface); margin: .8rem 0; max-width: var(--measure); font-family: var(--font-ui); font-size: .92rem; }
+.secret-box ol { margin: .4rem 0 0; }
+
+.sk-tools, .sk-opts { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .5rem; font-family: var(--font-ui); font-size: .86rem; }
+.sk-tool[aria-pressed="true"] { background: var(--bench); color: #EAF1F6; border-color: var(--bench); font-weight: 600; }
+.sk-text { font: inherit; font-size: .9rem; padding: .4rem .5rem; min-height: 40px; width: 11rem; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); }
+.sk-opts .ck { padding: 0 .4rem; }
+.sk-frame { border: 1px solid var(--rule); border-radius: var(--r-md); overflow: hidden; background: #fff; }
+.sk-canvas { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; }
+
 </style>
 </head>
 <body>
@@ -933,6 +958,64 @@ var Draw = (function () {
     scene.add('<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="arr-head"/></marker></defs>');
   }
 
+
+  /* ---- LED on a breadboard: anode (+) leg first ---- */
+  function led(scene, a, c, opt) {
+    opt = opt || {};
+    var col = opt.color || '#d33a2c', mx = (a.x + c.x) / 2, my = Math.min(a.y, c.y) - (opt.up === false ? -16 : 16);
+    var g = ['<line x1="' + f(a.x) + '" y1="' + f(a.y) + '" x2="' + f(mx - 3) + '" y2="' + f(my + 5) + '" class="lead"/>',
+      '<line x1="' + f(c.x) + '" y1="' + f(c.y) + '" x2="' + f(mx + 3) + '" y2="' + f(my + 5) + '" class="lead"/>', foot(a), foot(c)];
+    g.push('<path d="M' + f(mx - 7) + ' ' + f(my + 6) + ' L' + f(mx - 7) + ' ' + f(my - 3) + ' A7 7 0 0 1 ' + f(mx + 7) + ' ' + f(my - 3) + ' L' + f(mx + 7) + ' ' + f(my + 6) + ' Z" fill="' + col + '" class="led-body"/>');
+    if (opt.lit) g.push('<circle cx="' + f(mx) + '" cy="' + f(my - 2) + '" r="13" fill="' + col + '" opacity=".28"/>');
+    g.push('<text x="' + f(a.x) + '" y="' + f(a.y + 14) + '" class="pin-l">+</text>');
+    if (opt.label) g.push('<text x="' + f(mx + 11) + '" y="' + f(my - 4) + '" class="part-l">' + esc(opt.label) + '</text>');
+    scene.top(g.join(''));
+  }
+  /* ---- Photoresistor on a breadboard ---- */
+  function ldr(scene, a, b, opt) {
+    opt = opt || {};
+    var mx = (a.x + b.x) / 2, my = Math.min(a.y, b.y) - 14;
+    var g = [lead(a, { x: mx - 4, y: my }), lead(b, { x: mx + 4, y: my }), foot(a), foot(b)];
+    g.push('<circle cx="' + f(mx) + '" cy="' + f(my) + '" r="9" class="ldr-body"/>');
+    g.push('<path d="M' + f(mx - 5) + ' ' + f(my - 3) + ' h3 v6 h3 v-6 h3 v6" class="ldr-zig"/>');
+    if (opt.label) g.push('<text x="' + f(mx + 12) + '" y="' + f(my - 4) + '" class="part-l">' + esc(opt.label) + '</text>');
+    scene.top(g.join(''));
+  }
+  /* ---- Function generator and oscilloscope (generic) ---- */
+  function fgen(scene, x, y, opt) {
+    opt = opt || {};
+    var w = 160, h = 92, g = [];
+    g.push('<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" class="psu-body"/>');
+    g.push('<rect x="' + (x + 10) + '" y="' + (y + 10) + '" width="92" height="30" rx="2" class="dmm-lcd"/>');
+    g.push('<text x="' + (x + 96) + '" y="' + (y + 30) + '" class="psu-read" text-anchor="end">' + esc(opt.read || '1.000 kHz') + '</text>');
+    g.push('<path d="M' + (x + 112) + ' ' + (y + 25) + ' q6 -12 12 0 t12 0" class="fg-wave"/>');
+    g.push('<circle cx="' + (x + 30) + '" cy="' + (y + 58) + '" r="9" class="pot-knob"/><circle cx="' + (x + 58) + '" cy="' + (y + 58) + '" r="9" class="pot-knob"/>');
+    var pos = { x: x + 112, y: y + h - 14 }, neg = { x: x + 136, y: y + h - 14 };
+    g.push('<circle cx="' + pos.x + '" cy="' + pos.y + '" r="6" class="jack-pos"/><circle cx="' + neg.x + '" cy="' + neg.y + '" r="6" class="jack-com"/>');
+    g.push('<text x="' + (x + 12) + '" y="' + (y + h - 8) + '" class="part-l">' + esc(opt.label || 'Function generator') + '</text>');
+    scene.top(g.join(''));
+    return { pos: pos, neg: neg };
+  }
+  function scope(scene, x, y, opt) {
+    opt = opt || {};
+    var w = 180, h = 120, g = [], sx = x + 10, sy = y + 10, sw = 160, sh = 80, i;
+    g.push('<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="7" class="dmm-body"/>');
+    g.push('<rect x="' + sx + '" y="' + sy + '" width="' + sw + '" height="' + sh + '" class="scope-scr"/>');
+    for (i = 1; i < 10; i++) g.push('<line x1="' + (sx + i * 16) + '" y1="' + sy + '" x2="' + (sx + i * 16) + '" y2="' + (sy + sh) + '" class="scope-grid"/>');
+    for (i = 1; i < 8; i++) g.push('<line x1="' + sx + '" y1="' + (sy + i * 10) + '" x2="' + (sx + sw) + '" y2="' + (sy + i * 10) + '" class="scope-grid"/>');
+    var cyc = opt.cycles || 2, amp = opt.amp == null ? 24 : opt.amp, pts = [];
+    for (i = 0; i <= 160; i++) {
+      var t = i / 160 * cyc * 2 * Math.PI, v = opt.wave === 'square' ? (Math.sin(t) >= 0 ? 1 : -1) : opt.wave === 'triangle' ? 2 / Math.PI * Math.asin(Math.sin(t)) : Math.sin(t);
+      pts.push(f(sx + i) + ',' + f(sy + sh / 2 - (opt.offset || 0) - amp * v));
+    }
+    g.push('<polyline points="' + pts.join(' ') + '" class="scope-trace"/>');
+    var pos = { x: x + w - 46, y: y + h - 12 }, neg = { x: x + w - 22, y: y + h - 12 };
+    g.push('<circle cx="' + pos.x + '" cy="' + pos.y + '" r="5.5" class="jack-pos"/><circle cx="' + neg.x + '" cy="' + neg.y + '" r="5.5" class="jack-com"/>');
+    g.push('<text x="' + (x + 12) + '" y="' + (y + h - 8) + '" class="jack-l" text-anchor="start">' + esc(opt.label || 'Oscilloscope') + '</text>');
+    scene.top(g.join(''));
+    return { pos: pos, neg: neg };
+  }
+
   /* ---- Schematics ---- */
   function Sch(w, h, title) { Scene.call(this, w, h, title); }
   Sch.prototype = Object.create(Scene.prototype);
@@ -1007,9 +1090,35 @@ var Draw = (function () {
     return this.add('<text x="' + x + '" y="' + (y + 5) + '" class="sch-ml" text-anchor="middle">' + esc(letter) + '</text>');
   };
 
+
+  // Vertical LED, anode on top (current flows down)
+  Sch.prototype.led = function (x, y1, y2, name, side) {
+    var cy = (y1 + y2) / 2;
+    this.line([[x, y1], [x, cy - 10]]); this.line([[x, cy + 9], [x, y2]]);
+    this.add('<path d="M' + (x - 10) + ' ' + (cy - 10) + ' L' + (x + 10) + ' ' + (cy - 10) + ' L' + x + ' ' + (cy + 8) + ' Z" class="sch-led"/>');
+    this.add('<line x1="' + (x - 10) + '" y1="' + (cy + 9) + '" x2="' + (x + 10) + '" y2="' + (cy + 9) + '" class="sch-w"/>');
+    this.add('<path d="M' + (x + 12) + ' ' + (cy - 6) + ' l8 -8 M' + (x + 16) + ' ' + (cy) + ' l8 -8" class="sch-w"/>');
+    var lx = side === 'l' ? x - 14 : x + 28, an = side === 'l' ? 'end' : 'start';
+    return this.add('<text x="' + lx + '" y="' + (cy + 4) + '" class="sch-n" text-anchor="' + an + '">' + esc(name) + '</text>');
+  };
+  // Vertical AC source (circle with sine)
+  Sch.prototype.ac = function (x, y1, y2, label) {
+    var cy = (y1 + y2) / 2;
+    this.line([[x, y1], [x, cy - 18]]); this.line([[x, cy + 18], [x, y2]]);
+    this.add('<circle cx="' + x + '" cy="' + cy + '" r="18" class="sch-meter"/>');
+    this.add('<path d="M' + (x - 10) + ' ' + cy + ' q5 -12 10 0 t10 0" class="sch-w"/>');
+    return this.add('<text x="' + (x - 24) + '" y="' + (cy + 5) + '" class="sch-n" text-anchor="end">' + esc(label) + '</text>');
+  };
+  // Photoresistor: resistor with two incoming light arrows
+  Sch.prototype.ldr = function (x, y1, y2, name, side) {
+    this.R(x, y1, x, y2, name, '', side);
+    var cy = (y1 + y2) / 2, dx = side === 'l' ? 14 : -14;
+    return this.add('<path d="M' + (x - dx * 2.2) + ' ' + (cy - 22) + ' l' + (dx * 1.1) + ' 10 M' + (x - dx * 2.2) + ' ' + (cy - 8) + ' l' + (dx * 1.1) + ' 10" class="sch-w" marker-end="url(#arr)"/>');
+  };
+
   return {
     Scene: Scene, Board: Board, Sch: Sch, resistor: resistor, wire: wire, pot: pot, meter: meter, supply: supply,
-    note: note, arrow: arrow, defs: defs, bands: bands, BAND: BAND, BAND_NAMES: BAND_NAMES, GOLD: GOLD, SILVER: SILVER,
+    note: note, arrow: arrow, led: led, ldr: ldr, fgen: fgen, scope: scope, defs: defs, bands: bands, BAND: BAND, BAND_NAMES: BAND_NAMES, GOLD: GOLD, SILVER: SILVER,
     multColor: multColor, multName: multName, fmtOhms: fmtOhms, esc: esc
   };
 })();
@@ -1163,8 +1272,9 @@ window.LAB = (function () {
       { id: 'trace', tab: 'Trace the path', title: 'Trace the path', blocks: [
         { t: 'step', n: 9, html: '<p>For each layout, start at the red probe and follow the path to the black probe, through every wire, resistor, and connected breadboard strip. How many different paths are there from start to end?</p>' },
         { t: 'nums', items: [{ id: 'paths', label: 'Number of paths', ans: 1, tol: 0 }] },
-        { t: 'step', n: 10, html: '<p>Draw <strong>one schematic</strong> — resistor symbols and lines, not a picture of the breadboard — that represents all three layouts. Label R1, R2, R3 and their values. Draw it on paper or in any drawing app, photograph or screenshot it, and add it below.</p>' },
-        { t: 'shot', id: 'sch', label: 'your schematic drawing' },
+        { t: 'step', n: 10, html: '<p>Draw <strong>one schematic</strong> — resistor symbols and lines, not a picture of the breadboard — that represents all three layouts. Include the meter’s two connection points, and label R1, R2, R3 and their values.</p><p>Use the drawing pad below: the <strong>Resistor</strong> tool draws a zig-zag symbol between the two points you drag between, <strong>Line</strong> draws wires, and <strong>Text</strong> places labels. If you prefer to draw on paper, photograph it and add it in the box under the pad instead.</p>' },
+        { t: 'sketch', id: 'sch', label: 'your schematic', alt: 'schphoto' },
+        { t: 'shot', id: 'schphoto', label: 'a photo of a hand-drawn schematic (only if you did not use the drawing pad)', plain: true, optional: true },
         { t: 'step', n: 11, html: '<p>The three layouts look very different on the board. Explain why they all give the same reading.</p>' },
         { t: 'text', id: 'q11', label: 'Your answer', rows: 4 }
       ] },
@@ -1496,7 +1606,7 @@ window.LAB = (function () {
   R.shot = function (b, sec) {
     ITEMS.push({ kind: 'shot', id: b.id, label: b.label, section: sec, optional: b.optional });
     var wrap = el('div', { cls: 'shot' });
-    wrap.appendChild(el('h4', { cls: 'data-title', html: 'Screenshot: ' + b.label }));
+    wrap.appendChild(el('h4', { cls: 'data-title', html: (b.plain ? 'Image: ' : 'Tinkercad screenshot: ') + b.label }));
     var zone = el('div', { cls: 'shot-zone', tabindex: '0', role: 'group', 'aria-label': 'Screenshot area for ' + b.label + '. Focus here and press Control V or Command V to paste.' });
     var msg = el('p', { cls: 'shot-msg', 'aria-live': 'polite' });
     var file = el('input', { type: 'file', accept: 'image/*', id: 'f-' + b.id, cls: 'sr-file' });
@@ -1548,6 +1658,116 @@ window.LAB = (function () {
     var items = (e.clipboardData || {}).items || [];
     for (var i = 0; i < items.length; i++) if (/^image\//.test(items[i].type)) { e.preventDefault(); activeShot(items[i].getAsFile()); return; }
   });
+
+
+  /* Sketch pad: pen, straight lines, resistor symbols, text; saves a PNG like a screenshot */
+  R.sketch = function (b, sec) {
+    ITEMS.push({ kind: 'shot', id: b.id, label: b.label, section: sec, optional: b.optional, alt: b.alt });
+    var W = 960, H = 560, GRID = 20;
+    var opsKey = SHOT_PREFIX + b.id + '-ops';
+    var ops = []; try { ops = JSON.parse(localStorage.getItem(opsKey) || '[]'); } catch (e) { ops = []; }
+    var tool = 'line', cur = null, snap = true;
+    var wrap = el('div', { cls: 'tool sketch' });
+    wrap.appendChild(el('div', { cls: 'tool-head' }, [el('h3', { html: 'Drawing: ' + b.label })]));
+    var body = el('div', { cls: 'tool-body' });
+    var tools = el('div', { cls: 'sk-tools', role: 'toolbar', 'aria-label': 'Drawing tools' });
+    var TOOLS = [['line', 'Line'], ['res', 'Resistor'], ['pen', 'Freehand'], ['dot', 'Junction dot'], ['text', 'Text'], ['erase', 'Eraser']];
+    var btns = {};
+    TOOLS.forEach(function (t) {
+      var bt = el('button', { type: 'button', cls: 'btn sk-tool', 'aria-pressed': t[0] === tool ? 'true' : 'false', text: t[1] });
+      bt.addEventListener('click', function () { tool = t[0]; Object.keys(btns).forEach(function (k) { btns[k].setAttribute('aria-pressed', k === tool ? 'true' : 'false'); }); hint(); });
+      btns[t[0]] = bt; tools.appendChild(bt);
+    });
+    var txt = el('input', { type: 'text', id: 'sk-t-' + b.id, value: 'R1 2 kΩ', autocomplete: 'off', cls: 'sk-text' });
+    var snapBox = el('input', { type: 'checkbox', id: 'sk-s-' + b.id }); snapBox.checked = true;
+    snapBox.addEventListener('change', function () { snap = snapBox.checked; });
+    var undo = el('button', { type: 'button', cls: 'btn', text: 'Undo' }), clr = el('button', { type: 'button', cls: 'btn ghost', text: 'Clear all' });
+    var opts = el('div', { cls: 'sk-opts' }, [
+      el('label', { 'for': 'sk-t-' + b.id, text: 'Text to place:' }), txt,
+      el('span', { cls: 'ck' }, [snapBox, el('label', { 'for': 'sk-s-' + b.id, text: 'Snap to grid' })]), undo, clr]);
+    var cv = el('canvas', { width: W, height: H, cls: 'sk-canvas', role: 'img', 'aria-label': 'Drawing area for ' + b.label });
+    var cx = cv.getContext('2d');
+    var msg = el('p', { cls: 'shot-msg', 'aria-live': 'polite' });
+    function hint() {
+      var h = { line: 'Drag to draw a straight wire.', res: 'Drag from one end of the resistor to the other — horizontal or vertical works best.', pen: 'Hold the mouse button and draw freely.', dot: 'Click to place a junction dot where wires connect.', text: 'Type a label in the box, then click where it should go.', erase: 'Click on a line, resistor, dot, or label to remove it.' };
+      msg.textContent = h[tool];
+    }
+    function sn(p) { return snap ? { x: Math.round(p.x / GRID) * GRID, y: Math.round(p.y / GRID) * GRID } : p; }
+    function pt(e) { var r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+    function drawOp(o, ghost) {
+      cx.strokeStyle = ghost ? '#6b8fd6' : '#111'; cx.fillStyle = cx.strokeStyle; cx.lineWidth = 3; cx.lineCap = 'round'; cx.lineJoin = 'round';
+      if (o.t === 'line') { cx.beginPath(); cx.moveTo(o.a.x, o.a.y); cx.lineTo(o.b.x, o.b.y); cx.stroke(); }
+      else if (o.t === 'pen') { cx.beginPath(); o.p.forEach(function (q, i) { if (i) cx.lineTo(q[0], q[1]); else cx.moveTo(q[0], q[1]); }); cx.stroke(); }
+      else if (o.t === 'dot') { cx.beginPath(); cx.arc(o.a.x, o.a.y, 6, 0, 7); cx.fill(); }
+      else if (o.t === 'text') { cx.font = '22px "IBM Plex Sans", "Segoe UI", Arial, sans-serif'; cx.textBaseline = 'middle'; cx.fillText(o.s, o.a.x, o.a.y); }
+      else if (o.t === 'res') {
+        var dx = o.b.x - o.a.x, dy = o.b.y - o.a.y, L = Math.sqrt(dx * dx + dy * dy); if (L < 4) return;
+        var ux = dx / L, uy = dy / L, nx = -uy, ny = ux, zl = Math.min(80, L * 0.6), s0 = (L - zl) / 2, n = 6, amp = 12;
+        cx.beginPath(); cx.moveTo(o.a.x, o.a.y); cx.lineTo(o.a.x + ux * s0, o.a.y + uy * s0);
+        for (var i = 0; i < n; i++) { var d = s0 + (i + 0.5) * zl / n, k = i % 2 ? amp : -amp; cx.lineTo(o.a.x + ux * d + nx * k, o.a.y + uy * d + ny * k); }
+        cx.lineTo(o.a.x + ux * (s0 + zl), o.a.y + uy * (s0 + zl)); cx.lineTo(o.b.x, o.b.y); cx.stroke();
+      }
+    }
+    function redraw(extra) {
+      cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+      cx.strokeStyle = '#e3e8ee'; cx.lineWidth = 1;
+      for (var x = GRID; x < W; x += GRID) { cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, H); cx.stroke(); }
+      for (var y = GRID; y < H; y += GRID) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke(); }
+      ops.forEach(function (o) { drawOp(o); });
+      if (extra) drawOp(extra, true);
+    }
+    var saveT = null;
+    function persist() {
+      try { localStorage.setItem(opsKey, JSON.stringify(ops)); } catch (e) {}
+      clearTimeout(saveT);
+      saveT = setTimeout(function () {
+        if (!ops.length) { putShot(b.id, null); delete shotMem[b.id]; updateProgress(); return; }
+        var data = cv.toDataURL('image/png');
+        if (putShot(b.id, data)) delete shotMem[b.id]; else { shotMem[b.id] = data; msg.textContent = 'Browser storage is full; build your report before closing this tab.'; }
+        updateProgress();
+      }, 300);
+    }
+    function distSeg(p, a, c) { var dx = c.x - a.x, dy = c.y - a.y, l = dx * dx + dy * dy, t = l ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l)) : 0; var qx = a.x + t * dx - p.x, qy = a.y + t * dy - p.y; return Math.sqrt(qx * qx + qy * qy); }
+    function hit(p, o) {
+      if (o.t === 'line' || o.t === 'res') return distSeg(p, o.a, o.b) < 14;
+      if (o.t === 'dot') return Math.hypot(p.x - o.a.x, p.y - o.a.y) < 12;
+      if (o.t === 'text') return p.x > o.a.x - 6 && p.x < o.a.x + o.s.length * 12 + 6 && Math.abs(p.y - o.a.y) < 16;
+      if (o.t === 'pen') return o.p.some(function (q) { return Math.hypot(p.x - q[0], p.y - q[1]) < 12; });
+      return false;
+    }
+    cv.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); cv.setPointerCapture(e.pointerId);
+      var p = pt(e);
+      if (tool === 'erase') { for (var i = ops.length - 1; i >= 0; i--) if (hit(p, ops[i])) { ops.splice(i, 1); redraw(); persist(); break; } return; }
+      if (tool === 'dot') { ops.push({ t: 'dot', a: sn(p) }); redraw(); persist(); return; }
+      if (tool === 'text') { var s = txt.value.trim(); if (!s) { msg.textContent = 'Type a label in the text box first.'; return; } ops.push({ t: 'text', a: sn(p), s: s }); redraw(); persist(); return; }
+      if (tool === 'pen') cur = { t: 'pen', p: [[Math.round(p.x), Math.round(p.y)]] };
+      else { var q = sn(p); cur = { t: tool, a: q, b: q }; }
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!cur) return;
+      var p = pt(e);
+      if (cur.t === 'pen') { var l = cur.p[cur.p.length - 1]; if (Math.hypot(p.x - l[0], p.y - l[1]) > 2) cur.p.push([Math.round(p.x), Math.round(p.y)]); }
+      else cur.b = sn(p);
+      redraw(cur);
+    });
+    function finish() {
+      if (!cur) return;
+      var ok = cur.t === 'pen' ? cur.p.length > 1 : (cur.a.x !== cur.b.x || cur.a.y !== cur.b.y);
+      if (ok) ops.push(cur);
+      cur = null; redraw(); if (ok) persist();
+    }
+    cv.addEventListener('pointerup', finish); cv.addEventListener('pointercancel', finish);
+    undo.addEventListener('click', function () { if (ops.length) { ops.pop(); redraw(); persist(); msg.textContent = 'Last item removed.'; } });
+    clr.addEventListener('click', function () { if (!ops.length || !window.confirm('Erase the whole drawing?')) return; ops = []; redraw(); persist(); msg.textContent = 'Drawing cleared.'; });
+    body.appendChild(tools); body.appendChild(opts);
+    body.appendChild(el('div', { cls: 'sk-frame' }, [cv]));
+    body.appendChild(msg);
+    wrap.appendChild(body);
+    redraw(); hint();
+    if (ops.length && !getShot(b.id)) persist();
+    return wrap;
+  };
 
   /* Graph from the student's own entries */
   function graphSVG(b) {
@@ -1773,6 +1993,88 @@ window.LAB = (function () {
     return wrap;
   };
 
+
+  /* Oscilloscope reading trainer: random screens with known scales */
+  R.scopequiz = function (b) {
+    var wrap = el('div', { cls: 'tool' });
+    wrap.appendChild(el('div', { cls: 'tool-head' }, [el('h3', { text: b.title || 'Reading the screen' })]));
+    var body = el('div', { cls: 'tool-body' });
+    var art = el('div', { cls: 'fig-art scope-art' }), info = el('p', { cls: 'band-out' });
+    var fT = el('input', { id: 'sqT', type: 'text', inputmode: 'decimal', autocomplete: 'off' });
+    var fF = el('input', { id: 'sqF', type: 'text', inputmode: 'decimal', autocomplete: 'off' });
+    var fV = el('input', { id: 'sqV', type: 'text', inputmode: 'decimal', autocomplete: 'off' });
+    var fb = el('div', { cls: 'feedback', 'aria-live': 'polite' }), cur, score = 0, tries = 0;
+    var TD = [0.1, 0.2, 0.5, 1, 2], VD = [0.5, 1, 2, 5], CYC = [2, 2.5, 4, 5], PK = [1, 1.5, 2, 2.5, 3];
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    function newOne() {
+      var td = pick(TD), vd = pick(VD), divs = pick(CYC), pk = pick(PK), wave = b.waves ? pick(b.waves) : 'sine';
+      cur = { td: td, vd: vd, T: divs * td, Vpp: 2 * pk * vd, divs: divs };
+      var W = 500, H = 400, x0 = 0, y0 = 0, s = ['<svg viewBox="0 0 ' + W + ' ' + (H + 40) + '" role="img" aria-label="Oscilloscope screen, ' + td + ' milliseconds per division horizontally and ' + vd + ' volts per division vertically, showing a ' + wave + ' wave" xmlns="http://www.w3.org/2000/svg">'];
+      s.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" class="st-scr"/>');
+      for (var i = 1; i < 10; i++) s.push('<line x1="' + i * 50 + '" y1="0" x2="' + i * 50 + '" y2="' + H + '" class="' + (i === 5 ? 'st-axis' : 'st-grid') + '"/>');
+      for (i = 1; i < 8; i++) s.push('<line x1="0" y1="' + i * 50 + '" x2="' + W + '" y2="' + i * 50 + '" class="' + (i === 4 ? 'st-axis' : 'st-grid') + '"/>');
+      var pts = [];
+      for (i = 0; i <= 500; i++) {
+        var t = (i / 50) / divs * 2 * Math.PI, v = wave === 'square' ? (Math.sin(t) >= 0 ? 1 : -1) : wave === 'triangle' ? 2 / Math.PI * Math.asin(Math.sin(t)) : Math.sin(t);
+        pts.push(i + ',' + (200 - v * pk * 50).toFixed(1));
+      }
+      s.push('<polyline points="' + pts.join(' ') + '" class="st-trace"/>');
+      s.push('<text x="0" y="' + (H + 26) + '" class="st-lab">Time: ' + td + ' ms/div</text><text x="' + W + '" y="' + (H + 26) + '" class="st-lab" text-anchor="end">Vertical: ' + vd + ' V/div</text></svg>');
+      art.innerHTML = s.join('');
+      fT.value = fF.value = fV.value = ''; fb.innerHTML = '';
+    }
+    function near(x, a) { return isFinite(x) && Math.abs(x - a) <= Math.abs(a) * 0.03; }
+    var chk = el('button', { type: 'button', cls: 'btn', text: 'Check' }), nx = el('button', { type: 'button', cls: 'btn ghost', text: 'New screen' });
+    chk.addEventListener('click', function () {
+      var T = parseVal(fT.value, 'ms'), F = parseVal(fF.value, 'Hz'), V = parseVal(fV.value, 'V'), ok = 0, notes = [];
+      if (near(T, cur.T)) ok++; else notes.push('Period: one full cycle spans ' + cur.divs + ' divisions × ' + cur.td + ' ms = ' + fmt(cur.T) + ' ms.');
+      if (near(F, 1000 / cur.T)) ok++; else notes.push('Frequency = 1 / T = 1 / ' + fmt(cur.T) + ' ms = ' + fmt(1000 / cur.T) + ' Hz.');
+      if (near(V, cur.Vpp)) ok++; else notes.push('Peak-to-peak: ' + fmt(cur.Vpp / cur.vd) + ' divisions × ' + cur.vd + ' V = ' + fmt(cur.Vpp) + ' V.');
+      tries++; if (ok === 3) score++;
+      fb.innerHTML = '<p class="fb-sum">' + (ok === 3 ? '✓ All three right.' : ok + ' of 3 right.') + ' Screens solved: ' + score + ' of ' + tries + '</p>' + (notes.length ? '<ul><li>' + notes.join('</li><li>') + '</li></ul>' : '');
+    });
+    nx.addEventListener('click', newOne);
+    body.appendChild(art);
+    body.appendChild(el('div', { cls: 'nums-row' }, [
+      el('div', { cls: 'field num' }, [el('label', { 'for': 'sqT', html: 'Period <span class="unit">(ms)</span>' }), fT]),
+      el('div', { cls: 'field num' }, [el('label', { 'for': 'sqF', html: 'Frequency <span class="unit">(Hz)</span>' }), fF]),
+      el('div', { cls: 'field num' }, [el('label', { 'for': 'sqV', html: 'Peak-to-peak <span class="unit">(V)</span>' }), fV])]));
+    body.appendChild(el('div', { cls: 'btnrow' }, [chk, nx]));
+    body.appendChild(fb);
+    newOne();
+    wrap.appendChild(body);
+    return wrap;
+  };
+
+  /* Secret picks (partner-swap faults): chosen once, saved, hidden until revealed */
+  R.secret = function (b, sec) {
+    ITEMS.push({ kind: 'secret', id: b.id, label: b.title || 'Secret picks', section: sec });
+    var wrap = el('div', { cls: 'secret-box' });
+    var out = el('div', { 'aria-live': 'polite' });
+    var gen = el('button', { type: 'button', cls: 'btn primary', text: 'Choose my faults' });
+    var show = el('button', { type: 'button', cls: 'btn', text: 'Show my faults' });
+    var shown = false;
+    function picks() { try { return JSON.parse(st.t['secret_' + b.id] || 'null'); } catch (e) { return null; } }
+    function render() {
+      var p = picks();
+      gen.hidden = !!p; show.hidden = !p;
+      show.textContent = shown ? 'Hide my faults' : 'Show my faults';
+      if (!p) { out.innerHTML = '<p>Select <strong>Choose my faults</strong> once. The page picks ' + b.pick + ' faults at random and remembers them. Keep them hidden from your partner.</p>'; return; }
+      out.innerHTML = shown ? '<ol>' + p.map(function (i) { return '<li><strong>' + b.items[i].title + '.</strong> ' + b.items[i].build + '</li>'; }).join('') + '</ol>' : '<p>Your faults are chosen and hidden. Show them only while you build, and hide them before your partner sees your screen.</p>';
+    }
+    gen.addEventListener('click', function () {
+      var idx = b.items.map(function (_, i) { return i; });
+      for (var i = idx.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+      st.t['secret_' + b.id] = JSON.stringify(idx.slice(0, b.pick)); shown = true; save(); render(); updateProgress();
+    });
+    show.addEventListener('click', function () { shown = !shown; render(); });
+    wrap.appendChild(out);
+    wrap.appendChild(el('div', { cls: 'btnrow' }, [gen, show]));
+    render();
+    wrap._picks = picks;
+    return wrap;
+  };
+
   /* Numbered hotspots over a drawing */
   R.hotspots = function (b) {
     var wrap = el('div', { cls: 'tool' });
@@ -1861,8 +2163,9 @@ window.LAB = (function () {
   function filled(it) {
     if (it.kind === 'value') return st.v[it.id] != null && String(st.v[it.id]).trim() !== '';
     if (it.kind === 'text') return !!(st.t[it.id] && st.t[it.id].trim());
-    if (it.kind === 'shot') return !!(getShot(it.id) || shotMem[it.id]);
+    if (it.kind === 'shot') return !!(getShot(it.id) || shotMem[it.id] || (it.alt && (getShot(it.alt) || shotMem[it.alt])));
     if (it.kind === 'quiz') { var q = st.q[it.id] || {}; return Object.keys(q).length >= it.n; }
+    if (it.kind === 'secret') return !!st.t['secret_' + it.id];
     if (it.kind === 'check') { for (var i = 0; i < it.n; i++) if (!st.ck[it.id + '-' + i]) return false; return true; }
     return false;
   }
@@ -1910,9 +2213,10 @@ window.LAB = (function () {
         if (b.t === 'data') parts.push((b.title ? '<h3>' + b.title + '</h3>' : '') + reportTable(b));
         else if (b.t === 'nums') parts.push('<div class="rnums">' + (b.title ? '<h3>' + b.title + '</h3>' : '') + b.items.map(function (it) { var v = valueText(it.id); return '<p><strong>' + it.label + ':</strong> ' + (v ? esc(v) + (it.unit ? ' ' + it.unit : '') : '<span class="blank">blank</span>') + '</p>'; }).join('') + '</div>');
         else if (b.t === 'text') { var t = st.t[b.id]; parts.push('<div class="rtext"><h3>' + b.label + '</h3>' + (t && t.trim() ? '<p>' + esc(t).replace(/\n/g, '<br>') + '</p>' : '<p class="blank">blank</p>') + '</div>'); }
-        else if (b.t === 'shot') { var d = getShot(b.id) || shotMem[b.id]; parts.push('<div class="rshot"><h3>Screenshot: ' + esc(b.label) + '</h3>' + (d ? '<img src="' + d + '" alt="Screenshot: ' + esc(b.label) + '">' : '<p class="blank">No screenshot added</p>') + '</div>'); }
+        else if (b.t === 'shot' || b.t === 'sketch') { var d = getShot(b.id) || shotMem[b.id]; parts.push('<div class="rshot"><h3>' + (b.plain ? 'Image: ' : 'Tinkercad screenshot: ') + esc(b.label) + '</h3>' + (d ? '<img src="' + d + '" alt="Screenshot: ' + esc(b.label) + '">' : '<p class="blank">No screenshot added</p>') + '</div>'); }
         else if (b.t === 'graph') parts.push('<div class="rgraph">' + graphSVG(b) + '</div>');
         else if (b.t === 'quiz') { var q = st.q[b.id] || {}, right = 0, n = 0; b.qs.forEach(function (qq, k) { if (q[k] != null) { n++; if (q[k] === qq.a) right++; } }); parts.push('<p><strong>' + esc(b.title || 'Self-check') + ':</strong> ' + right + ' of ' + b.qs.length + ' correct (' + n + ' answered)</p>'); }
+        else if (b.t === 'secret') { var pk = n._picks(); parts.push('<div><h3>' + esc(b.title || 'Faults I built') + '</h3>' + (pk ? '<ol>' + pk.map(function (k) { return '<li>' + b.items[k].title + '</li>'; }).join('') + '</ol>' : '<p class="blank">Not chosen yet</p>') + '</div>'); }
         else if (b.t === 'checklist') { parts.push('<div><h3>' + (b.title || 'Checklist') + '</h3><ul class="rck">' + b.items.map(function (it, k) { return '<li>' + (st.ck[b.id + '-' + k] ? '☑ ' : '☐ ') + it + '</li>'; }).join('') + '</ul></div>'); }
       });
       if (parts.length) out.push('<section class="rsec"><h2>Part ' + (sec.num || (i + 1)) + ': ' + esc(sec.title) + '</h2>' + parts.join('') + '</section>');
@@ -2008,7 +2312,7 @@ window.LAB = (function () {
     if (!window.confirm('Erase all of your work in this lab, including screenshots? This cannot be undone. Download a backup first if you might need it.')) return;
     try {
       localStorage.removeItem(KEY);
-      ITEMS.forEach(function (it) { if (it.kind === 'shot') localStorage.removeItem(SHOT_PREFIX + it.id); });
+      ITEMS.forEach(function (it) { if (it.kind === 'shot') { localStorage.removeItem(SHOT_PREFIX + it.id); localStorage.removeItem(SHOT_PREFIX + it.id + '-ops'); } });
     } catch (e) {}
     location.reload();
   });

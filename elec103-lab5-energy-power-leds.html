@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 2: Measuring Resistance — ELEC 103</title>
-<meta name="description" content="ELEC 103 Tinkercad Lab 2: resistance in series, parallel, and series-parallel networks, potentiometers, and rheostats.">
+<title>Lab 5: Energy, Power, and LEDs — ELEC 103</title>
+<meta name="description" content="ELEC 103 Tinkercad Lab 5: power in resistors and power ratings, LED polarity and current-limiting design, and energy cost.">
 <style>
 :root {
   /* Palette drawn from the resistor color code and the lab bench */
@@ -1150,159 +1150,119 @@ var C = (function () {
   return { row: row, pctRow: pctRow, reminders: reminders, ohmRules: ohmRules, pctNote: pctNote };
 })();
 window.LAB = (function () {
-  var POS = ['ccw', 'q1', 'half', 'q3', 'cw'], POSH = ['Knob position', 'Full CCW', '¼ turn', '½ turn', '¾ turn', 'Full CW'];
-  function lbl(s, p, t) { s.top('<text x="' + p.x + '" y="' + p.y + '" class="sch-tl" text-anchor="middle">' + t + '</text>'); }
-  function schSeries() {
-    var s = new Draw.Sch(480, 230, 'Series network: A, R1 1 kilohm, R2 4 kilohm, R3 10 kilohm, R4 2 kilohm, B');
-    s.term(40, 50, 'A'); s.line([[40, 50], [70, 50]]); s.R(70, 50, 170, 50, 'R1', '1 kΩ'); s.line([[170, 50], [230, 50]]); s.R(230, 50, 330, 50, 'R2', '4 kΩ');
-    s.line([[330, 50], [420, 50], [420, 70]]); s.R(420, 70, 420, 170, 'R3', '10 kΩ', 'r'); s.line([[420, 170], [420, 190], [300, 190]]);
-    s.R(200, 190, 300, 190, 'R4', '2 kΩ', 'b'); s.line([[200, 190], [40, 190]]); s.term(40, 190, 'B');
+  function schR() {
+    var s = new Draw.Sch(380, 220, 'Schematic: a 12 volt supply across one resistor, with an ammeter in series and a voltmeter across the resistor');
+    s.batt(60, 50, 170, '12 V'); s.line([[60, 50], [60, 30], [150, 30]]); s.meterSym(166, 30, 'A'); s.line([[180, 30], [260, 30], [260, 60]]);
+    s.R(260, 60, 260, 150, 'R', '', 'l'); s.line([[260, 150], [260, 190], [60, 190], [60, 170]]);
+    s.dot(260, 30); s.dot(260, 190); s.line([[260, 30], [330, 30], [330, 90]]); s.meterSym(330, 106, 'V'); s.line([[330, 120], [330, 190], [260, 190]]);
     return s.svg();
   }
-  function schParallel() {
-    var s = new Draw.Sch(480, 240, 'Parallel network: R1 1 kilohm, R2 4 kilohm, R3 10 kilohm and R4 2 kilohm, each connected directly between A and B');
-    s.term(40, 50, 'A'); s.term(40, 200, 'B'); s.line([[40, 50], [420, 50]]); s.line([[40, 200], [420, 200]]);
-    [[120, 'R1', '1 kΩ'], [220, 'R2', '4 kΩ'], [320, 'R3', '10 kΩ'], [420, 'R4', '2 kΩ']].forEach(function (r, i) {
-      s.R(r[0], 50, r[0], 200, r[1], r[2], 'r'); if (i < 3) { s.dot(r[0], 50); s.dot(r[0], 200); }
-    });
+  function schLED() {
+    var s = new Draw.Sch(360, 220, 'Schematic: a 9 volt supply, a current-limiting resistor, and an LED in series; the LED anode faces the resistor');
+    s.batt(60, 50, 170, '9 V'); s.line([[60, 50], [60, 30], [130, 30]]); s.R(130, 30, 230, 30, 'R', '1 kΩ'); s.line([[230, 30], [290, 30], [290, 70]]);
+    s.led(290, 70, 150, 'LED', 'r'); s.line([[290, 150], [290, 190], [60, 190], [60, 170]]);
     return s.svg();
   }
-  function schSP() {
-    var s = new Draw.Sch(480, 240, 'Series-parallel network: A, R1 10 kilohm to a node; from that node R2 12 kilohm down to a lower node, in parallel with R3 8 kilohm plus R4 4 kilohm; then R5 4 kilohm from the lower node to B');
-    s.term(30, 50, 'A'); s.line([[30, 50], [60, 50]]); s.R(60, 50, 160, 50, 'R1', '10 kΩ'); s.line([[160, 50], [420, 50], [420, 70]]); s.dot(250, 50);
-    s.R(250, 50, 250, 200, 'R2', '12 kΩ', 'r'); s.dot(250, 200);
-    s.R(420, 70, 420, 180, 'R3', '8 kΩ', 'r'); s.line([[420, 180], [420, 200], [400, 200]]); s.R(290, 200, 400, 200, 'R4', '4 kΩ', 'b'); s.line([[290, 200], [250, 200]]);
-    s.line([[250, 200], [160, 200]]); s.R(60, 200, 160, 200, 'R5', '4 kΩ', 'b'); s.line([[60, 200], [30, 200]]); s.term(30, 200, 'B');
-    return s.svg();
-  }
-  function schPot(rheo) {
-    var s = new Draw.Sch(480, 260, rheo ? 'Potentiometer wired as a rheostat: the wiper, pin 2, is joined to pin 1, so A and B are the same point' : 'Potentiometer circuit: C, R1 10 kilohm, to pin 3 of a 25 kilohm potentiometer; the wiper, pin 2, goes to A; pin 1 goes to node B; R3 5 kilohm runs from B to D');
-    s.term(40, 40, 'C'); s.line([[40, 40], [70, 40]]); s.R(70, 40, 170, 40, 'R1', '10 kΩ'); s.line([[170, 40], [300, 40], [300, 70]]);
-    s.pot(300, 70, 180, 'R2', '25 kΩ', 380);
-    s.line([[380, 125], [440, 125]]); s.term(440, 125, 'A', 'r');
-    if (rheo) { s.dot(380, 125); s.line([[380, 125], [380, 200], [300, 200]]); s.dot(300, 200); }
-    s.line([[300, 180], [300, 225]]); s.dot(300, 225); s.line([[300, 225], [440, 225]]); s.term(440, 225, 'B', 'r');
-    s.line([[300, 225], [170, 225]]); s.R(70, 225, 170, 225, 'R3', '5 kΩ', 'b'); s.line([[70, 225], [40, 225]]); s.term(40, 225, 'D');
-    return s.svg();
-  }
-  function bbParallel() {
-    var s = new Draw.Sch(580, 330, 'Breadboard: four resistors stand across the center channel in columns 6, 11, 16 and 21. Red jumpers join each top end to the top positive rail, which is A. Black jumpers join each bottom end to the bottom negative rail, which is B.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    [[6, 1000, 'R1'], [11, 4000, 'R2'], [16, 10000, 'R3'], [21, 2000, 'R4']].forEach(function (r) {
-      Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
-      Draw.resistor(s, b.p('f' + r[0]), b.p('e' + r[0]), r[1], r[2]);
-      Draw.wire(s, [b.p('a' + r[0]), b.p('b-' + r[0])], 'black');
-    });
-    Draw.note(s, 300, 14, 'A = top + rail   ·   B = bottom − rail', { anchor: 'middle' });
-    return s.svg();
-  }
-  function bbSP() {
-    var s = new Draw.Scene(580, 320, 'Breadboard: A is column 3 top half. R1 runs from column 3 to column 7 in row i. R2 stands across the channel in column 7. R3 runs from column 7 to column 11 in row h. R4 stands across the channel in column 11. A green jumper in row a joins column 11 back to column 7 bottom. R5 runs from column 7 to column 3 in row c, and B is column 3 bottom half.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    Draw.resistor(s, b.p('i3'), b.p('i7'), 10000, 'R1', { ly: -9 });
-    Draw.resistor(s, b.p('f7'), b.p('e7'), 12000, 'R2');
-    Draw.resistor(s, b.p('h7'), b.p('h11'), 8000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('f11'), b.p('e11'), 4000, 'R4');
-    Draw.wire(s, [b.p('a11'), b.p('a7')], 'green');
-    Draw.resistor(s, b.p('c7'), b.p('c3'), 4000, 'R5', { ly: 16 });
-    lbl(s, { x: b.p('j3').x, y: b.p('j3').y - 6 }, 'A'); lbl(s, { x: b.p('a3').x, y: b.p('a3').y + 20 }, 'B');
-    return s.svg();
-  }
-  function bbPot(rheo) {
-    var s = new Draw.Scene(580, 320, rheo ? 'The same breadboard with a yellow jumper in row h joining the wiper column to Terminal 1' : 'Breadboard: a potentiometer with Terminal 1 in column 14, the wiper in 15 and Terminal 2 in 16, all in row j. R3 runs from column 10 to column 14 in row i; R1 runs from column 16 to column 20 in row i. D is column 10, B is column 14, A is column 15, and C is column 20.');
+  function bbLED(opt) {
+    opt = opt || {};
+    var s = new Draw.Scene(580, 330, 'Breadboard: the supply feeds the top positive rail; a red jumper goes to column 5; the resistor runs from column 5 to 9 in row i; the LED anode is in column 9 and its cathode in column 10, in row f; a black jumper takes column 10 to the top negative rail');
     var b = new Draw.Board(s, 16, 30).draw();
-    Draw.pot(s, [b.p('j14'), b.p('j15'), b.p('j16')], { label: 'R2 25 kΩ' });
-    Draw.resistor(s, b.p('i10'), b.p('i14'), 5000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('i16'), b.p('i20'), 10000, 'R1', { ly: 17 });
-    if (rheo) Draw.wire(s, [b.p('h14'), b.p('h15')], 'yellow');
-    [['g10', 'D'], ['g14', 'B'], ['g15', 'A'], ['g20', 'C']].forEach(function (x, i) { var p = b.p(x[0]); lbl(s, { x: p.x + (i === 1 ? -3 : i === 2 ? 3 : 0), y: p.y + 30 }, x[1]); });
+    Draw.wire(s, [b.p('t+5'), b.p('j5')], 'red');
+    if (!opt.noR) Draw.resistor(s, b.p('i5'), b.p('i9'), 1000, 'R', { ly: 18 });
+    else { Draw.wire(s, [b.p('i5'), b.p('i9')], 'orange'); Draw.note(s, b.p('i7').x, b.p('i7').y + 18, 'wire instead of R', { cls: 'mark-t', anchor: 'middle' }); }
+    Draw.led(s, b.p('f9'), b.p('f10'), { label: 'LED', lit: !opt.noR });
+    Draw.wire(s, [b.p('j10'), b.p('t-10')], 'black');
+    Draw.note(s, 300, 20, 'Supply + to the top + rail, supply − to the top − rail', { anchor: 'middle' });
     return s.svg();
   }
-  function tRT(id, ans) {
-    return { t: 'data', title: 'Total resistance, A to B', head: ['', 'Calculated', 'Measured in Tinkercad', '% difference'], rows: [
-      { label: 'R<sub>T</sub>', unit: 'kΩ', cells: [{ id: id + '_c', ans: ans }, { id: id + '_m', ans: ans }, { id: id + '_p', pct: [id + '_c', id + '_m'] }] }] };
-  }
-  function potTable(p, ab, cd, tolAB, tolCD) {
-    return { t: 'data', title: 'Readings as you turn the knob', head: POSH, rows: [
-      { label: 'Predicted A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Measured A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Predicted C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pcd_' + k, ans: cd[i], tol: tolCD[i] }; }) },
-      { label: 'Measured C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mcd_' + k, ans: cd[i], tol: tolCD[i] }; }) }
-    ] };
-  }
-  var T3 = [0.4, 3, 3, 3, 0.4];
+  var RS = ['1k', '470', '22k'];
   return {
-    key: 'elec103-lab2-v1', no: 'Lab 2', file: 'ELEC103_Lab2', title: 'Measuring Resistance',
-    lede: 'Predict and measure resistance in series, parallel, and series-parallel networks, then see what a potentiometer’s wiper really does.',
+    key: 'elec103-lab5-v1', no: 'Lab 5', file: 'ELEC103_Lab5', title: 'Energy, Power, and LEDs',
+    lede: 'Find where the energy in a circuit goes — into heat, into light, and onto the electric bill.',
     sections: [
       { id: 'start', tab: 'Start here', title: 'Before you begin', blocks: [
         { t: 'student' },
-        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate total resistance for series, parallel, and series-parallel networks, and confirm it by measurement.</li><li>Identify the three terminals of a potentiometer and explain how the wiper divides its resistance.</li><li>Tell the difference between a potentiometer used as a three-terminal part and one wired as a <strong>rheostat</strong>.</li></ul>' +
-          '<h3>Background</h3><p><strong>Series:</strong> <span class="eq">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + …</span> The total is always larger than the largest resistor.</p>' +
-          '<p><strong>Parallel:</strong> <span class="eq">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + …</span> The total is always smaller than the smallest resistor.</p>' +
-          '<p><strong>Potentiometer:</strong> a fixed resistance between its two outer terminals, with a movable <strong>wiper</strong> in between. Turning the knob changes the resistance from an outer terminal to the wiper, but the outer-to-outer resistance never changes. Connecting the wiper to one outer terminal turns the pot into a two-terminal <strong>rheostat</strong> — a variable resistor.</p>' +
-          '<p>Enter resistances in <strong>kΩ</strong>. You can type <em>540 Ω</em> or <em>0.54k</em> and the page converts it.</p>' },
-        C.reminders, C.ohmRules, C.pctNote
+        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate power three ways — <span class="eq">P = VI</span>, <span class="eq">P = I²R</span>, <span class="eq">P = V²/R</span> — and confirm by measurement.</li><li>Compare a resistor’s power with its power rating and choose a safe rating.</li><li>Show that power grows with the <em>square</em> of voltage.</li><li>Wire an LED with the right polarity and design its current-limiting resistor.</li><li>Convert power and time into energy (kWh) and cost.</li></ul>' +
+          '<h3>Background</h3><p><strong>Power</strong> is the rate energy is used, in watts. With current in mA and voltage in volts, <span class="eq">P = V × I</span> comes out in <strong>mW</strong>. A resistor turns all of its power into heat. Its <strong>power rating</strong> (¼ W = 250 mW for typical breadboard resistors) is the most it can safely dissipate; designers usually stay at or below half the rating.</p>' +
+          '<p><strong>Energy</strong> is power multiplied by time: <span class="eq">W = P × t</span>. Utilities bill in kilowatt-hours: 1 kWh is 1000 W for one hour.</p>' +
+          '<p>An <strong>LED</strong> (light-emitting diode) lets current flow in only one direction, from the <strong>anode (+)</strong> to the <strong>cathode (−)</strong>. When it conducts, the voltage across it stays nearly constant — its <strong>forward voltage</strong>, roughly 2 V for a red LED. An LED must always have a <strong>current-limiting resistor</strong> in series: <span class="eq">R = (V<sub>S</sub> − V<sub>LED</sub>) / I</span>.</p>' },
+        C.reminders,
+        { t: 'callout', k: 'tip', title: 'LEDs in Tinkercad', html: '<p>Search for <strong>LED</strong>. Hover over each leg to see which is the <strong>Anode</strong> and which is the <strong>Cathode</strong>, and choose a color in the Inspector. A lit LED glows during the simulation.</p>' }
       ] },
-      { id: 'series', tab: 'Series', title: 'Series network', blocks: [
-        { t: 'fig', draw: schSeries, cap: 'Figure 1. Series network.' },
-        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> Calculate the total resistance between A and B.</p>' },
-        { t: 'text', id: 'wA', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 2, html: '<p><strong>Build and measure.</strong> Build Figure 1 (you built this kind of chain in Lab 1). Connect the ohmmeter from A to B and start the simulation.</p>' },
-        tRT('rA', 17),
-        { t: 'shot', id: 'A', label: 'the series network with the meter reading visible' },
-        { t: 'step', n: 3, html: '<p><strong>Change one thing.</strong> Stop the simulation and change R3 from 10 kΩ to 20 kΩ. Predict the new total, measure it, then change R3 back.</p>' },
-        { t: 'nums', items: [{ id: 'a3p', label: 'Predicted with R3 = 20 kΩ', unit: 'kΩ', ans: 27 }, { id: 'a3m', label: 'Measured', unit: 'kΩ', ans: 27 }] }
+      { id: 'heat', tab: 'Power in resistors', title: 'Power in a resistor', blocks: [
+        { t: 'fig', draw: schR, small: true, cap: 'Figure 1. One resistor across a 12 V supply. Build it like Lab 3, adding a voltmeter across R.' },
+        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> For each resistor below, calculate the current and the power with 12 V across it. Use two different power formulas and confirm they agree.</p>' },
+        { t: 'text', id: 'w1', label: 'Show your calculations for one resistor using all three formulas', rows: 5, work: true },
+        { t: 'data', title: 'Calculated, V = 12 V', head: ['Quantity', '1 kΩ', '470 Ω', '2.2 kΩ'], rows: [
+          C.row('Current, I', 'mA', 'ci', RS, [12, 25.53, 5.455]), C.row('Power, P', 'mW', 'cp', RS, [144, 306.4, 65.45])] },
+        { t: 'step', n: 2, html: '<p><strong>Measure.</strong> Build the circuit with each resistor in turn and record the meter readings. Calculate power from your measured V and I.</p>' },
+        { t: 'data', title: 'Measured', head: ['Quantity', '1 kΩ', '470 Ω', '2.2 kΩ'], rows: [
+          C.row('Voltage, V', 'V', 'mv', RS, [12, 12, 12]), C.row('Current, I', 'mA', 'mi', RS, [12, 25.53, 5.455]), C.row('P = V × I', 'mW', 'mp', RS, [144, 306.4, 65.45])] },
+        { t: 'shot', id: 'heat', label: 'the 470 Ω circuit with both meter readings visible' },
+        { t: 'step', n: 3, html: '<p>Compare each power with a ¼ W (250 mW) rating. Which resistor would overheat? What is the smallest standard rating — ¼ W, ½ W, 1 W, or 2 W — you would choose for it, keeping it at or below half its rating?</p>' },
+        { t: 'text', id: 'q3', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'par', tab: 'Parallel', title: 'Parallel network', blocks: [
-        { t: 'fig', draw: schParallel, cap: 'Figure 2. Parallel network — the same four resistors, now side by side.' },
-        { t: 'fig', draw: bbParallel, wide: true, cap: 'Figure 3. One way to build it. Each resistor bridges the center channel; the top rail is A and the bottom rail is B.' },
-        { t: 'step', n: 4, html: '<p><strong>Predict.</strong> Calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wB', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 5, html: '<p><strong>Build and measure.</strong> Build the circuit and connect the ohmmeter between the two rails.</p>' },
-        tRT('rB', 0.5405),
-        { t: 'shot', id: 'B', label: 'the parallel network with the meter reading visible' },
-        { t: 'step', n: 6, html: '<p>Your total should be smaller than the smallest resistor (1 kΩ). Is it? Explain in a sentence or two why adding more parallel branches always <strong>lowers</strong> the total resistance.</p>' },
-        { t: 'text', id: 'q6', label: 'Your answer', rows: 3 }
+      { id: 'square', tab: 'Power vs. voltage', title: 'How power grows with voltage', blocks: [
+        { t: 'step', n: 4, html: '<p>Use the <strong>1 kΩ</strong> resistor. Predict the power at each voltage with <span class="eq">P = V²/R</span>, then measure V and I and calculate P.</p>' },
+        { t: 'data', title: 'R = 1 kΩ', head: ['Supply voltage', '2 V', '4 V', '6 V', '8 V', '10 V'], rows: [
+          C.row('P calculated', 'mW', 'pc', ['2', '4', '6', '8', '10'], [4, 16, 36, 64, 100]),
+          C.row('I measured', 'mA', 'pi', ['2', '4', '6', '8', '10'], [2, 4, 6, 8, 10]),
+          C.row('P from measurements', 'mW', 'pm', ['2', '4', '6', '8', '10'], [4, 16, 36, 64, 100])] },
+        { t: 'graph', id: 'gp', title: 'Power vs. voltage, R = 1 kΩ', x: { label: 'Voltage, V (volts)', max: 10, step: 1, minor: 0.5 }, y: { label: 'Power, P (mW)', max: 100, step: 10, minor: 5 }, fit: 'curve',
+          series: [{ name: 'Measured', points: [[2, 'pm_2'], [4, 'pm_4'], [6, 'pm_6'], [8, 'pm_8'], [10, 'pm_10']] }] },
+        { t: 'step', n: 5, html: '<p>Compare 2 V with 4 V, and 4 V with 8 V. When the voltage <strong>doubles</strong>, what happens to the power? Why is this graph a curve when Lab 3’s current graph was a straight line?</p>' },
+        { t: 'text', id: 'q5', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'sp', tab: 'Series-parallel', title: 'Series-parallel network', blocks: [
-        { t: 'fig', draw: schSP, cap: 'Figure 4. Series-parallel network.' },
-        { t: 'fig', draw: bbSP, wide: true, cap: 'Figure 5. One way to build it. Trace it against Figure 4 before you start: R2 crosses the channel, and R3 and R4 make a second path around it.' },
-        { t: 'step', n: 7, html: '<p><strong>Predict.</strong> Decide which resistors are in series and which are in parallel. Reduce the network one step at a time and calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wC', label: 'Show each reduction step', rows: 5, work: true },
-        { t: 'step', n: 8, html: '<p><strong>Build and measure.</strong></p>' },
-        tRT('rC', 20),
-        { t: 'shot', id: 'C', label: 'the series-parallel network with the meter reading visible' },
-        { t: 'step', n: 9, html: '<p><strong>Open a branch.</strong> Stop the simulation and delete one end of R2 so its branch is open. Predict and measure R<sub>T</sub>, then explain why it went up.</p>' },
-        { t: 'nums', items: [{ id: 'c9p', label: 'Predicted with R2 open', unit: 'kΩ', ans: 30 }, { id: 'c9m', label: 'Measured', unit: 'kΩ', ans: 30 }] },
-        { t: 'text', id: 'q9', label: 'Why did it increase?', rows: 3 }
+      { id: 'led', tab: 'Meet the LED', title: 'Meet the LED', blocks: [
+        { t: 'fig', draw: schLED, small: true, cap: 'Figure 2. An LED with a 1 kΩ current-limiting resistor on 9 V.' },
+        { t: 'fig', draw: function () { return bbLED(); }, wide: true, cap: 'Figure 3. One way to build it. The LED’s anode shares column 9 with the resistor.' },
+        { t: 'step', n: 6, html: '<p>Build the circuit with a <strong>red</strong> LED, a 1 kΩ resistor, and a 9 V supply. Start the simulation and confirm the LED lights. Then measure the voltage across the LED, the voltage across the resistor, and the current.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'vled', label: 'V<sub>LED</sub>', unit: 'V' }, { id: 'vr', label: 'V<sub>R</sub>', unit: 'V' }, { id: 'iled', label: 'Current', unit: 'mA' }] },
+        { t: 'step', n: 7, html: '<p>Do V<sub>LED</sub> and V<sub>R</sub> add up to 9 V? Is the current what Ohm’s law predicts for the resistor alone, <span class="eq">I = V<sub>R</sub> / R</span>?</p>' },
+        { t: 'text', id: 'q7', label: 'Your answer', rows: 3 },
+        { t: 'step', n: 8, html: '<p><strong>Polarity.</strong> Stop the simulation and turn the LED around so its cathode faces the resistor. Run it again and record the current and what the LED does. Then put it back the right way.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'irev', label: 'Current with the LED reversed', unit: 'mA' }] },
+        { t: 'text', id: 'q8', label: 'What happened, and why?', rows: 3 },
+        { t: 'step', n: 9, html: '<p><strong>Forward voltage barely changes.</strong> Change the supply to 6 V and then 12 V, recording V<sub>LED</sub> and the current each time.</p>' },
+        { t: 'data', check: false, title: 'LED with 1 kΩ', head: ['Supply', '6 V', '9 V', '12 V'], rows: [
+          { label: 'V<sub>LED</sub>', unit: 'V', cells: [{ id: 'fv6' }, { id: 'fv9' }, { id: 'fv12' }] },
+          { label: 'Current', unit: 'mA', cells: [{ id: 'fi6' }, { id: 'fi9' }, { id: 'fi12' }] }] },
+        { t: 'text', id: 'q9', label: 'Which changed more — the LED’s voltage or its current? What does that tell you about an LED?', rows: 3 }
       ] },
-      { id: 'pot', tab: 'Potentiometer', title: 'Potentiometer, three-terminal connection', blocks: [
-        { t: 'fig', draw: function () { return schPot(false); }, cap: 'Figure 6. A 25 kΩ potentiometer between R1 and R3.' },
-        { t: 'fig', draw: function () { return bbPot(false); }, wide: true, cap: 'Figure 7. One way to build it. In Tinkercad, hover over a pot terminal to see its name: schematic pin 1 is <strong>Terminal 1</strong>, pin 2 is the <strong>Wiper</strong>, and pin 3 is <strong>Terminal 2</strong>.' },
-        { t: 'callout', k: 'tip', title: 'Turning the knob', html: '<p>Set the pot to 25 kΩ in the Inspector. To turn it, <strong>click and drag the knob while the simulation is running</strong>. The exact ¼, ½, and ¾ positions are approximate — get close and record what you see.</p>' },
-        { t: 'step', n: 10, html: '<p><strong>Predict</strong> both “Predicted” rows before you build. Think about which parts are between A and B, and which are between C and D.</p>' },
-        { t: 'step', n: 11, html: '<p>Build the circuit. Connect <strong>one</strong> ohmmeter between <strong>A and B</strong>, start the simulation, and sweep the knob from full counter-clockwise to full clockwise, recording A–B at each position.</p>' },
-        { t: 'step', n: 12, html: '<p>Stop the simulation, move the probes to <strong>C and D</strong>, and repeat the sweep.</p>' },
-        potTable('d', [[0, 25], [6.25, 18.75], 12.5, [18.75, 6.25], [25, 0]], [40, 40, 40, 40, 40], T3, [0.5, 0.5, 0.5, 0.5, 0.5]),
-        { t: 'shot', id: 'D', label: 'the potentiometer circuit with a reading visible' },
-        { t: 'step', n: 13, html: '<p>(a) What happened to the A–B resistance as you turned the knob, and did it increase clockwise or counter-clockwise? (b) What happened to the C–D resistance? (c) Explain <strong>why</strong> C–D behaved that way.</p>' },
-        { t: 'text', id: 'q13', label: 'Your observations', rows: 6 },
-        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Connect a <strong>second</strong> ohmmeter so that A–B and C–D are measured at the same time. Do the readings still match your one-meter readings? Use the ohmmeter rules to explain what you see, and what would happen on a real bench.</p>' },
-        { t: 'text', id: 'inv', label: 'What you saw (optional)', rows: 3, optional: true }
+      { id: 'design', tab: 'Design', title: 'Design the current-limiting resistor', blocks: [
+        { t: 'step', n: 10, html: '<p>Your goal: run the red LED at <strong>15 mA</strong> from the 9 V supply. Using the V<sub>LED</sub> you measured at 9 V, calculate the resistor you need.</p>' },
+        { t: 'text', id: 'w10', label: 'Your calculation: R = (V<sub>S</sub> − V<sub>LED</sub>) / I', rows: 3, work: true },
+        { t: 'callout', title: 'Standard resistor values', html: '<p>Resistors are made in standard values. The common E12 series repeats every decade: <strong>10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82</strong> — so 330 Ω, 390 Ω, 470 Ω, 560 Ω, and so on. Choose the nearest standard value to your answer. If you must choose between two, pick the larger one: slightly less current is safe, slightly more might not be.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'rcalc', label: 'Calculated R', unit: 'Ω' }, { id: 'rstd', label: 'Standard value you chose', unit: 'Ω' }] },
+        { t: 'step', n: 11, html: '<p>Build it with your standard value and measure the current. It should be close to 15 mA.</p>' },
+        { t: 'nums', items: [{ id: 'idesign', label: 'Measured current', unit: 'mA', ans: 15, tol: 1.5, hint: 'more than 1.5 mA from the 15 mA target — recheck your resistor calculation and the value in the Inspector' }] },
+        { t: 'shot', id: 'design', label: 'your designed LED circuit lit, with the current reading visible' },
+        { t: 'step', n: 12, html: '<p>Calculate where the power goes: the resistor’s power (<span class="eq">I²R</span>), the LED’s power (<span class="eq">V<sub>LED</sub> × I</span>), and the total from the supply (<span class="eq">V<sub>S</sub> × I</span>). What fraction of the total reaches the LED?</p>' },
+        { t: 'nums', check: false, items: [{ id: 'pr', label: 'P<sub>R</sub>', unit: 'mW' }, { id: 'pl', label: 'P<sub>LED</sub>', unit: 'mW' }, { id: 'pt', label: 'P<sub>total</sub>', unit: 'mW' }, { id: 'frac', label: 'P<sub>LED</sub> / P<sub>total</sub>', unit: '%' }] },
+        { t: 'text', id: 'q12', label: 'Where does the rest of the power go? How could you get more of it into the LED?', rows: 3 }
       ] },
-      { id: 'rheo', tab: 'Rheostat', title: 'Potentiometer wired as a rheostat', blocks: [
-        { t: 'fig', draw: function () { return schPot(true); }, cap: 'Figure 8. The same circuit with the wiper joined to pin 1.' },
-        { t: 'fig', draw: function () { return bbPot(true); }, wide: true, cap: 'Figure 9. Add the yellow jumper between the wiper column and Terminal 1.' },
-        { t: 'step', n: 14, html: '<p>Add the jumper from the <strong>Wiper</strong> to <strong>Terminal 1</strong>. Before measuring, fill in both “Predicted” rows.</p>' },
-        { t: 'step', n: 15, html: '<p>Using <strong>one</strong> ohmmeter, sweep the knob and record A–B. Then move the probes to C–D and sweep again.</p>' },
-        potTable('e', [0, 0, 0, 0, 0], [[15, 40], [21.25, 33.75], 27.5, [33.75, 21.25], [40, 15]], [0.05, 0.05, 0.05, 0.05, 0.05], [0.5, 3, 3, 3, 0.5]),
-        { t: 'shot', id: 'E', label: 'the rheostat circuit with a reading visible' },
-        { t: 'step', n: 16, html: '<p>(a) Why does A–B read about 0 Ω at every knob position? (b) What are the smallest and largest C–D readings, and where do those numbers come from? (c) In your own words, what is the difference between a potentiometer and a rheostat?</p>' },
-        { t: 'text', id: 'q16', label: 'Your observations', rows: 6 }
+      { id: 'wrong', tab: 'What goes wrong', title: 'What goes wrong without the resistor', blocks: [
+        { t: 'fig', draw: function () { return bbLED({ noR: true }); }, wide: true, cap: 'Figure 4. The resistor replaced with a plain wire. Try this only in the simulator.' },
+        { t: 'step', n: 13, html: '<p>Replace the resistor with a wire as shown and run the simulation. Record the current and anything Tinkercad shows on or near the LED — hover over any warning icon and copy what it says.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'inor', label: 'Current with no resistor', unit: 'mA' }, { id: 'warn', label: 'What Tinkercad showed', free: true }] },
+        { t: 'shot', id: 'wrong', label: 'the LED circuit with no resistor, showing any warning' },
+        { t: 'step', n: 14, html: '<p>Explain what would happen to a real LED wired this way, and why the resistor prevents it.</p>' },
+        { t: 'text', id: 'q14', label: 'Your answer', rows: 4 }
+      ] },
+      { id: 'energy', tab: 'Energy and cost', title: 'Energy and cost', blocks: [
+        { t: 'html', html: '<p>Energy in kWh is <span class="eq">power in kW × hours</span>. Cost is <span class="eq">energy in kWh × price per kWh</span>. Use <strong>$0.20 per kWh</strong> for this lab — close to recent residential rates in New Jersey.</p>' },
+        { t: 'step', n: 15, html: '<p>A room light runs <strong>5 hours a day for 365 days</strong>. Compare a 60 W incandescent bulb with a 9 W LED bulb that gives about the same light.</p>' },
+        { t: 'data', title: 'One year at 5 hours a day', head: ['', '60 W incandescent', '9 W LED'], rows: [
+          { label: 'Energy', unit: 'kWh', cells: [{ id: 'e60', ans: 109.5 }, { id: 'e9', ans: 16.425, tol: 0.1 }] },
+          { label: 'Cost', unit: '$', cells: [{ id: 'c60', ans: 21.9, tol: 0.05 }, { id: 'c9', ans: 3.285, tol: 0.05 }] }] },
+        { t: 'nums', items: [{ id: 'save', label: 'Savings per bulb per year', unit: '$', ans: 18.615, tol: 0.06 }] },
+        { t: 'step', n: 16, html: '<p>Your Part 5 circuit draws P<sub>total</sub> from the supply. If it ran <strong>24 hours a day for a year</strong>, how much energy would it use, and what would it cost?</p>' },
+        { t: 'text', id: 'w16', label: 'Your calculation', rows: 4, work: true },
+        { t: 'step', n: 17, html: '<p>The incandescent bulb turns most of its power into heat rather than light. Using what you found in Part 5, explain why an LED <em>bulb</em> can be so much more efficient than an incandescent one, even though your simple LED circuit wasted a lot of power in its resistor.</p>' },
+        { t: 'text', id: 'q17', label: 'Your answer', rows: 4 }
       ] },
       { id: 'wrap', tab: 'Conclusion', title: 'Conclusion', blocks: [
-        { t: 'html', html: '<p>In a short paragraph, summarize how resistances combine in series and in parallel, and how the way the potentiometer was wired decided whether a resistance changed as you turned the knob.</p>' },
+        { t: 'html', html: '<p>In a short paragraph, explain how to find the power in a resistor and how to choose its rating, describe how an LED behaves differently from a resistor, and summarize what you learned about energy cost.</p>' },
         { t: 'text', id: 'concl', label: 'Conclusion', rows: 8 },
         { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas.</p>' }
       ] }

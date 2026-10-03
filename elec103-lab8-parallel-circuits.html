@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 2: Measuring Resistance — ELEC 103</title>
-<meta name="description" content="ELEC 103 Tinkercad Lab 2: resistance in series, parallel, and series-parallel networks, potentiometers, and rheostats.">
+<title>Lab 8: Parallel Circuits and Kirchhoff's Current Law — ELEC 103</title>
+<meta name="description" content="ELEC 103 Tinkercad Lab 8: branch currents, Kirchhoff's current law, the current divider, open branches, and series versus parallel light strings.">
 <style>
 :root {
   /* Palette drawn from the resistor color code and the lab bench */
@@ -1150,159 +1150,116 @@ var C = (function () {
   return { row: row, pctRow: pctRow, reminders: reminders, ohmRules: ohmRules, pctNote: pctNote };
 })();
 window.LAB = (function () {
-  var POS = ['ccw', 'q1', 'half', 'q3', 'cw'], POSH = ['Knob position', 'Full CCW', '¼ turn', '½ turn', '¾ turn', 'Full CW'];
-  function lbl(s, p, t) { s.top('<text x="' + p.x + '" y="' + p.y + '" class="sch-tl" text-anchor="middle">' + t + '</text>'); }
-  function schSeries() {
-    var s = new Draw.Sch(480, 230, 'Series network: A, R1 1 kilohm, R2 4 kilohm, R3 10 kilohm, R4 2 kilohm, B');
-    s.term(40, 50, 'A'); s.line([[40, 50], [70, 50]]); s.R(70, 50, 170, 50, 'R1', '1 kΩ'); s.line([[170, 50], [230, 50]]); s.R(230, 50, 330, 50, 'R2', '4 kΩ');
-    s.line([[330, 50], [420, 50], [420, 70]]); s.R(420, 70, 420, 170, 'R3', '10 kΩ', 'r'); s.line([[420, 170], [420, 190], [300, 190]]);
-    s.R(200, 190, 300, 190, 'R4', '2 kΩ', 'b'); s.line([[200, 190], [40, 190]]); s.term(40, 190, 'B');
-    return s.svg();
-  }
-  function schParallel() {
-    var s = new Draw.Sch(480, 240, 'Parallel network: R1 1 kilohm, R2 4 kilohm, R3 10 kilohm and R4 2 kilohm, each connected directly between A and B');
-    s.term(40, 50, 'A'); s.term(40, 200, 'B'); s.line([[40, 50], [420, 50]]); s.line([[40, 200], [420, 200]]);
-    [[120, 'R1', '1 kΩ'], [220, 'R2', '4 kΩ'], [320, 'R3', '10 kΩ'], [420, 'R4', '2 kΩ']].forEach(function (r, i) {
-      s.R(r[0], 50, r[0], 200, r[1], r[2], 'r'); if (i < 3) { s.dot(r[0], 50); s.dot(r[0], 200); }
+  function schPar(n, meters) {
+    var xs = [170, 260, 350].slice(0, n), names = ['R1', 'R2', 'R3'], vals = ['1 kΩ', '2 kΩ', '3 kΩ'];
+    var s = new Draw.Sch(420, 240, 'Parallel circuit: a 12 volt supply with ' + n + ' branches: ' + names.slice(0, n).join(', '));
+    s.batt(60, 60, 190, '12 V'); s.line([[60, 60], [60, 30], [xs[n - 1], 30]]); s.line([[60, 190], [60, 215], [xs[n - 1], 215]]);
+    if (meters) { s.meterSym(110, 30, 'A'); }
+    xs.forEach(function (x, i) {
+      if (meters) { s.line([[x, 30], [x, 52]]); s.meterSym(x, 66, 'A'); s.R(x, 80, x, 190, names[i], vals[i], 'r'); s.line([[x, 190], [x, 215]]); }
+      else s.R(x, 30, x, 215, names[i], vals[i], 'r');
+      if (i < n - 1) { s.dot(x, 30); s.dot(x, 215); }
     });
     return s.svg();
   }
-  function schSP() {
-    var s = new Draw.Sch(480, 240, 'Series-parallel network: A, R1 10 kilohm to a node; from that node R2 12 kilohm down to a lower node, in parallel with R3 8 kilohm plus R4 4 kilohm; then R5 4 kilohm from the lower node to B');
-    s.term(30, 50, 'A'); s.line([[30, 50], [60, 50]]); s.R(60, 50, 160, 50, 'R1', '10 kΩ'); s.line([[160, 50], [420, 50], [420, 70]]); s.dot(250, 50);
-    s.R(250, 50, 250, 200, 'R2', '12 kΩ', 'r'); s.dot(250, 200);
-    s.R(420, 70, 420, 180, 'R3', '8 kΩ', 'r'); s.line([[420, 180], [420, 200], [400, 200]]); s.R(290, 200, 400, 200, 'R4', '4 kΩ', 'b'); s.line([[290, 200], [250, 200]]);
-    s.line([[250, 200], [160, 200]]); s.R(60, 200, 160, 200, 'R5', '4 kΩ', 'b'); s.line([[60, 200], [30, 200]]); s.term(30, 200, 'B');
-    return s.svg();
-  }
-  function schPot(rheo) {
-    var s = new Draw.Sch(480, 260, rheo ? 'Potentiometer wired as a rheostat: the wiper, pin 2, is joined to pin 1, so A and B are the same point' : 'Potentiometer circuit: C, R1 10 kilohm, to pin 3 of a 25 kilohm potentiometer; the wiper, pin 2, goes to A; pin 1 goes to node B; R3 5 kilohm runs from B to D');
-    s.term(40, 40, 'C'); s.line([[40, 40], [70, 40]]); s.R(70, 40, 170, 40, 'R1', '10 kΩ'); s.line([[170, 40], [300, 40], [300, 70]]);
-    s.pot(300, 70, 180, 'R2', '25 kΩ', 380);
-    s.line([[380, 125], [440, 125]]); s.term(440, 125, 'A', 'r');
-    if (rheo) { s.dot(380, 125); s.line([[380, 125], [380, 200], [300, 200]]); s.dot(300, 200); }
-    s.line([[300, 180], [300, 225]]); s.dot(300, 225); s.line([[300, 225], [440, 225]]); s.term(440, 225, 'B', 'r');
-    s.line([[300, 225], [170, 225]]); s.R(70, 225, 170, 225, 'R3', '5 kΩ', 'b'); s.line([[70, 225], [40, 225]]); s.term(40, 225, 'D');
-    return s.svg();
-  }
-  function bbParallel() {
-    var s = new Draw.Sch(580, 330, 'Breadboard: four resistors stand across the center channel in columns 6, 11, 16 and 21. Red jumpers join each top end to the top positive rail, which is A. Black jumpers join each bottom end to the bottom negative rail, which is B.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    [[6, 1000, 'R1'], [11, 4000, 'R2'], [16, 10000, 'R3'], [21, 2000, 'R4']].forEach(function (r) {
-      Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
+  function bbPar() {
+    var s = new Draw.Scene(600, 430, 'Breadboard: three resistors stand across the center channel in columns 8, 14 and 20. Each top end is joined to the top positive rail by a red jumper, except column 14, where an ammeter takes the place of the jumper. Each bottom end goes to the bottom negative rail, which is joined to the top negative rail.');
+    var b = new Draw.Board(s, 20, 130).draw();
+    [[8, 1000, 'R1'], [14, 2000, 'R2'], [20, 3000, 'R3']].forEach(function (r) {
+      if (r[0] !== 14) Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
       Draw.resistor(s, b.p('f' + r[0]), b.p('e' + r[0]), r[1], r[2]);
       Draw.wire(s, [b.p('a' + r[0]), b.p('b-' + r[0])], 'black');
     });
-    Draw.note(s, 300, 14, 'A = top + rail   ·   B = bottom − rail', { anchor: 'middle' });
+    Draw.wire(s, [b.p('t-2'), b.p('b-2')], 'black');
+    var am = Draw.meter(s, 150, 18, { mode: 'A', read: '6.000 mA', label: 'Ammeter in the R2 branch', labelAbove: true });
+    Draw.wire(s, [am.pos, { x: am.pos.x, y: 118 }, { x: b.p('t+16').x, y: 118 }, b.p('t+16')], 'red');
+    Draw.wire(s, [am.com, { x: am.com.x, y: 112 }, { x: b.p('j14').x, y: 112 }, b.p('j14')], 'orange');
+    var ps = Draw.supply(s, 430, 8, { v: '12.00', i: '0.022' });
+    Draw.wire(s, [ps.pos, { x: ps.pos.x, y: 124 }, { x: b.p('t+28').x, y: 124 }, b.p('t+28')], 'red');
+    Draw.wire(s, [ps.neg, { x: ps.neg.x, y: 118 }, { x: b.p('t-30').x, y: 118 }, b.p('t-30')], 'black');
     return s.svg();
   }
-  function bbSP() {
-    var s = new Draw.Scene(580, 320, 'Breadboard: A is column 3 top half. R1 runs from column 3 to column 7 in row i. R2 stands across the channel in column 7. R3 runs from column 7 to column 11 in row h. R4 stands across the channel in column 11. A green jumper in row a joins column 11 back to column 7 bottom. R5 runs from column 7 to column 3 in row c, and B is column 3 bottom half.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    Draw.resistor(s, b.p('i3'), b.p('i7'), 10000, 'R1', { ly: -9 });
-    Draw.resistor(s, b.p('f7'), b.p('e7'), 12000, 'R2');
-    Draw.resistor(s, b.p('h7'), b.p('h11'), 8000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('f11'), b.p('e11'), 4000, 'R4');
-    Draw.wire(s, [b.p('a11'), b.p('a7')], 'green');
-    Draw.resistor(s, b.p('c7'), b.p('c3'), 4000, 'R5', { ly: 16 });
-    lbl(s, { x: b.p('j3').x, y: b.p('j3').y - 6 }, 'A'); lbl(s, { x: b.p('a3').x, y: b.p('a3').y + 20 }, 'B');
+  function schLeds(par) {
+    var s = new Draw.Sch(440, 260, par ? 'Three branches in parallel across 9 volts, each an LED with its own 470 ohm resistor' : 'Three LEDs in series with one 330 ohm resistor across 9 volts');
+    s.batt(50, 70, 200, '9 V');
+    if (!par) {
+      s.line([[50, 70], [50, 30], [130, 30]]); s.R(130, 30, 220, 30, 'R', '330 Ω'); s.line([[220, 30], [380, 30], [380, 40]]);
+      s.led(380, 40, 100, 'D1', 'l'); s.led(380, 110, 170, 'D2', 'l'); s.led(380, 180, 230, 'D3', 'l'); s.line([[380, 100], [380, 110]]); s.line([[380, 170], [380, 180]]);
+      s.line([[380, 230], [380, 240], [50, 240], [50, 200]]);
+    } else {
+      s.line([[50, 70], [50, 30], [370, 30]]); s.line([[50, 200], [50, 240], [370, 240]]);
+      [170, 270, 370].forEach(function (x, i) {
+        s.R(x, 30, x, 120, 'R' + (i + 1), '470 Ω', 'l'); s.led(x, 130, 220, 'D' + (i + 1), 'r'); s.line([[x, 120], [x, 130]]); s.line([[x, 220], [x, 240]]);
+        if (i < 2) { s.dot(x, 30); s.dot(x, 240); }
+      });
+    }
     return s.svg();
   }
-  function bbPot(rheo) {
-    var s = new Draw.Scene(580, 320, rheo ? 'The same breadboard with a yellow jumper in row h joining the wiper column to Terminal 1' : 'Breadboard: a potentiometer with Terminal 1 in column 14, the wiper in 15 and Terminal 2 in 16, all in row j. R3 runs from column 10 to column 14 in row i; R1 runs from column 16 to column 20 in row i. D is column 10, B is column 14, A is column 15, and C is column 20.');
-    var b = new Draw.Board(s, 16, 30).draw();
-    Draw.pot(s, [b.p('j14'), b.p('j15'), b.p('j16')], { label: 'R2 25 kΩ' });
-    Draw.resistor(s, b.p('i10'), b.p('i14'), 5000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('i16'), b.p('i20'), 10000, 'R1', { ly: 17 });
-    if (rheo) Draw.wire(s, [b.p('h14'), b.p('h15')], 'yellow');
-    [['g10', 'D'], ['g14', 'B'], ['g15', 'A'], ['g20', 'C']].forEach(function (x, i) { var p = b.p(x[0]); lbl(s, { x: p.x + (i === 1 ? -3 : i === 2 ? 3 : 0), y: p.y + 30 }, x[1]); });
-    return s.svg();
-  }
-  function tRT(id, ans) {
-    return { t: 'data', title: 'Total resistance, A to B', head: ['', 'Calculated', 'Measured in Tinkercad', '% difference'], rows: [
-      { label: 'R<sub>T</sub>', unit: 'kΩ', cells: [{ id: id + '_c', ans: ans }, { id: id + '_m', ans: ans }, { id: id + '_p', pct: [id + '_c', id + '_m'] }] }] };
-  }
-  function potTable(p, ab, cd, tolAB, tolCD) {
-    return { t: 'data', title: 'Readings as you turn the knob', head: POSH, rows: [
-      { label: 'Predicted A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Measured A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Predicted C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pcd_' + k, ans: cd[i], tol: tolCD[i] }; }) },
-      { label: 'Measured C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mcd_' + k, ans: cd[i], tol: tolCD[i] }; }) }
-    ] };
-  }
-  var T3 = [0.4, 3, 3, 3, 0.4];
+  var BR = ['r1', 'r2', 'r3', 't'];
   return {
-    key: 'elec103-lab2-v1', no: 'Lab 2', file: 'ELEC103_Lab2', title: 'Measuring Resistance',
-    lede: 'Predict and measure resistance in series, parallel, and series-parallel networks, then see what a potentiometer’s wiper really does.',
+    key: 'elec103-lab8-v1', no: 'Lab 8', file: 'ELEC103_Lab8', title: 'Parallel Circuits and Kirchhoff’s Current Law',
+    lede: 'Many paths, one voltage. Follow the current as it splits and rejoins, and see why your house is wired in parallel.',
     sections: [
       { id: 'start', tab: 'Start here', title: 'Before you begin', blocks: [
         { t: 'student' },
-        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate total resistance for series, parallel, and series-parallel networks, and confirm it by measurement.</li><li>Identify the three terminals of a potentiometer and explain how the wiper divides its resistance.</li><li>Tell the difference between a potentiometer used as a three-terminal part and one wired as a <strong>rheostat</strong>.</li></ul>' +
-          '<h3>Background</h3><p><strong>Series:</strong> <span class="eq">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + …</span> The total is always larger than the largest resistor.</p>' +
-          '<p><strong>Parallel:</strong> <span class="eq">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + …</span> The total is always smaller than the smallest resistor.</p>' +
-          '<p><strong>Potentiometer:</strong> a fixed resistance between its two outer terminals, with a movable <strong>wiper</strong> in between. Turning the knob changes the resistance from an outer terminal to the wiper, but the outer-to-outer resistance never changes. Connecting the wiper to one outer terminal turns the pot into a two-terminal <strong>rheostat</strong> — a variable resistor.</p>' +
-          '<p>Enter resistances in <strong>kΩ</strong>. You can type <em>540 Ω</em> or <em>0.54k</em> and the page converts it.</p>' },
-        C.reminders, C.ohmRules, C.pctNote
+        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Show that every branch of a parallel circuit has the same voltage.</li><li>Measure branch currents and verify <strong>Kirchhoff’s current law</strong>: the total current equals the sum of the branch currents.</li><li>Predict how adding or removing a branch changes the total current and total resistance.</li><li>Use the current-divider formula.</li><li>Explain the practical difference between series and parallel wiring.</li></ul>' +
+          '<h3>Background</h3><p>In parallel, every branch connects across the same two points, so <strong>each branch has the full source voltage</strong>. Each branch current follows Ohm’s law on its own, <span class="eq">I<sub>n</sub> = V<sub>S</sub> / R<sub>n</sub></span>, and <strong>Kirchhoff’s current law</strong> says the currents entering a node equal the currents leaving it: <span class="eq">I<sub>T</sub> = I<sub>1</sub> + I<sub>2</sub> + I<sub>3</sub></span>.</p>' +
+          '<p>For two branches, the <strong>current divider</strong> gives each branch’s share of the total: <span class="eq">I<sub>1</sub> = I<sub>T</sub> × R2 / (R1 + R2)</span>. The smaller resistor takes the larger current.</p>' +
+          '<p><strong>Measuring branch current:</strong> the ammeter goes in series <em>with that branch only</em>. Remove the branch’s connection to the rail and let the meter make the connection instead, as Figure 2 shows.</p>' },
+        C.reminders
       ] },
-      { id: 'series', tab: 'Series', title: 'Series network', blocks: [
-        { t: 'fig', draw: schSeries, cap: 'Figure 1. Series network.' },
-        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> Calculate the total resistance between A and B.</p>' },
-        { t: 'text', id: 'wA', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 2, html: '<p><strong>Build and measure.</strong> Build Figure 1 (you built this kind of chain in Lab 1). Connect the ohmmeter from A to B and start the simulation.</p>' },
-        tRT('rA', 17),
-        { t: 'shot', id: 'A', label: 'the series network with the meter reading visible' },
-        { t: 'step', n: 3, html: '<p><strong>Change one thing.</strong> Stop the simulation and change R3 from 10 kΩ to 20 kΩ. Predict the new total, measure it, then change R3 back.</p>' },
-        { t: 'nums', items: [{ id: 'a3p', label: 'Predicted with R3 = 20 kΩ', unit: 'kΩ', ans: 27 }, { id: 'a3m', label: 'Measured', unit: 'kΩ', ans: 27 }] }
+      { id: 'branch', tab: 'Branch currents', title: 'Branch currents and Kirchhoff’s current law', blocks: [
+        { t: 'fig', draw: function () { return schPar(3, true); }, cap: 'Figure 1. Three branches across 12 V, with an ammeter position marked for each branch and for the total.' },
+        { t: 'fig', draw: bbPar, wide: true, cap: 'Figure 2. One way to build it, showing the ammeter in the R2 branch. To measure another branch, put its red jumper back and move the meter. To measure the total, put the meter in the supply’s + lead.' },
+        { t: 'step', n: 1, html: '<p><strong>Predict</strong> each branch current, the total current, and the total resistance.</p>' },
+        { t: 'text', id: 'w1', label: 'Your calculations', rows: 5, work: true },
+        { t: 'step', n: 2, html: '<p>Build the circuit. Measure the voltage across each resistor, then measure each branch current and the total current, one ammeter position at a time.</p>' },
+        { t: 'data', title: 'Parallel circuit, 12 V', head: ['', 'R1 branch', 'R2 branch', 'R3 branch', 'Total'], rows: [
+          { label: 'Voltage measured', unit: 'V', cells: [{ id: 'b_v1', ans: 12 }, { id: 'b_v2', ans: 12 }, { id: 'b_v3', ans: 12 }, null] },
+          C.row('Current predicted', 'mA', 'b_ip', BR, [12, 6, 4, 22]), C.row('Current measured', 'mA', 'b_im', BR, [12, 6, 4, 22])] },
+        { t: 'nums', items: [{ id: 'b_sum', label: 'I<sub>1</sub> + I<sub>2</sub> + I<sub>3</sub> from your measurements', unit: 'mA', ans: 22 }, { id: 'b_rt', label: 'R<sub>T</sub> = V<sub>S</sub> / I<sub>T</sub>', unit: 'kΩ', ans: 0.5455 }] },
+        { t: 'shot', id: 'branch', label: 'the circuit with the ammeter in one branch, reading visible' },
+        { t: 'step', n: 3, html: '<p>Which branch carries the most current, and why? Is R<sub>T</sub> smaller than every branch resistance? Explain both in terms of paths for current.</p>' },
+        { t: 'text', id: 'q3', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'par', tab: 'Parallel', title: 'Parallel network', blocks: [
-        { t: 'fig', draw: schParallel, cap: 'Figure 2. Parallel network — the same four resistors, now side by side.' },
-        { t: 'fig', draw: bbParallel, wide: true, cap: 'Figure 3. One way to build it. Each resistor bridges the center channel; the top rail is A and the bottom rail is B.' },
-        { t: 'step', n: 4, html: '<p><strong>Predict.</strong> Calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wB', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 5, html: '<p><strong>Build and measure.</strong> Build the circuit and connect the ohmmeter between the two rails.</p>' },
-        tRT('rB', 0.5405),
-        { t: 'shot', id: 'B', label: 'the parallel network with the meter reading visible' },
-        { t: 'step', n: 6, html: '<p>Your total should be smaller than the smallest resistor (1 kΩ). Is it? Explain in a sentence or two why adding more parallel branches always <strong>lowers</strong> the total resistance.</p>' },
-        { t: 'text', id: 'q6', label: 'Your answer', rows: 3 }
+      { id: 'add', tab: 'Adding branches', title: 'Adding branches', blocks: [
+        { t: 'step', n: 4, html: '<p>Start with only the <strong>R1</strong> branch connected, then add R2, then R3. Each time, predict and measure the total current from the supply, and calculate R<sub>T</sub>.</p>' },
+        { t: 'data', title: 'Total current as branches are added', head: ['Branches connected', 'R1', 'R1, R2', 'R1, R2, R3'], rows: [
+          C.row('I<sub>T</sub> predicted', 'mA', 'a_ip', ['1', '2', '3'], [12, 18, 22]), C.row('I<sub>T</sub> measured', 'mA', 'a_im', ['1', '2', '3'], [12, 18, 22]),
+          C.row('R<sub>T</sub> = 12 V / I<sub>T</sub>', 'kΩ', 'a_rt', ['1', '2', '3'], [1, 0.6667, 0.5455])] },
+        { t: 'step', n: 5, html: '<p>As you added branches, did the current in R1 change? Measure it with all three connected to check. Explain why adding a branch increases the total current without affecting the branches already there — and why that matters when you plug too many appliances into one circuit at home.</p>' },
+        { t: 'nums', items: [{ id: 'a_i1', label: 'Current in R1 with all three connected', unit: 'mA', ans: 12 }] },
+        { t: 'text', id: 'q5', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'sp', tab: 'Series-parallel', title: 'Series-parallel network', blocks: [
-        { t: 'fig', draw: schSP, cap: 'Figure 4. Series-parallel network.' },
-        { t: 'fig', draw: bbSP, wide: true, cap: 'Figure 5. One way to build it. Trace it against Figure 4 before you start: R2 crosses the channel, and R3 and R4 make a second path around it.' },
-        { t: 'step', n: 7, html: '<p><strong>Predict.</strong> Decide which resistors are in series and which are in parallel. Reduce the network one step at a time and calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wC', label: 'Show each reduction step', rows: 5, work: true },
-        { t: 'step', n: 8, html: '<p><strong>Build and measure.</strong></p>' },
-        tRT('rC', 20),
-        { t: 'shot', id: 'C', label: 'the series-parallel network with the meter reading visible' },
-        { t: 'step', n: 9, html: '<p><strong>Open a branch.</strong> Stop the simulation and delete one end of R2 so its branch is open. Predict and measure R<sub>T</sub>, then explain why it went up.</p>' },
-        { t: 'nums', items: [{ id: 'c9p', label: 'Predicted with R2 open', unit: 'kΩ', ans: 30 }, { id: 'c9m', label: 'Measured', unit: 'kΩ', ans: 30 }] },
-        { t: 'text', id: 'q9', label: 'Why did it increase?', rows: 3 }
+      { id: 'divider', tab: 'Current divider', title: 'The current divider', blocks: [
+        { t: 'step', n: 6, html: '<p>Build two branches, <strong>R1 = 1 kΩ</strong> and <strong>R2 = 4 kΩ</strong>, across a <strong>10 V</strong> supply. First find I<sub>T</sub>, then use the current-divider formula — not Ohm’s law on each branch — to predict each branch current. Measure all three.</p>' },
+        { t: 'text', id: 'w6', label: 'Current-divider calculation', rows: 4, work: true },
+        { t: 'data', title: 'Two-branch divider, 10 V', head: ['', 'I<sub>1</sub> (1 kΩ)', 'I<sub>2</sub> (4 kΩ)', 'I<sub>T</sub>'], rows: [
+          C.row('Predicted', 'mA', 'c_p', ['1', '2', 't'], [10, 2.5, 12.5]), C.row('Measured', 'mA', 'c_m', ['1', '2', 't'], [10, 2.5, 12.5])] },
+        { t: 'step', n: 7, html: '<p>R2 is four times R1. How do the two branch currents compare? State the general rule in your own words.</p>' },
+        { t: 'text', id: 'q7', label: 'Your answer', rows: 3 }
       ] },
-      { id: 'pot', tab: 'Potentiometer', title: 'Potentiometer, three-terminal connection', blocks: [
-        { t: 'fig', draw: function () { return schPot(false); }, cap: 'Figure 6. A 25 kΩ potentiometer between R1 and R3.' },
-        { t: 'fig', draw: function () { return bbPot(false); }, wide: true, cap: 'Figure 7. One way to build it. In Tinkercad, hover over a pot terminal to see its name: schematic pin 1 is <strong>Terminal 1</strong>, pin 2 is the <strong>Wiper</strong>, and pin 3 is <strong>Terminal 2</strong>.' },
-        { t: 'callout', k: 'tip', title: 'Turning the knob', html: '<p>Set the pot to 25 kΩ in the Inspector. To turn it, <strong>click and drag the knob while the simulation is running</strong>. The exact ¼, ½, and ¾ positions are approximate — get close and record what you see.</p>' },
-        { t: 'step', n: 10, html: '<p><strong>Predict</strong> both “Predicted” rows before you build. Think about which parts are between A and B, and which are between C and D.</p>' },
-        { t: 'step', n: 11, html: '<p>Build the circuit. Connect <strong>one</strong> ohmmeter between <strong>A and B</strong>, start the simulation, and sweep the knob from full counter-clockwise to full clockwise, recording A–B at each position.</p>' },
-        { t: 'step', n: 12, html: '<p>Stop the simulation, move the probes to <strong>C and D</strong>, and repeat the sweep.</p>' },
-        potTable('d', [[0, 25], [6.25, 18.75], 12.5, [18.75, 6.25], [25, 0]], [40, 40, 40, 40, 40], T3, [0.5, 0.5, 0.5, 0.5, 0.5]),
-        { t: 'shot', id: 'D', label: 'the potentiometer circuit with a reading visible' },
-        { t: 'step', n: 13, html: '<p>(a) What happened to the A–B resistance as you turned the knob, and did it increase clockwise or counter-clockwise? (b) What happened to the C–D resistance? (c) Explain <strong>why</strong> C–D behaved that way.</p>' },
-        { t: 'text', id: 'q13', label: 'Your observations', rows: 6 },
-        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Connect a <strong>second</strong> ohmmeter so that A–B and C–D are measured at the same time. Do the readings still match your one-meter readings? Use the ohmmeter rules to explain what you see, and what would happen on a real bench.</p>' },
-        { t: 'text', id: 'inv', label: 'What you saw (optional)', rows: 3, optional: true }
+      { id: 'open', tab: 'Open branch', title: 'An open branch', blocks: [
+        { t: 'step', n: 8, html: '<p>Rebuild the three-branch circuit from Part 2. Then disconnect one end of <strong>R2</strong> so its branch is open. Predict and measure the remaining branch currents and the total.</p>' },
+        { t: 'data', title: 'R2 branch open', head: ['', 'I<sub>1</sub>', 'I<sub>2</sub>', 'I<sub>3</sub>', 'I<sub>T</sub>'], rows: [
+          C.row('Predicted', 'mA', 'o_p', BR, [12, 0, 4, 16], { tol: 0.05 }), C.row('Measured', 'mA', 'o_m', BR, [12, 0, 4, 16], { tol: 0.05 })] },
+        { t: 'step', n: 9, html: '<p>Suppose you could not see the circuit and could only measure the <strong>total</strong> current. How could you tell which branch had opened?</p>' },
+        { t: 'text', id: 'q9', label: 'Your answer', rows: 3 }
       ] },
-      { id: 'rheo', tab: 'Rheostat', title: 'Potentiometer wired as a rheostat', blocks: [
-        { t: 'fig', draw: function () { return schPot(true); }, cap: 'Figure 8. The same circuit with the wiper joined to pin 1.' },
-        { t: 'fig', draw: function () { return bbPot(true); }, wide: true, cap: 'Figure 9. Add the yellow jumper between the wiper column and Terminal 1.' },
-        { t: 'step', n: 14, html: '<p>Add the jumper from the <strong>Wiper</strong> to <strong>Terminal 1</strong>. Before measuring, fill in both “Predicted” rows.</p>' },
-        { t: 'step', n: 15, html: '<p>Using <strong>one</strong> ohmmeter, sweep the knob and record A–B. Then move the probes to C–D and sweep again.</p>' },
-        potTable('e', [0, 0, 0, 0, 0], [[15, 40], [21.25, 33.75], 27.5, [33.75, 21.25], [40, 15]], [0.05, 0.05, 0.05, 0.05, 0.05], [0.5, 3, 3, 3, 0.5]),
-        { t: 'shot', id: 'E', label: 'the rheostat circuit with a reading visible' },
-        { t: 'step', n: 16, html: '<p>(a) Why does A–B read about 0 Ω at every knob position? (b) What are the smallest and largest C–D readings, and where do those numbers come from? (c) In your own words, what is the difference between a potentiometer and a rheostat?</p>' },
-        { t: 'text', id: 'q16', label: 'Your observations', rows: 6 }
+      { id: 'lights', tab: 'Holiday lights', title: 'Series or parallel? A string of lights', blocks: [
+        { t: 'html', html: '<p>Light strings are wired two ways. In this part, LEDs stand in for the bulbs.</p>' },
+        { t: 'fig', draw: function () { return schLeds(false); }, small: true, cap: 'Figure 3. Series string: three LEDs and one resistor in a single loop.' },
+        { t: 'step', n: 10, html: '<p>Build the series string on 9 V. Measure the current and the voltage across each LED. Then remove one LED and record what happens to the other two.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'ls_i', label: 'Current', unit: 'mA' }, { id: 'ls_v', label: 'Voltage across one LED', unit: 'V' }, { id: 'ls_out', label: 'With one LED removed, the others…', free: true }] },
+        { t: 'fig', draw: function () { return schLeds(true); }, small: true, cap: 'Figure 4. Parallel string: three branches, each with its own resistor and LED.' },
+        { t: 'step', n: 11, html: '<p>Build the parallel version on 9 V. Measure one branch current and the total current. Then remove one LED and record what happens.</p>' },
+        { t: 'nums', check: false, items: [{ id: 'lp_ib', label: 'One branch current', unit: 'mA' }, { id: 'lp_it', label: 'Total current', unit: 'mA' }, { id: 'lp_out', label: 'With one LED removed, the others…', free: true }] },
+        { t: 'shot', id: 'lights', label: 'the parallel string with one LED removed and the others still lit' },
+        { t: 'step', n: 12, html: '<p>Compare the two strings. Which draws more total current from the supply? Which keeps working when one light fails? Why is the wiring in a house parallel rather than series?</p>' },
+        { t: 'text', id: 'q12', label: 'Your answer', rows: 5 }
       ] },
       { id: 'wrap', tab: 'Conclusion', title: 'Conclusion', blocks: [
-        { t: 'html', html: '<p>In a short paragraph, summarize how resistances combine in series and in parallel, and how the way the potentiometer was wired decided whether a resistance changed as you turned the knob.</p>' },
+        { t: 'html', html: '<p>In a short paragraph, state the rules for voltage, current, and resistance in a parallel circuit, explain Kirchhoff’s current law using your measurements, and contrast series and parallel wiring in practical terms.</p>' },
         { t: 'text', id: 'concl', label: 'Conclusion', rows: 8 },
         { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas.</p>' }
       ] }

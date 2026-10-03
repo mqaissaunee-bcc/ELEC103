@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 2: Measuring Resistance — ELEC 103</title>
-<meta name="description" content="ELEC 103 Tinkercad Lab 2: resistance in series, parallel, and series-parallel networks, potentiometers, and rheostats.">
+<title>Lab 7: Voltage Dividers, Ground, and Series Sources — ELEC 103</title>
+<meta name="description" content="ELEC 103 Tinkercad Lab 7: voltage dividers, adjustable dividers, node voltages and reference points, series sources, and loading.">
 <style>
 :root {
   /* Palette drawn from the resistor color code and the lab bench */
@@ -1150,159 +1150,129 @@ var C = (function () {
   return { row: row, pctRow: pctRow, reminders: reminders, ohmRules: ohmRules, pctNote: pctNote };
 })();
 window.LAB = (function () {
-  var POS = ['ccw', 'q1', 'half', 'q3', 'cw'], POSH = ['Knob position', 'Full CCW', '¼ turn', '½ turn', '¾ turn', 'Full CW'];
-  function lbl(s, p, t) { s.top('<text x="' + p.x + '" y="' + p.y + '" class="sch-tl" text-anchor="middle">' + t + '</text>'); }
-  function schSeries() {
-    var s = new Draw.Sch(480, 230, 'Series network: A, R1 1 kilohm, R2 4 kilohm, R3 10 kilohm, R4 2 kilohm, B');
-    s.term(40, 50, 'A'); s.line([[40, 50], [70, 50]]); s.R(70, 50, 170, 50, 'R1', '1 kΩ'); s.line([[170, 50], [230, 50]]); s.R(230, 50, 330, 50, 'R2', '4 kΩ');
-    s.line([[330, 50], [420, 50], [420, 70]]); s.R(420, 70, 420, 170, 'R3', '10 kΩ', 'r'); s.line([[420, 170], [420, 190], [300, 190]]);
-    s.R(200, 190, 300, 190, 'R4', '2 kΩ', 'b'); s.line([[200, 190], [40, 190]]); s.term(40, 190, 'B');
+  function lbl(s, x, y, t, a) { s.add('<text x="' + x + '" y="' + y + '" class="sch-tl" text-anchor="' + (a || 'start') + '">' + t + '</text>'); }
+  function schDiv(r1, r2, vs, load) {
+    var s = new Draw.Sch(load ? 440 : 380, 230, 'Voltage divider: ' + vs + ' supply across R1 ' + r1 + ' over R2 ' + r2 + (load ? ', with a load resistor across R2' : '') + '; the output is taken across R2');
+    s.batt(60, 50, 190, vs); s.line([[60, 50], [60, 30], [220, 30], [220, 45]]); s.R(220, 45, 220, 110, 'R1', r1, 'l');
+    s.dot(220, 115); s.line([[220, 110], [220, 125]]); s.R(220, 125, 220, 185, 'R2', r2, 'l'); s.line([[220, 185], [220, 205], [60, 205], [60, 190]]); s.dot(220, 205);
+    s.line([[220, 115], [300, 115]]); s.term(300, 115, 'Vout', 'r'); s.line([[220, 205], [300, 205]]); s.term(300, 205, '0 V', 'r');
+    if (load) { s.dot(260, 115); s.dot(260, 205); s.line([[260, 115], [260, 135]]); s.R(260, 135, 260, 185, '', ''); s.line([[260, 185], [260, 205]]); s.add('<text x="266" y="165" class="sch-n">R<tspan baseline-shift="sub" font-size="9">L</tspan></text>'); }
     return s.svg();
   }
-  function schParallel() {
-    var s = new Draw.Sch(480, 240, 'Parallel network: R1 1 kilohm, R2 4 kilohm, R3 10 kilohm and R4 2 kilohm, each connected directly between A and B');
-    s.term(40, 50, 'A'); s.term(40, 200, 'B'); s.line([[40, 50], [420, 50]]); s.line([[40, 200], [420, 200]]);
-    [[120, 'R1', '1 kΩ'], [220, 'R2', '4 kΩ'], [320, 'R3', '10 kΩ'], [420, 'R4', '2 kΩ']].forEach(function (r, i) {
-      s.R(r[0], 50, r[0], 200, r[1], r[2], 'r'); if (i < 3) { s.dot(r[0], 50); s.dot(r[0], 200); }
-    });
+  function schPot() {
+    var s = new Draw.Sch(360, 260, 'Adjustable divider: 12 volt supply across 1 kilohm, a 10 kilohm potentiometer, and another 1 kilohm in series; the output is the wiper');
+    s.batt(60, 50, 220, '12 V'); s.line([[60, 50], [60, 30], [220, 30], [220, 40]]); s.R(220, 40, 220, 90, 'R1', '1 kΩ', 'l');
+    s.pot(220, 95, 175, 'R2', '10 kΩ', 290, { pins: false }); s.line([[220, 90], [220, 95]]); s.line([[290, 135], [310, 135]]); s.term(310, 135, 'Vout', 'r');
+    s.line([[220, 175], [220, 180]]); s.R(220, 180, 220, 225, 'R3', '1 kΩ', 'l'); s.line([[220, 225], [220, 240], [60, 240], [60, 220]]);
     return s.svg();
   }
-  function schSP() {
-    var s = new Draw.Sch(480, 240, 'Series-parallel network: A, R1 10 kilohm to a node; from that node R2 12 kilohm down to a lower node, in parallel with R3 8 kilohm plus R4 4 kilohm; then R5 4 kilohm from the lower node to B');
-    s.term(30, 50, 'A'); s.line([[30, 50], [60, 50]]); s.R(60, 50, 160, 50, 'R1', '10 kΩ'); s.line([[160, 50], [420, 50], [420, 70]]); s.dot(250, 50);
-    s.R(250, 50, 250, 200, 'R2', '12 kΩ', 'r'); s.dot(250, 200);
-    s.R(420, 70, 420, 180, 'R3', '8 kΩ', 'r'); s.line([[420, 180], [420, 200], [400, 200]]); s.R(290, 200, 400, 200, 'R4', '4 kΩ', 'b'); s.line([[290, 200], [250, 200]]);
-    s.line([[250, 200], [160, 200]]); s.R(60, 200, 160, 200, 'R5', '4 kΩ', 'b'); s.line([[60, 200], [30, 200]]); s.term(30, 200, 'B');
+  function schString() {
+    var s = new Draw.Sch(360, 260, 'Series string: 12 volt supply with R1 1 kilohm, R2 2 kilohm, and R3 3 kilohm; the nodes from top to bottom are A, B, C, and D');
+    s.batt(60, 60, 220, '12 V'); s.line([[60, 60], [60, 30], [220, 30], [220, 40]]); s.R(220, 40, 220, 95, 'R1', '1 kΩ', 'l'); s.R(220, 105, 220, 160, 'R2', '2 kΩ', 'l'); s.R(220, 170, 220, 225, 'R3', '3 kΩ', 'l');
+    s.line([[220, 95], [220, 105]]); s.line([[220, 160], [220, 170]]); s.line([[220, 225], [220, 240], [60, 240], [60, 220]]);
+    [[30, 'A'], [100, 'B'], [165, 'C'], [240, 'D']].forEach(function (n) { s.dot(220, n[0]); lbl(s, 236, n[0] + 5, n[1]); });
     return s.svg();
   }
-  function schPot(rheo) {
-    var s = new Draw.Sch(480, 260, rheo ? 'Potentiometer wired as a rheostat: the wiper, pin 2, is joined to pin 1, so A and B are the same point' : 'Potentiometer circuit: C, R1 10 kilohm, to pin 3 of a 25 kilohm potentiometer; the wiper, pin 2, goes to A; pin 1 goes to node B; R3 5 kilohm runs from B to D');
-    s.term(40, 40, 'C'); s.line([[40, 40], [70, 40]]); s.R(70, 40, 170, 40, 'R1', '10 kΩ'); s.line([[170, 40], [300, 40], [300, 70]]);
-    s.pot(300, 70, 180, 'R2', '25 kΩ', 380);
-    s.line([[380, 125], [440, 125]]); s.term(440, 125, 'A', 'r');
-    if (rheo) { s.dot(380, 125); s.line([[380, 125], [380, 200], [300, 200]]); s.dot(300, 200); }
-    s.line([[300, 180], [300, 225]]); s.dot(300, 225); s.line([[300, 225], [440, 225]]); s.term(440, 225, 'B', 'r');
-    s.line([[300, 225], [170, 225]]); s.R(70, 225, 170, 225, 'R3', '5 kΩ', 'b'); s.line([[70, 225], [40, 225]]); s.term(40, 225, 'D');
+  function schSources(opp) {
+    var s = new Draw.Sch(340, 260, 'Two supplies in series ' + (opp ? 'opposing' : 'aiding') + ': a 5 volt supply and a 3 volt supply in series with a 2 kilohm load');
+    s.batt(60, 40, 120, '5 V');
+    if (!opp) s.batt(60, 140, 220, '3 V');
+    else { s.line([[60, 140], [60, 172]]); s.line([[60, 188], [60, 220]]); s.add('<line x1="44" y1="172" x2="76" y2="172" class="sch-w"/><line x1="52" y1="178" x2="68" y2="178" class="sch-w thick"/><line x1="44" y1="184" x2="76" y2="184" class="sch-w"/><line x1="52" y1="190" x2="68" y2="190" class="sch-w thick"/><text x="80" y="200" class="sch-v">+</text><text x="38" y="186" class="sch-n" text-anchor="end">3 V</text>'); }
+    s.line([[60, 120], [60, 140]]); s.line([[60, 40], [60, 30], [240, 30], [240, 90]]); s.R(240, 90, 240, 170, 'R', '2 kΩ', 'r'); s.line([[240, 170], [240, 240], [60, 240], [60, 220]]);
+    s.add('<text x="96" y="140" class="sch-v">' + (opp ? 'second supply reversed' : '+ of the 3 V to − of the 5 V') + '</text>');
     return s.svg();
   }
-  function bbParallel() {
-    var s = new Draw.Sch(580, 330, 'Breadboard: four resistors stand across the center channel in columns 6, 11, 16 and 21. Red jumpers join each top end to the top positive rail, which is A. Black jumpers join each bottom end to the bottom negative rail, which is B.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    [[6, 1000, 'R1'], [11, 4000, 'R2'], [16, 10000, 'R3'], [21, 2000, 'R4']].forEach(function (r) {
-      Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
-      Draw.resistor(s, b.p('f' + r[0]), b.p('e' + r[0]), r[1], r[2]);
-      Draw.wire(s, [b.p('a' + r[0]), b.p('b-' + r[0])], 'black');
-    });
-    Draw.note(s, 300, 14, 'A = top + rail   ·   B = bottom − rail', { anchor: 'middle' });
+  function bbDiv() {
+    var s = new Draw.Scene(580, 400, 'Breadboard: the supply feeds the top rails; R1 stands from the positive rail column to column 12 crossing the channel; R2 runs from column 12 to the bottom negative rail; a voltmeter reads column 12 against the negative rail');
+    var b = new Draw.Board(s, 16, 100).draw();
+    Draw.wire(s, [b.p('t+8'), b.p('j8')], 'red');
+    Draw.resistor(s, b.p('i8'), b.p('i12'), 2000, 'R1', { ly: 18 });
+    Draw.resistor(s, b.p('f12'), b.p('e12'), 1000, 'R2');
+    Draw.wire(s, [b.p('a12'), b.p('b-12')], 'black');
+    Draw.wire(s, [b.p('t-3'), b.p('b-3')], 'black');
+    var ps = Draw.supply(s, 400, 2, { v: '12.00', i: '0.004' });
+    Draw.wire(s, [ps.pos, { x: ps.pos.x, y: 92 }, { x: b.p('t+28').x, y: 92 }, b.p('t+28')], 'red');
+    Draw.wire(s, [ps.neg, { x: ps.neg.x, y: 86 }, { x: b.p('t-30').x, y: 86 }, b.p('t-30')], 'black');
+    var m = Draw.meter(s, 120, 2, { mode: 'V', read: '4.000 V' });
+    Draw.wire(s, [m.pos, { x: m.pos.x, y: 80 }, { x: b.p('j12').x, y: 80 }, b.p('j12')], 'red');
+    Draw.wire(s, [m.com, { x: m.com.x, y: 86 }, { x: b.p('t-14').x, y: 86 }, b.p('t-14')], 'black');
+    Draw.note(s, b.p('h14').x, b.p('h14').y + 4, 'Vout = column 12');
     return s.svg();
   }
-  function bbSP() {
-    var s = new Draw.Scene(580, 320, 'Breadboard: A is column 3 top half. R1 runs from column 3 to column 7 in row i. R2 stands across the channel in column 7. R3 runs from column 7 to column 11 in row h. R4 stands across the channel in column 11. A green jumper in row a joins column 11 back to column 7 bottom. R5 runs from column 7 to column 3 in row c, and B is column 3 bottom half.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    Draw.resistor(s, b.p('i3'), b.p('i7'), 10000, 'R1', { ly: -9 });
-    Draw.resistor(s, b.p('f7'), b.p('e7'), 12000, 'R2');
-    Draw.resistor(s, b.p('h7'), b.p('h11'), 8000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('f11'), b.p('e11'), 4000, 'R4');
-    Draw.wire(s, [b.p('a11'), b.p('a7')], 'green');
-    Draw.resistor(s, b.p('c7'), b.p('c3'), 4000, 'R5', { ly: 16 });
-    lbl(s, { x: b.p('j3').x, y: b.p('j3').y - 6 }, 'A'); lbl(s, { x: b.p('a3').x, y: b.p('a3').y + 20 }, 'B');
-    return s.svg();
-  }
-  function bbPot(rheo) {
-    var s = new Draw.Scene(580, 320, rheo ? 'The same breadboard with a yellow jumper in row h joining the wiper column to Terminal 1' : 'Breadboard: a potentiometer with Terminal 1 in column 14, the wiper in 15 and Terminal 2 in 16, all in row j. R3 runs from column 10 to column 14 in row i; R1 runs from column 16 to column 20 in row i. D is column 10, B is column 14, A is column 15, and C is column 20.');
-    var b = new Draw.Board(s, 16, 30).draw();
-    Draw.pot(s, [b.p('j14'), b.p('j15'), b.p('j16')], { label: 'R2 25 kΩ' });
-    Draw.resistor(s, b.p('i10'), b.p('i14'), 5000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('i16'), b.p('i20'), 10000, 'R1', { ly: 17 });
-    if (rheo) Draw.wire(s, [b.p('h14'), b.p('h15')], 'yellow');
-    [['g10', 'D'], ['g14', 'B'], ['g15', 'A'], ['g20', 'C']].forEach(function (x, i) { var p = b.p(x[0]); lbl(s, { x: p.x + (i === 1 ? -3 : i === 2 ? 3 : 0), y: p.y + 30 }, x[1]); });
-    return s.svg();
-  }
-  function tRT(id, ans) {
-    return { t: 'data', title: 'Total resistance, A to B', head: ['', 'Calculated', 'Measured in Tinkercad', '% difference'], rows: [
-      { label: 'R<sub>T</sub>', unit: 'kΩ', cells: [{ id: id + '_c', ans: ans }, { id: id + '_m', ans: ans }, { id: id + '_p', pct: [id + '_c', id + '_m'] }] }] };
-  }
-  function potTable(p, ab, cd, tolAB, tolCD) {
-    return { t: 'data', title: 'Readings as you turn the knob', head: POSH, rows: [
-      { label: 'Predicted A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Measured A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Predicted C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pcd_' + k, ans: cd[i], tol: tolCD[i] }; }) },
-      { label: 'Measured C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mcd_' + k, ans: cd[i], tol: tolCD[i] }; }) }
-    ] };
-  }
-  var T3 = [0.4, 3, 3, 3, 0.4];
   return {
-    key: 'elec103-lab2-v1', no: 'Lab 2', file: 'ELEC103_Lab2', title: 'Measuring Resistance',
-    lede: 'Predict and measure resistance in series, parallel, and series-parallel networks, then see what a potentiometer’s wiper really does.',
+    key: 'elec103-lab7-v1', no: 'Lab 7', file: 'ELEC103_Lab7', title: 'Voltage Dividers, Ground, and Series Sources',
+    lede: 'Split a voltage on purpose, measure every point against a reference you choose, and stack supplies to add or cancel.',
     sections: [
       { id: 'start', tab: 'Start here', title: 'Before you begin', blocks: [
         { t: 'student' },
-        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate total resistance for series, parallel, and series-parallel networks, and confirm it by measurement.</li><li>Identify the three terminals of a potentiometer and explain how the wiper divides its resistance.</li><li>Tell the difference between a potentiometer used as a three-terminal part and one wired as a <strong>rheostat</strong>.</li></ul>' +
-          '<h3>Background</h3><p><strong>Series:</strong> <span class="eq">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + …</span> The total is always larger than the largest resistor.</p>' +
-          '<p><strong>Parallel:</strong> <span class="eq">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + …</span> The total is always smaller than the smallest resistor.</p>' +
-          '<p><strong>Potentiometer:</strong> a fixed resistance between its two outer terminals, with a movable <strong>wiper</strong> in between. Turning the knob changes the resistance from an outer terminal to the wiper, but the outer-to-outer resistance never changes. Connecting the wiper to one outer terminal turns the pot into a two-terminal <strong>rheostat</strong> — a variable resistor.</p>' +
-          '<p>Enter resistances in <strong>kΩ</strong>. You can type <em>540 Ω</em> or <em>0.54k</em> and the page converts it.</p>' },
-        C.reminders, C.ohmRules, C.pctNote
+        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Predict a divider’s output with the voltage-divider formula, and design a divider for a target voltage.</li><li>Use a potentiometer as an adjustable divider and set its range with series resistors.</li><li>Measure node voltages against a reference point, and explain negative node voltages.</li><li>Combine two sources in series, aiding and opposing.</li><li>See what happens to a divider’s output when you connect a load.</li></ul>' +
+          '<h3>Background</h3><p>In a series string, each resistor gets a share of the source voltage in proportion to its resistance. For two resistors, the voltage across R2 is <span class="eq">V<sub>out</sub> = V<sub>S</sub> × R2 / (R1 + R2)</span>.</p>' +
+          '<p><strong>Ground</strong> is the point a circuit calls 0 V. Every “node voltage” is measured from that reference: the voltmeter’s <strong>black probe stays on the reference</strong> and the red probe moves from node to node. Points below the reference read negative. Tinkercad has no separate ground part — the reference is wherever you put the black probe.</p>' +
+          '<p>Sources in series <strong>aid</strong> when the + of one connects to the − of the next, so their voltages add. They <strong>oppose</strong> when like terminals face each other, so the voltages subtract.</p>' },
+        C.reminders
       ] },
-      { id: 'series', tab: 'Series', title: 'Series network', blocks: [
-        { t: 'fig', draw: schSeries, cap: 'Figure 1. Series network.' },
-        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> Calculate the total resistance between A and B.</p>' },
-        { t: 'text', id: 'wA', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 2, html: '<p><strong>Build and measure.</strong> Build Figure 1 (you built this kind of chain in Lab 1). Connect the ohmmeter from A to B and start the simulation.</p>' },
-        tRT('rA', 17),
-        { t: 'shot', id: 'A', label: 'the series network with the meter reading visible' },
-        { t: 'step', n: 3, html: '<p><strong>Change one thing.</strong> Stop the simulation and change R3 from 10 kΩ to 20 kΩ. Predict the new total, measure it, then change R3 back.</p>' },
-        { t: 'nums', items: [{ id: 'a3p', label: 'Predicted with R3 = 20 kΩ', unit: 'kΩ', ans: 27 }, { id: 'a3m', label: 'Measured', unit: 'kΩ', ans: 27 }] }
+      { id: 'div', tab: 'The divider', title: 'The two-resistor divider', blocks: [
+        { t: 'fig', draw: function () { return schDiv('2 kΩ', '1 kΩ', '12 V'); }, small: true, cap: 'Figure 1. A divider with V<sub>S</sub> = 12 V, R1 = 2 kΩ, R2 = 1 kΩ.' },
+        { t: 'fig', draw: bbDiv, wide: true, cap: 'Figure 2. One way to build it, with the voltmeter reading V<sub>out</sub> against the negative rail.' },
+        { t: 'step', n: 1, html: '<p><strong>Predict</strong> V<sub>out</sub> and the voltage across R1, then build and measure.</p>' },
+        { t: 'data', title: 'Divider, 12 V, 2 kΩ over 1 kΩ', head: ['', 'Calculated', 'Measured', '% difference'], rows: [
+          { label: 'V<sub>out</sub> (across R2)', unit: 'V', cells: [{ id: 'd_oc', ans: 4 }, { id: 'd_om', ans: 4 }, { id: 'd_op', pct: ['d_oc', 'd_om'] }] },
+          { label: 'V across R1', unit: 'V', cells: [{ id: 'd_1c', ans: 8 }, { id: 'd_1m', ans: 8 }, { id: 'd_1p', pct: ['d_1c', 'd_1m'] }] }] },
+        { t: 'step', n: 2, html: '<p><strong>Scale it.</strong> Change both resistors by the same factor — R1 = 20 kΩ and R2 = 10 kΩ — and measure V<sub>out</sub> again. Then explain why it did or did not change.</p>' },
+        { t: 'nums', items: [{ id: 'd_scale', label: 'V<sub>out</sub> with 20 kΩ over 10 kΩ', unit: 'V', ans: 4 }] },
+        { t: 'text', id: 'q2', label: 'Why?', rows: 3 },
+        { t: 'step', n: 3, html: '<p><strong>Design.</strong> Keep R2 = 3 kΩ and V<sub>S</sub> = 12 V. Calculate the R1 that makes V<sub>out</sub> = 9 V, build it, and measure.</p>' },
+        { t: 'text', id: 'w3', label: 'Your design calculation', rows: 3, work: true },
+        { t: 'nums', items: [{ id: 'd_r1', label: 'R1 you calculated', unit: 'kΩ', ans: 1 }, { id: 'd_9', label: 'V<sub>out</sub> measured', unit: 'V', ans: 9 }] },
+        { t: 'shot', id: 'design', label: 'your 9 V divider with the meter reading visible' }
       ] },
-      { id: 'par', tab: 'Parallel', title: 'Parallel network', blocks: [
-        { t: 'fig', draw: schParallel, cap: 'Figure 2. Parallel network — the same four resistors, now side by side.' },
-        { t: 'fig', draw: bbParallel, wide: true, cap: 'Figure 3. One way to build it. Each resistor bridges the center channel; the top rail is A and the bottom rail is B.' },
-        { t: 'step', n: 4, html: '<p><strong>Predict.</strong> Calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wB', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 5, html: '<p><strong>Build and measure.</strong> Build the circuit and connect the ohmmeter between the two rails.</p>' },
-        tRT('rB', 0.5405),
-        { t: 'shot', id: 'B', label: 'the parallel network with the meter reading visible' },
-        { t: 'step', n: 6, html: '<p>Your total should be smaller than the smallest resistor (1 kΩ). Is it? Explain in a sentence or two why adding more parallel branches always <strong>lowers</strong> the total resistance.</p>' },
-        { t: 'text', id: 'q6', label: 'Your answer', rows: 3 }
+      { id: 'pot', tab: 'Adjustable divider', title: 'An adjustable divider', blocks: [
+        { t: 'fig', draw: schPot, small: true, cap: 'Figure 3. A 10 kΩ potentiometer between two 1 kΩ resistors. The output is taken from the wiper.' },
+        { t: 'step', n: 4, html: '<p><strong>Predict</strong> the lowest and highest V<sub>out</sub> as the knob turns from one end to the other. Hint: at one end the wiper sits at the top of the pot, at the other end at the bottom.</p>' },
+        { t: 'step', n: 5, html: '<p>Build it and measure V<sub>out</sub> (wiper to the − rail) with the knob fully counter-clockwise, at the middle, and fully clockwise.</p>' },
+        { t: 'data', title: 'Adjustable divider', head: ['Knob', 'Full CCW', 'Middle', 'Full CW'], rows: [
+          { label: 'V<sub>out</sub> predicted', unit: 'V', cells: [{ id: 'p_pccw', ans: [1, 11] }, { id: 'p_pmid', ans: 6, tol: 0.8 }, { id: 'p_pcw', ans: [11, 1] }] },
+          { label: 'V<sub>out</sub> measured', unit: 'V', cells: [{ id: 'p_mccw', ans: [1, 11] }, { id: 'p_mmid', ans: 6, tol: 0.8 }, { id: 'p_mcw', ans: [11, 1] }] }] },
+        { t: 'step', n: 6, html: '<p>What do R1 and R3 do to the range of the output? How would you change the circuit so the output could only be adjusted from 4 V to 8 V?</p>' },
+        { t: 'text', id: 'q6', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'sp', tab: 'Series-parallel', title: 'Series-parallel network', blocks: [
-        { t: 'fig', draw: schSP, cap: 'Figure 4. Series-parallel network.' },
-        { t: 'fig', draw: bbSP, wide: true, cap: 'Figure 5. One way to build it. Trace it against Figure 4 before you start: R2 crosses the channel, and R3 and R4 make a second path around it.' },
-        { t: 'step', n: 7, html: '<p><strong>Predict.</strong> Decide which resistors are in series and which are in parallel. Reduce the network one step at a time and calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wC', label: 'Show each reduction step', rows: 5, work: true },
-        { t: 'step', n: 8, html: '<p><strong>Build and measure.</strong></p>' },
-        tRT('rC', 20),
-        { t: 'shot', id: 'C', label: 'the series-parallel network with the meter reading visible' },
-        { t: 'step', n: 9, html: '<p><strong>Open a branch.</strong> Stop the simulation and delete one end of R2 so its branch is open. Predict and measure R<sub>T</sub>, then explain why it went up.</p>' },
-        { t: 'nums', items: [{ id: 'c9p', label: 'Predicted with R2 open', unit: 'kΩ', ans: 30 }, { id: 'c9m', label: 'Measured', unit: 'kΩ', ans: 30 }] },
-        { t: 'text', id: 'q9', label: 'Why did it increase?', rows: 3 }
+      { id: 'ground', tab: 'Ground', title: 'Node voltages and the reference point', blocks: [
+        { t: 'fig', draw: schString, small: true, cap: 'Figure 4. A series string with four labeled nodes, A to D.' },
+        { t: 'step', n: 7, html: '<p>Build the string. Put the voltmeter’s <strong>black probe on node D</strong> and leave it there. Predict, then measure the voltage at A, B, and C by moving only the red probe.</p>' },
+        { t: 'data', title: 'Reference at D', head: ['Node', 'A', 'B', 'C', 'D'], rows: [
+          C.row('Predicted', 'V', 'gd_p', ['a', 'b', 'c', 'd'], [12, 10, 6, 0]), C.row('Measured', 'V', 'gd_m', ['a', 'b', 'c', 'd'], [12, 10, 6, 0])] },
+        { t: 'step', n: 8, html: '<p>Now <strong>move the reference</strong>: put the black probe on <strong>node C</strong> and measure every node again.</p>' },
+        { t: 'data', title: 'Reference at C', head: ['Node', 'A', 'B', 'C', 'D'], rows: [
+          C.row('Predicted', 'V', 'gc_p', ['a', 'b', 'c', 'd'], [6, 4, 0, -6]), C.row('Measured', 'V', 'gc_m', ['a', 'b', 'c', 'd'], [6, 4, 0, -6])] },
+        { t: 'shot', id: 'neg', label: 'the meter showing the negative voltage at node D' },
+        { t: 'step', n: 9, html: '<p>Moving the reference changed every node voltage. Did it change the voltage <strong>across</strong> any resistor? Use your two tables to show why or why not. Why does node D read negative?</p>' },
+        { t: 'text', id: 'q9', label: 'Your answer', rows: 5 }
       ] },
-      { id: 'pot', tab: 'Potentiometer', title: 'Potentiometer, three-terminal connection', blocks: [
-        { t: 'fig', draw: function () { return schPot(false); }, cap: 'Figure 6. A 25 kΩ potentiometer between R1 and R3.' },
-        { t: 'fig', draw: function () { return bbPot(false); }, wide: true, cap: 'Figure 7. One way to build it. In Tinkercad, hover over a pot terminal to see its name: schematic pin 1 is <strong>Terminal 1</strong>, pin 2 is the <strong>Wiper</strong>, and pin 3 is <strong>Terminal 2</strong>.' },
-        { t: 'callout', k: 'tip', title: 'Turning the knob', html: '<p>Set the pot to 25 kΩ in the Inspector. To turn it, <strong>click and drag the knob while the simulation is running</strong>. The exact ¼, ½, and ¾ positions are approximate — get close and record what you see.</p>' },
-        { t: 'step', n: 10, html: '<p><strong>Predict</strong> both “Predicted” rows before you build. Think about which parts are between A and B, and which are between C and D.</p>' },
-        { t: 'step', n: 11, html: '<p>Build the circuit. Connect <strong>one</strong> ohmmeter between <strong>A and B</strong>, start the simulation, and sweep the knob from full counter-clockwise to full clockwise, recording A–B at each position.</p>' },
-        { t: 'step', n: 12, html: '<p>Stop the simulation, move the probes to <strong>C and D</strong>, and repeat the sweep.</p>' },
-        potTable('d', [[0, 25], [6.25, 18.75], 12.5, [18.75, 6.25], [25, 0]], [40, 40, 40, 40, 40], T3, [0.5, 0.5, 0.5, 0.5, 0.5]),
-        { t: 'shot', id: 'D', label: 'the potentiometer circuit with a reading visible' },
-        { t: 'step', n: 13, html: '<p>(a) What happened to the A–B resistance as you turned the knob, and did it increase clockwise or counter-clockwise? (b) What happened to the C–D resistance? (c) Explain <strong>why</strong> C–D behaved that way.</p>' },
-        { t: 'text', id: 'q13', label: 'Your observations', rows: 6 },
-        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Connect a <strong>second</strong> ohmmeter so that A–B and C–D are measured at the same time. Do the readings still match your one-meter readings? Use the ohmmeter rules to explain what you see, and what would happen on a real bench.</p>' },
-        { t: 'text', id: 'inv', label: 'What you saw (optional)', rows: 3, optional: true }
+      { id: 'sources', tab: 'Series sources', title: 'Sources in series', blocks: [
+        { t: 'fig', draw: function () { return schSources(false); }, small: true, cap: 'Figure 5. Two supplies in series, aiding.' },
+        { t: 'step', n: 10, html: '<p>Use two Power Supply parts set to <strong>5 V</strong> and <strong>3 V</strong>. Connect the + of the 3 V supply to the − of the 5 V supply, and put the 2 kΩ load across the pair. Predict and measure the total voltage and the current.</p>' },
+        { t: 'data', title: 'Series aiding', head: ['', 'Predicted', 'Measured'], rows: [
+          { label: 'Total voltage across R', unit: 'V', cells: [{ id: 'sa_vp', ans: 8 }, { id: 'sa_vm', ans: 8 }] },
+          { label: 'Current', unit: 'mA', cells: [{ id: 'sa_ip', ans: 4 }, { id: 'sa_im', ans: 4 }] }] },
+        { t: 'fig', draw: function () { return schSources(true); }, small: true, cap: 'Figure 6. The same supplies opposing: the 3 V supply turned around.' },
+        { t: 'step', n: 11, html: '<p>Turn the 3 V supply around so its + faces the 5 V supply’s +. Predict and measure again.</p>' },
+        { t: 'data', title: 'Series opposing', head: ['', 'Predicted', 'Measured'], rows: [
+          { label: 'Total voltage across R', unit: 'V', cells: [{ id: 'so_vp', ans: 2 }, { id: 'so_vm', ans: 2 }] },
+          { label: 'Current', unit: 'mA', cells: [{ id: 'so_ip', ans: 1 }, { id: 'so_im', ans: 1 }] }] },
+        { t: 'step', n: 12, html: '<p>A flashlight takes two 1.5 V cells. What voltage does the bulb get if one cell is put in backwards, and why might the flashlight seem dead even though both batteries are good?</p>' },
+        { t: 'text', id: 'q12', label: 'Your answer', rows: 3 }
       ] },
-      { id: 'rheo', tab: 'Rheostat', title: 'Potentiometer wired as a rheostat', blocks: [
-        { t: 'fig', draw: function () { return schPot(true); }, cap: 'Figure 8. The same circuit with the wiper joined to pin 1.' },
-        { t: 'fig', draw: function () { return bbPot(true); }, wide: true, cap: 'Figure 9. Add the yellow jumper between the wiper column and Terminal 1.' },
-        { t: 'step', n: 14, html: '<p>Add the jumper from the <strong>Wiper</strong> to <strong>Terminal 1</strong>. Before measuring, fill in both “Predicted” rows.</p>' },
-        { t: 'step', n: 15, html: '<p>Using <strong>one</strong> ohmmeter, sweep the knob and record A–B. Then move the probes to C–D and sweep again.</p>' },
-        potTable('e', [0, 0, 0, 0, 0], [[15, 40], [21.25, 33.75], 27.5, [33.75, 21.25], [40, 15]], [0.05, 0.05, 0.05, 0.05, 0.05], [0.5, 3, 3, 3, 0.5]),
-        { t: 'shot', id: 'E', label: 'the rheostat circuit with a reading visible' },
-        { t: 'step', n: 16, html: '<p>(a) Why does A–B read about 0 Ω at every knob position? (b) What are the smallest and largest C–D readings, and where do those numbers come from? (c) In your own words, what is the difference between a potentiometer and a rheostat?</p>' },
-        { t: 'text', id: 'q16', label: 'Your observations', rows: 6 }
+      { id: 'load', tab: 'Loading', title: 'Loading a divider', blocks: [
+        { t: 'fig', draw: function () { return schDiv('10 kΩ', '10 kΩ', '12 V', true); }, small: true, cap: 'Figure 7. A 10 kΩ / 10 kΩ divider with a load R<sub>L</sub> connected across its output.' },
+        { t: 'step', n: 13, html: '<p>Build the divider with no load and measure V<sub>out</sub>. Then connect each load across R2 in turn. Predict each output first: the load is in <strong>parallel</strong> with R2, so find R2 ∥ R<sub>L</sub> before you use the divider formula.</p>' },
+        { t: 'data', title: 'Loaded divider, 12 V', head: ['Load', 'None', '100 kΩ', '10 kΩ', '1 kΩ'], rows: [
+          C.row('V<sub>out</sub> predicted', 'V', 'l_p', ['none', '100k', '10k', '1k'], [6, 5.714, 4, 1]),
+          C.row('V<sub>out</sub> measured', 'V', 'l_m', ['none', '100k', '10k', '1k'], [6, 5.714, 4, 1])] },
+        { t: 'step', n: 14, html: '<p>Which load barely changed the output, and which pulled it down badly? Write a rule of thumb for how large a load must be, compared with the divider’s resistors, to keep the output close to its unloaded value. You will build on this in Lab 9.</p>' },
+        { t: 'text', id: 'q14', label: 'Your rule of thumb', rows: 4 }
       ] },
       { id: 'wrap', tab: 'Conclusion', title: 'Conclusion', blocks: [
-        { t: 'html', html: '<p>In a short paragraph, summarize how resistances combine in series and in parallel, and how the way the potentiometer was wired decided whether a resistance changed as you turned the knob.</p>' },
+        { t: 'html', html: '<p>In a short paragraph, explain how a divider shares voltage, what a reference point is and why node voltages can be negative, how series sources combine, and why a load changes a divider’s output.</p>' },
         { t: 'text', id: 'concl', label: 'Conclusion', rows: 8 },
         { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas.</p>' }
       ] }

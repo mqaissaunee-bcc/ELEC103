@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 2: Measuring Resistance — ELEC 103</title>
-<meta name="description" content="ELEC 103 Tinkercad Lab 2: resistance in series, parallel, and series-parallel networks, potentiometers, and rheostats.">
+<title>Lab 9: Loaded Dividers, Meter Loading, and the Wheatstone Bridge — ELEC 103</title>
+<meta name="description" content="ELEC 103 Tinkercad Lab 9: series-parallel analysis of a loaded divider, modeling meter loading, and measuring resistance with a Wheatstone bridge.">
 <style>
 :root {
   /* Palette drawn from the resistor color code and the lab bench */
@@ -1150,159 +1150,88 @@ var C = (function () {
   return { row: row, pctRow: pctRow, reminders: reminders, ohmRules: ohmRules, pctNote: pctNote };
 })();
 window.LAB = (function () {
-  var POS = ['ccw', 'q1', 'half', 'q3', 'cw'], POSH = ['Knob position', 'Full CCW', '¼ turn', '½ turn', '¾ turn', 'Full CW'];
-  function lbl(s, p, t) { s.top('<text x="' + p.x + '" y="' + p.y + '" class="sch-tl" text-anchor="middle">' + t + '</text>'); }
-  function schSeries() {
-    var s = new Draw.Sch(480, 230, 'Series network: A, R1 1 kilohm, R2 4 kilohm, R3 10 kilohm, R4 2 kilohm, B');
-    s.term(40, 50, 'A'); s.line([[40, 50], [70, 50]]); s.R(70, 50, 170, 50, 'R1', '1 kΩ'); s.line([[170, 50], [230, 50]]); s.R(230, 50, 330, 50, 'R2', '4 kΩ');
-    s.line([[330, 50], [420, 50], [420, 70]]); s.R(420, 70, 420, 170, 'R3', '10 kΩ', 'r'); s.line([[420, 170], [420, 190], [300, 190]]);
-    s.R(200, 190, 300, 190, 'R4', '2 kΩ', 'b'); s.line([[200, 190], [40, 190]]); s.term(40, 190, 'B');
+  function schLoaded(meter) {
+    var s = new Draw.Sch(440, 240, meter ? 'Divider with a resistor across R2 standing in for the voltmeter’s internal resistance' : 'Loaded divider: 12 volts across R1 2 kilohm over R2 2 kilohm, with a 2 kilohm load across R2');
+    s.batt(60, 50, 200, '12 V'); s.line([[60, 50], [60, 30], [220, 30], [220, 45]]); s.R(220, 45, 220, 110, 'R1', meter ? '10 kΩ or 10 MΩ' : '2 kΩ', 'l');
+    s.line([[220, 110], [220, 125]]); s.dot(220, 118); s.R(220, 125, 220, 195, 'R2', meter ? 'same as R1' : '2 kΩ', 'l'); s.line([[220, 195], [220, 215], [60, 215], [60, 200]]); s.dot(220, 215);
+    s.line([[220, 118], [320, 118], [320, 128]]); s.R(320, 128, 320, 195, meter ? 'Rmeter' : 'RL', meter ? '10 MΩ or 200 kΩ' : '2 kΩ', 'r'); s.line([[320, 195], [320, 215], [220, 215]]);
     return s.svg();
   }
-  function schParallel() {
-    var s = new Draw.Sch(480, 240, 'Parallel network: R1 1 kilohm, R2 4 kilohm, R3 10 kilohm and R4 2 kilohm, each connected directly between A and B');
-    s.term(40, 50, 'A'); s.term(40, 200, 'B'); s.line([[40, 50], [420, 50]]); s.line([[40, 200], [420, 200]]);
-    [[120, 'R1', '1 kΩ'], [220, 'R2', '4 kΩ'], [320, 'R3', '10 kΩ'], [420, 'R4', '2 kΩ']].forEach(function (r, i) {
-      s.R(r[0], 50, r[0], 200, r[1], r[2], 'r'); if (i < 3) { s.dot(r[0], 50); s.dot(r[0], 200); }
-    });
+  function schBridge(ldr) {
+    var s = new Draw.Sch(440, 300, 'Wheatstone bridge: 10 volts across two arms in parallel. The left arm is R1 over R2, both 1 kilohm. The right arm is R3, a 10 kilohm rheostat, over the unknown Rx. A voltmeter connects the two midpoints.');
+    Draw.defs(s); s.batt(72, 80, 220, '10 V'); s.line([[72, 80], [72, 30], [300, 30]]); s.line([[72, 220], [72, 270], [300, 270]]);
+    s.dot(150, 30); s.dot(150, 270);
+    s.R(150, 30, 150, 140, 'R1', '1 kΩ', 'l'); s.R(150, 160, 150, 270, 'R2', '1 kΩ', 'l'); s.line([[150, 140], [150, 160]]); s.dot(150, 150);
+    s.line([[300, 30], [300, 40]]); s.meterSym(300, 54, 'A'); s.R(300, 68, 300, 140, 'R3', '10 kΩ rheostat', 'r'); s.line([[300, 140], [300, 160]]); s.dot(300, 150);
+    if (ldr) s.ldr(300, 160, 270, 'Rx (photoresistor)', 'r'); else s.R(300, 160, 300, 270, 'Rx', '4.7 kΩ', 'r');
+    s.line([[150, 150], [205, 150]]); s.meterSym(225, 150, 'V'); s.line([[245, 150], [300, 150]]); s.add('<text x="225" y="186" class="sch-v" text-anchor="middle">bridge voltage</text>');
     return s.svg();
   }
-  function schSP() {
-    var s = new Draw.Sch(480, 240, 'Series-parallel network: A, R1 10 kilohm to a node; from that node R2 12 kilohm down to a lower node, in parallel with R3 8 kilohm plus R4 4 kilohm; then R5 4 kilohm from the lower node to B');
-    s.term(30, 50, 'A'); s.line([[30, 50], [60, 50]]); s.R(60, 50, 160, 50, 'R1', '10 kΩ'); s.line([[160, 50], [420, 50], [420, 70]]); s.dot(250, 50);
-    s.R(250, 50, 250, 200, 'R2', '12 kΩ', 'r'); s.dot(250, 200);
-    s.R(420, 70, 420, 180, 'R3', '8 kΩ', 'r'); s.line([[420, 180], [420, 200], [400, 200]]); s.R(290, 200, 400, 200, 'R4', '4 kΩ', 'b'); s.line([[290, 200], [250, 200]]);
-    s.line([[250, 200], [160, 200]]); s.R(60, 200, 160, 200, 'R5', '4 kΩ', 'b'); s.line([[60, 200], [30, 200]]); s.term(30, 200, 'B');
-    return s.svg();
-  }
-  function schPot(rheo) {
-    var s = new Draw.Sch(480, 260, rheo ? 'Potentiometer wired as a rheostat: the wiper, pin 2, is joined to pin 1, so A and B are the same point' : 'Potentiometer circuit: C, R1 10 kilohm, to pin 3 of a 25 kilohm potentiometer; the wiper, pin 2, goes to A; pin 1 goes to node B; R3 5 kilohm runs from B to D');
-    s.term(40, 40, 'C'); s.line([[40, 40], [70, 40]]); s.R(70, 40, 170, 40, 'R1', '10 kΩ'); s.line([[170, 40], [300, 40], [300, 70]]);
-    s.pot(300, 70, 180, 'R2', '25 kΩ', 380);
-    s.line([[380, 125], [440, 125]]); s.term(440, 125, 'A', 'r');
-    if (rheo) { s.dot(380, 125); s.line([[380, 125], [380, 200], [300, 200]]); s.dot(300, 200); }
-    s.line([[300, 180], [300, 225]]); s.dot(300, 225); s.line([[300, 225], [440, 225]]); s.term(440, 225, 'B', 'r');
-    s.line([[300, 225], [170, 225]]); s.R(70, 225, 170, 225, 'R3', '5 kΩ', 'b'); s.line([[70, 225], [40, 225]]); s.term(40, 225, 'D');
-    return s.svg();
-  }
-  function bbParallel() {
-    var s = new Draw.Sch(580, 330, 'Breadboard: four resistors stand across the center channel in columns 6, 11, 16 and 21. Red jumpers join each top end to the top positive rail, which is A. Black jumpers join each bottom end to the bottom negative rail, which is B.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    [[6, 1000, 'R1'], [11, 4000, 'R2'], [16, 10000, 'R3'], [21, 2000, 'R4']].forEach(function (r) {
-      Draw.wire(s, [b.p('t+' + r[0]), b.p('j' + r[0])], 'red');
-      Draw.resistor(s, b.p('f' + r[0]), b.p('e' + r[0]), r[1], r[2]);
-      Draw.wire(s, [b.p('a' + r[0]), b.p('b-' + r[0])], 'black');
-    });
-    Draw.note(s, 300, 14, 'A = top + rail   ·   B = bottom − rail', { anchor: 'middle' });
-    return s.svg();
-  }
-  function bbSP() {
-    var s = new Draw.Scene(580, 320, 'Breadboard: A is column 3 top half. R1 runs from column 3 to column 7 in row i. R2 stands across the channel in column 7. R3 runs from column 7 to column 11 in row h. R4 stands across the channel in column 11. A green jumper in row a joins column 11 back to column 7 bottom. R5 runs from column 7 to column 3 in row c, and B is column 3 bottom half.');
-    var b = new Draw.Board(s, 16, 18).draw();
-    Draw.resistor(s, b.p('i3'), b.p('i7'), 10000, 'R1', { ly: -9 });
-    Draw.resistor(s, b.p('f7'), b.p('e7'), 12000, 'R2');
-    Draw.resistor(s, b.p('h7'), b.p('h11'), 8000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('f11'), b.p('e11'), 4000, 'R4');
-    Draw.wire(s, [b.p('a11'), b.p('a7')], 'green');
-    Draw.resistor(s, b.p('c7'), b.p('c3'), 4000, 'R5', { ly: 16 });
-    lbl(s, { x: b.p('j3').x, y: b.p('j3').y - 6 }, 'A'); lbl(s, { x: b.p('a3').x, y: b.p('a3').y + 20 }, 'B');
-    return s.svg();
-  }
-  function bbPot(rheo) {
-    var s = new Draw.Scene(580, 320, rheo ? 'The same breadboard with a yellow jumper in row h joining the wiper column to Terminal 1' : 'Breadboard: a potentiometer with Terminal 1 in column 14, the wiper in 15 and Terminal 2 in 16, all in row j. R3 runs from column 10 to column 14 in row i; R1 runs from column 16 to column 20 in row i. D is column 10, B is column 14, A is column 15, and C is column 20.');
-    var b = new Draw.Board(s, 16, 30).draw();
-    Draw.pot(s, [b.p('j14'), b.p('j15'), b.p('j16')], { label: 'R2 25 kΩ' });
-    Draw.resistor(s, b.p('i10'), b.p('i14'), 5000, 'R3', { ly: 17 });
-    Draw.resistor(s, b.p('i16'), b.p('i20'), 10000, 'R1', { ly: 17 });
-    if (rheo) Draw.wire(s, [b.p('h14'), b.p('h15')], 'yellow');
-    [['g10', 'D'], ['g14', 'B'], ['g15', 'A'], ['g20', 'C']].forEach(function (x, i) { var p = b.p(x[0]); lbl(s, { x: p.x + (i === 1 ? -3 : i === 2 ? 3 : 0), y: p.y + 30 }, x[1]); });
-    return s.svg();
-  }
-  function tRT(id, ans) {
-    return { t: 'data', title: 'Total resistance, A to B', head: ['', 'Calculated', 'Measured in Tinkercad', '% difference'], rows: [
-      { label: 'R<sub>T</sub>', unit: 'kΩ', cells: [{ id: id + '_c', ans: ans }, { id: id + '_m', ans: ans }, { id: id + '_p', pct: [id + '_c', id + '_m'] }] }] };
-  }
-  function potTable(p, ab, cd, tolAB, tolCD) {
-    return { t: 'data', title: 'Readings as you turn the knob', head: POSH, rows: [
-      { label: 'Predicted A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Measured A–B', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mab_' + k, ans: ab[i], tol: tolAB[i] }; }) },
-      { label: 'Predicted C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'pcd_' + k, ans: cd[i], tol: tolCD[i] }; }) },
-      { label: 'Measured C–D', unit: 'kΩ', cells: POS.map(function (k, i) { return { id: p + 'mcd_' + k, ans: cd[i], tol: tolCD[i] }; }) }
-    ] };
-  }
-  var T3 = [0.4, 3, 3, 3, 0.4];
   return {
-    key: 'elec103-lab2-v1', no: 'Lab 2', file: 'ELEC103_Lab2', title: 'Measuring Resistance',
-    lede: 'Predict and measure resistance in series, parallel, and series-parallel networks, then see what a potentiometer’s wiper really does.',
+    key: 'elec103-lab9-v1', no: 'Lab 9', file: 'ELEC103_Lab9', title: 'Loaded Dividers, Meter Loading, and the Wheatstone Bridge',
+    lede: 'Series and parallel at once: what a load does to a divider, how a meter can change what it measures, and how a balanced bridge finds an unknown.',
     sections: [
       { id: 'start', tab: 'Start here', title: 'Before you begin', blocks: [
         { t: 'student' },
-        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Calculate total resistance for series, parallel, and series-parallel networks, and confirm it by measurement.</li><li>Identify the three terminals of a potentiometer and explain how the wiper divides its resistance.</li><li>Tell the difference between a potentiometer used as a three-terminal part and one wired as a <strong>rheostat</strong>.</li></ul>' +
-          '<h3>Background</h3><p><strong>Series:</strong> <span class="eq">R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub> + R<sub>3</sub> + …</span> The total is always larger than the largest resistor.</p>' +
-          '<p><strong>Parallel:</strong> <span class="eq">1/R<sub>T</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> + …</span> The total is always smaller than the smallest resistor.</p>' +
-          '<p><strong>Potentiometer:</strong> a fixed resistance between its two outer terminals, with a movable <strong>wiper</strong> in between. Turning the knob changes the resistance from an outer terminal to the wiper, but the outer-to-outer resistance never changes. Connecting the wiper to one outer terminal turns the pot into a two-terminal <strong>rheostat</strong> — a variable resistor.</p>' +
-          '<p>Enter resistances in <strong>kΩ</strong>. You can type <em>540 Ω</em> or <em>0.54k</em> and the page converts it.</p>' },
-        C.reminders, C.ohmRules, C.pctNote
+        { t: 'html', html: '<h3>What you will be able to do</h3><ul><li>Analyze a loaded divider as a series-parallel circuit, finding every current and voltage.</li><li>Explain <strong>meter loading</strong>, model it, and decide when it matters.</li><li>Balance a <strong>Wheatstone bridge</strong> and use it to measure an unknown resistance, including a light sensor.</li></ul>' +
+          '<h3>Background</h3><p>Series-parallel circuits are solved by <strong>reducing</strong> them: combine parallel groups into one equivalent, add series parts, find the total current, then work back out to each part with Ohm’s law, KVL, and KCL.</p>' +
+          '<p>A real voltmeter is not perfect: it has a large internal resistance, typically <strong>10 MΩ</strong> for a digital meter. Connecting it puts that resistance in <strong>parallel</strong> with whatever it measures. Tinkercad’s meters are ideal, so in this lab you model a real meter by adding its resistance as a resistor.</p>' +
+          '<p>A <strong>Wheatstone bridge</strong> is two dividers side by side. When the two midpoints are at the same voltage, the bridge is <strong>balanced</strong>, the meter between them reads 0, and <span class="eq">R1 / R2 = R3 / Rx</span>, so <span class="eq">Rx = R3 × R2 / R1</span>.</p>' },
+        C.reminders
       ] },
-      { id: 'series', tab: 'Series', title: 'Series network', blocks: [
-        { t: 'fig', draw: schSeries, cap: 'Figure 1. Series network.' },
-        { t: 'step', n: 1, html: '<p><strong>Predict.</strong> Calculate the total resistance between A and B.</p>' },
-        { t: 'text', id: 'wA', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 2, html: '<p><strong>Build and measure.</strong> Build Figure 1 (you built this kind of chain in Lab 1). Connect the ohmmeter from A to B and start the simulation.</p>' },
-        tRT('rA', 17),
-        { t: 'shot', id: 'A', label: 'the series network with the meter reading visible' },
-        { t: 'step', n: 3, html: '<p><strong>Change one thing.</strong> Stop the simulation and change R3 from 10 kΩ to 20 kΩ. Predict the new total, measure it, then change R3 back.</p>' },
-        { t: 'nums', items: [{ id: 'a3p', label: 'Predicted with R3 = 20 kΩ', unit: 'kΩ', ans: 27 }, { id: 'a3m', label: 'Measured', unit: 'kΩ', ans: 27 }] }
+      { id: 'loaded', tab: 'Loaded divider', title: 'The loaded divider as a series-parallel circuit', blocks: [
+        { t: 'fig', draw: function () { return schLoaded(false); }, small: true, cap: 'Figure 1. A 2 kΩ / 2 kΩ divider with a 2 kΩ load.' },
+        { t: 'step', n: 1, html: '<p><strong>Analyze it fully.</strong> Find R2 ∥ R<sub>L</sub>, the total resistance, the total current, the output voltage, and the current in R2 and in the load. Show that the currents obey KCL at the output node.</p>' },
+        { t: 'text', id: 'w1', label: 'Your analysis', rows: 7, work: true },
+        { t: 'data', title: 'Loaded divider, 12 V', head: ['', 'Calculated', 'Measured'], rows: [
+          { label: 'V<sub>out</sub> unloaded (load removed)', unit: 'V', cells: [{ id: 'l_u_c', ans: 6 }, { id: 'l_u_m', ans: 6 }] },
+          { label: 'V<sub>out</sub> loaded', unit: 'V', cells: [{ id: 'l_v_c', ans: 4 }, { id: 'l_v_m', ans: 4 }] },
+          { label: 'I<sub>T</sub> (through R1)', unit: 'mA', cells: [{ id: 'l_it_c', ans: 4 }, { id: 'l_it_m', ans: 4 }] },
+          { label: 'I through R2', unit: 'mA', cells: [{ id: 'l_i2_c', ans: 2 }, { id: 'l_i2_m', ans: 2 }] },
+          { label: 'I through R<sub>L</sub>', unit: 'mA', cells: [{ id: 'l_il_c', ans: 2 }, { id: 'l_il_m', ans: 2 }] }] },
+        { t: 'shot', id: 'loaded', label: 'the loaded divider with V<sub>out</sub> and one current visible' },
+        { t: 'step', n: 2, html: '<p>The current through R2 is called the <strong>bleeder current</strong>. A designer who wants V<sub>out</sub> to stay steady when the load changes often makes the bleeder current about ten times the load current. What would that mean for the sizes of R1 and R2, and what would it cost in power?</p>' },
+        { t: 'text', id: 'q2', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'par', tab: 'Parallel', title: 'Parallel network', blocks: [
-        { t: 'fig', draw: schParallel, cap: 'Figure 2. Parallel network — the same four resistors, now side by side.' },
-        { t: 'fig', draw: bbParallel, wide: true, cap: 'Figure 3. One way to build it. Each resistor bridges the center channel; the top rail is A and the bottom rail is B.' },
-        { t: 'step', n: 4, html: '<p><strong>Predict.</strong> Calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wB', label: 'Show your calculation', rows: 3, work: true },
-        { t: 'step', n: 5, html: '<p><strong>Build and measure.</strong> Build the circuit and connect the ohmmeter between the two rails.</p>' },
-        tRT('rB', 0.5405),
-        { t: 'shot', id: 'B', label: 'the parallel network with the meter reading visible' },
-        { t: 'step', n: 6, html: '<p>Your total should be smaller than the smallest resistor (1 kΩ). Is it? Explain in a sentence or two why adding more parallel branches always <strong>lowers</strong> the total resistance.</p>' },
-        { t: 'text', id: 'q6', label: 'Your answer', rows: 3 }
+      { id: 'meter', tab: 'Meter loading', title: 'When the meter changes the measurement', blocks: [
+        { t: 'fig', draw: function () { return schLoaded(true); }, small: true, cap: 'Figure 2. A resistor across R2 stands in for a real voltmeter’s internal resistance.' },
+        { t: 'step', n: 3, html: '<p><strong>Low-resistance divider.</strong> Build a 12 V divider with R1 = R2 = <strong>10 kΩ</strong>. Measure V<sub>out</sub> with the ideal Tinkercad voltmeter. Then add a resistor across R2 to model a real meter — first <strong>10 MΩ</strong> (a digital meter), then <strong>200 kΩ</strong> (an inexpensive analog meter) — and measure again.</p>' },
+        { t: 'data', title: 'R1 = R2 = 10 kΩ', head: ['', 'No meter resistance', '10 MΩ meter', '200 kΩ meter'], rows: [
+          C.row('V<sub>out</sub> predicted', 'V', 'mk_p', ['0', '10m', '200k'], [6, 5.997, 5.854], { tol: 0.004 }),
+          C.row('V<sub>out</sub> measured', 'V', 'mk_m', ['0', '10m', '200k'], [6, 5.997, 5.854], { tol: 0.006 })] },
+        { t: 'step', n: 4, html: '<p><strong>High-resistance divider.</strong> Change R1 and R2 to <strong>10 MΩ</strong> each and repeat.</p>' },
+        { t: 'data', title: 'R1 = R2 = 10 MΩ', head: ['', 'No meter resistance', '10 MΩ meter', '200 kΩ meter'], rows: [
+          C.row('V<sub>out</sub> predicted', 'V', 'mm_p', ['0', '10m', '200k'], [6, 4, 0.2308], { tol: 0.01 }),
+          C.row('V<sub>out</sub> measured', 'V', 'mm_m', ['0', '10m', '200k'], [6, 4, 0.2308], { tol: 0.015 })] },
+        { t: 'step', n: 5, html: '<p>In which circuit did the meter’s resistance matter, and by how much? Write a rule for when meter loading can be ignored. If you measured 4 V across R2 in the 10 MΩ divider on a real bench, what would you conclude — and what mistake might you make?</p>' },
+        { t: 'text', id: 'q5', label: 'Your answer', rows: 5 }
       ] },
-      { id: 'sp', tab: 'Series-parallel', title: 'Series-parallel network', blocks: [
-        { t: 'fig', draw: schSP, cap: 'Figure 4. Series-parallel network.' },
-        { t: 'fig', draw: bbSP, wide: true, cap: 'Figure 5. One way to build it. Trace it against Figure 4 before you start: R2 crosses the channel, and R3 and R4 make a second path around it.' },
-        { t: 'step', n: 7, html: '<p><strong>Predict.</strong> Decide which resistors are in series and which are in parallel. Reduce the network one step at a time and calculate R<sub>T</sub> between A and B.</p>' },
-        { t: 'text', id: 'wC', label: 'Show each reduction step', rows: 5, work: true },
-        { t: 'step', n: 8, html: '<p><strong>Build and measure.</strong></p>' },
-        tRT('rC', 20),
-        { t: 'shot', id: 'C', label: 'the series-parallel network with the meter reading visible' },
-        { t: 'step', n: 9, html: '<p><strong>Open a branch.</strong> Stop the simulation and delete one end of R2 so its branch is open. Predict and measure R<sub>T</sub>, then explain why it went up.</p>' },
-        { t: 'nums', items: [{ id: 'c9p', label: 'Predicted with R2 open', unit: 'kΩ', ans: 30 }, { id: 'c9m', label: 'Measured', unit: 'kΩ', ans: 30 }] },
-        { t: 'text', id: 'q9', label: 'Why did it increase?', rows: 3 }
+      { id: 'bridge', tab: 'Wheatstone bridge', title: 'Balancing a Wheatstone bridge', blocks: [
+        { t: 'fig', draw: function () { return schBridge(false); }, cap: 'Figure 3. A Wheatstone bridge. R3 is a 10 kΩ potentiometer wired as a rheostat. The ammeter in the right arm and a voltmeter across R3 let you find R3’s value while the simulation runs.' },
+        { t: 'step', n: 6, html: '<p>Build the bridge with Rx = <strong>4.7 kΩ</strong>. Wire R3 as a rheostat (wiper joined to one end, as in Lab 4). Connect a voltmeter between the two midpoints, an ammeter in series at the top of the right arm, and a second voltmeter across R3.</p>' },
+        { t: 'step', n: 7, html: '<p>Start the simulation and turn the knob until the bridge voltage is as close to <strong>0 V</strong> as you can get. Without stopping the simulation, read the voltage across R3 and the current in the right arm, and calculate R3. Then calculate Rx from the balance equation.</p>' },
+        { t: 'nums', items: [{ id: 'b_v0', label: 'Bridge voltage at balance', unit: 'V', ans: 0, tol: 0.1 }, { id: 'b_v3', label: 'V across R3', unit: 'V', ans: 5, tol: 0.1 }, { id: 'b_i', label: 'Current in right arm', unit: 'mA', ans: 1.064, tol: 0.03 }] },
+        { t: 'nums', items: [{ id: 'b_r3', label: 'R3 = V / I', unit: 'kΩ', ans: 4.7, tol: 0.2 }, { id: 'b_rx', label: 'Rx = R3 × R2 / R1', unit: 'kΩ', ans: 4.7, tol: 0.2 }] },
+        { t: 'shot', id: 'bridge', label: 'the balanced bridge with the bridge voltage near zero' },
+        { t: 'step', n: 8, html: '<p>Turn the knob a little past balance in each direction. What happens to the sign of the bridge voltage? Why is a null (zero) reading such a sensitive way to find balance?</p>' },
+        { t: 'text', id: 'q8', label: 'Your answer', rows: 4 }
       ] },
-      { id: 'pot', tab: 'Potentiometer', title: 'Potentiometer, three-terminal connection', blocks: [
-        { t: 'fig', draw: function () { return schPot(false); }, cap: 'Figure 6. A 25 kΩ potentiometer between R1 and R3.' },
-        { t: 'fig', draw: function () { return bbPot(false); }, wide: true, cap: 'Figure 7. One way to build it. In Tinkercad, hover over a pot terminal to see its name: schematic pin 1 is <strong>Terminal 1</strong>, pin 2 is the <strong>Wiper</strong>, and pin 3 is <strong>Terminal 2</strong>.' },
-        { t: 'callout', k: 'tip', title: 'Turning the knob', html: '<p>Set the pot to 25 kΩ in the Inspector. To turn it, <strong>click and drag the knob while the simulation is running</strong>. The exact ¼, ½, and ¾ positions are approximate — get close and record what you see.</p>' },
-        { t: 'step', n: 10, html: '<p><strong>Predict</strong> both “Predicted” rows before you build. Think about which parts are between A and B, and which are between C and D.</p>' },
-        { t: 'step', n: 11, html: '<p>Build the circuit. Connect <strong>one</strong> ohmmeter between <strong>A and B</strong>, start the simulation, and sweep the knob from full counter-clockwise to full clockwise, recording A–B at each position.</p>' },
-        { t: 'step', n: 12, html: '<p>Stop the simulation, move the probes to <strong>C and D</strong>, and repeat the sweep.</p>' },
-        potTable('d', [[0, 25], [6.25, 18.75], 12.5, [18.75, 6.25], [25, 0]], [40, 40, 40, 40, 40], T3, [0.5, 0.5, 0.5, 0.5, 0.5]),
-        { t: 'shot', id: 'D', label: 'the potentiometer circuit with a reading visible' },
-        { t: 'step', n: 13, html: '<p>(a) What happened to the A–B resistance as you turned the knob, and did it increase clockwise or counter-clockwise? (b) What happened to the C–D resistance? (c) Explain <strong>why</strong> C–D behaved that way.</p>' },
-        { t: 'text', id: 'q13', label: 'Your observations', rows: 6 },
-        { t: 'callout', k: 'try', title: 'Investigate (optional)', html: '<p>Connect a <strong>second</strong> ohmmeter so that A–B and C–D are measured at the same time. Do the readings still match your one-meter readings? Use the ohmmeter rules to explain what you see, and what would happen on a real bench.</p>' },
-        { t: 'text', id: 'inv', label: 'What you saw (optional)', rows: 3, optional: true }
-      ] },
-      { id: 'rheo', tab: 'Rheostat', title: 'Potentiometer wired as a rheostat', blocks: [
-        { t: 'fig', draw: function () { return schPot(true); }, cap: 'Figure 8. The same circuit with the wiper joined to pin 1.' },
-        { t: 'fig', draw: function () { return bbPot(true); }, wide: true, cap: 'Figure 9. Add the yellow jumper between the wiper column and Terminal 1.' },
-        { t: 'step', n: 14, html: '<p>Add the jumper from the <strong>Wiper</strong> to <strong>Terminal 1</strong>. Before measuring, fill in both “Predicted” rows.</p>' },
-        { t: 'step', n: 15, html: '<p>Using <strong>one</strong> ohmmeter, sweep the knob and record A–B. Then move the probes to C–D and sweep again.</p>' },
-        potTable('e', [0, 0, 0, 0, 0], [[15, 40], [21.25, 33.75], 27.5, [33.75, 21.25], [40, 15]], [0.05, 0.05, 0.05, 0.05, 0.05], [0.5, 3, 3, 3, 0.5]),
-        { t: 'shot', id: 'E', label: 'the rheostat circuit with a reading visible' },
-        { t: 'step', n: 16, html: '<p>(a) Why does A–B read about 0 Ω at every knob position? (b) What are the smallest and largest C–D readings, and where do those numbers come from? (c) In your own words, what is the difference between a potentiometer and a rheostat?</p>' },
-        { t: 'text', id: 'q16', label: 'Your observations', rows: 6 }
+      { id: 'ldr', tab: 'Measuring light', title: 'Using the bridge to measure a light sensor', blocks: [
+        { t: 'fig', draw: function () { return schBridge(true); }, cap: 'Figure 4. The same bridge with a photoresistor as Rx.' },
+        { t: 'callout', k: 'tip', title: 'Photoresistors in Tinkercad', html: '<p>A photoresistor’s resistance drops as light increases. In Tinkercad, click the photoresistor while the simulation runs to show its light control. You cannot read its resistance in the Inspector — the bridge is how you measure it.</p>' },
+        { t: 'step', n: 9, html: '<p>Replace Rx with a <strong>Photoresistor</strong>. Choose three light levels — dim, medium, and bright. At each one, balance the bridge and find Rx. As a check, also measure the voltage across the photoresistor and calculate Rx = V / I using the same arm current.</p>' },
+        { t: 'callout', title: 'If you cannot balance it', html: '<p>If the knob runs out before the bridge balances, the photoresistor is outside R3’s range. Change the ratio arms — for example R2 = 10 kΩ with R1 = 1 kΩ makes <span class="eq">Rx = 10 × R3</span> — and note the ratio you used.</p>' },
+        { t: 'data', check: false, title: 'Photoresistor measurements', head: ['Light level', 'Dim', 'Medium', 'Bright'], rows: [
+          { label: 'R2 / R1 ratio used', cells: [{ id: 'x_rat_d' }, { id: 'x_rat_m' }, { id: 'x_rat_b' }] },
+          { label: 'R3 at balance', unit: 'kΩ', cells: [{ id: 'x_r3_d' }, { id: 'x_r3_m' }, { id: 'x_r3_b' }] },
+          { label: 'Rx from bridge', unit: 'kΩ', cells: [{ id: 'x_rx_d' }, { id: 'x_rx_m' }, { id: 'x_rx_b' }] },
+          { label: 'Rx from V / I', unit: 'kΩ', cells: [{ id: 'x_vi_d' }, { id: 'x_vi_m' }, { id: 'x_vi_b' }] }] },
+        { t: 'shot', id: 'ldr', label: 'the balanced bridge with the photoresistor' },
+        { t: 'step', n: 10, html: '<p>How does the photoresistor’s resistance change with light? Do your two methods agree? Describe one real device that could use a photoresistor in a bridge or a divider.</p>' },
+        { t: 'text', id: 'q10', label: 'Your answer', rows: 4 }
       ] },
       { id: 'wrap', tab: 'Conclusion', title: 'Conclusion', blocks: [
-        { t: 'html', html: '<p>In a short paragraph, summarize how resistances combine in series and in parallel, and how the way the potentiometer was wired decided whether a resistance changed as you turned the knob.</p>' },
+        { t: 'html', html: '<p>In a short paragraph, explain how you analyze a loaded divider, when meter loading matters and how to recognize it, and how a balanced Wheatstone bridge measures an unknown resistance.</p>' },
         { t: 'text', id: 'concl', label: 'Conclusion', rows: 8 },
         { t: 'callout', title: 'Next', html: '<p>Open the <strong>Report</strong> tab to see anything you missed, then save your report as a PDF and upload it to Canvas.</p>' }
       ] }
