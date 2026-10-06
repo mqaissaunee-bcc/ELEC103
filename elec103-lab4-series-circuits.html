@@ -2539,5 +2539,141 @@ html.nav-hidden .chapter-nav .nav-slim { display: flex; }
 })();
 </script>
 
+<!-- Presenter toolkit (cursor ring, laser). Hidden unless turned on: Ctrl+Alt+H toolbar, Ctrl+Alt+R ring, Ctrl+Alt+L laser -->
+<style>
+.pz-ring { position: fixed; left: 0; top: 0; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%;
+  border: 3px solid rgba(255, 196, 0, .95); box-shadow: 0 0 0 2px rgba(0,0,0,.25), inset 0 0 0 2px rgba(0,0,0,.18);
+  background: rgba(255, 214, 0, .12); pointer-events: none; z-index: 2147483600; display: none;
+  transition: width .12s, height .12s, margin .12s, background-color .12s; will-change: transform; }
+.pz-ring.on { display: block; }
+.pz-ring.down { width: 34px; height: 34px; margin: -17px 0 0 -17px; background: rgba(255, 196, 0, .45); }
+.pz-ring.gone { opacity: 0; }
+.pz-laser { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 2147483601; display: none; }
+html.pz-laser-on, html.pz-laser-on * { cursor: none !important; }
+html.pz-laser-on .pz-bar, html.pz-laser-on .pz-bar * { cursor: pointer !important; }
+.pz-laser.on { display: block; }
+.pz-bar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2147483602; display: none;
+  align-items: center; gap: 4px; padding: 5px 6px; border-radius: 999px; background: rgba(23, 36, 47, .94); color: #EAF1F6;
+  box-shadow: 0 6px 24px rgba(0,0,0,.35); font: 600 13px/1 "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; user-select: none; }
+.pz-bar.on { display: flex; }
+.pz-bar button { font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 999px;
+  padding: 7px 12px; min-height: 34px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.pz-bar button:hover { background: rgba(255,255,255,.1); }
+.pz-bar button[aria-pressed="true"] { background: #F2C714; color: #15212C; }
+.pz-bar button:focus-visible { outline: 2px solid #F2C714; outline-offset: 2px; }
+.pz-bar kbd { font: 500 11px "IBM Plex Mono", Consolas, monospace; opacity: .7; }
+.pz-bar button[aria-pressed="true"] kbd { opacity: .8; }
+.pz-bar .pz-sep { width: 1px; height: 20px; background: rgba(255,255,255,.2); margin: 0 2px; }
+.pz-toast { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); z-index: 2147483603; padding: 8px 14px; border-radius: 8px;
+  background: rgba(23, 36, 47, .94); color: #fff; font: 600 13px "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; pointer-events: none;
+  opacity: 0; transition: opacity .2s; }
+.pz-toast.show { opacity: 1; }
+@media print { .pz-ring, .pz-laser, .pz-bar, .pz-toast { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .pz-ring { transition: none; } }
+</style>
+<script>
+(function () {
+  'use strict';
+  if (window.__pzLoaded) return; window.__pzLoaded = true;
+  var KEY = 'elec103-present-v1';
+  var state = { ring: false, laser: false, bar: false };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || '{}'); for (var k in state) if (typeof saved[k] === 'boolean') state[k] = saved[k]; } catch (e) {}
+  if (/[?&]present=1/.test(location.search)) state.bar = true;
+  function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  var MOD = isMac ? '⌃⌥' : 'Ctrl+Alt+';
+
+  /* ---------- elements ---------- */
+  var ring = document.createElement('div'); ring.className = 'pz-ring'; ring.setAttribute('aria-hidden', 'true');
+  var cv = document.createElement('canvas'); cv.className = 'pz-laser'; cv.setAttribute('aria-hidden', 'true');
+  var toast = document.createElement('div'); toast.className = 'pz-toast'; toast.setAttribute('role', 'status'); toast.setAttribute('aria-live', 'polite');
+  var bar = document.createElement('div'); bar.className = 'pz-bar'; bar.setAttribute('role', 'toolbar'); bar.setAttribute('aria-label', 'Presenter tools');
+  var TOOLS = [['ring', 'Cursor ring', 'R'], ['laser', 'Laser', 'L']];
+  var btn = {};
+  TOOLS.forEach(function (t) {
+    var b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = t[1] + ' <kbd>' + MOD + t[2] + '</kbd>';
+    b.title = t[1] + ' (' + MOD + t[2] + ')';
+    b.addEventListener('click', function () { toggle(t[0]); });
+    btn[t[0]] = b; bar.appendChild(b);
+  });
+  var sep = document.createElement('span'); sep.className = 'pz-sep'; bar.appendChild(sep);
+  var hideB = document.createElement('button'); hideB.type = 'button'; hideB.innerHTML = 'Hide <kbd>' + MOD + 'H</kbd>'; hideB.title = 'Hide toolbar (' + MOD + 'H)';
+  hideB.addEventListener('click', function () { toggle('bar'); }); bar.appendChild(hideB);
+  function mount() { [ring, cv, bar, toast].forEach(function (n) { document.body.appendChild(n); }); render(); }
+
+  /* ---------- toggles ---------- */
+  var LABEL = { ring: 'Cursor ring', laser: 'Laser', bar: 'Presenter toolbar' };
+  var toastT = null;
+  function say(msg) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(function () { toast.classList.remove('show'); }, 1100); }
+  function toggle(name) { state[name] = !state[name]; persist(); render(); say(LABEL[name] + (state[name] ? ' on' : ' off')); }
+  function render() {
+    ring.classList.toggle('on', state.ring);
+    cv.classList.toggle('on', state.laser);
+    document.documentElement.classList.toggle('pz-laser-on', state.laser);
+    bar.classList.toggle('on', state.bar);
+    TOOLS.forEach(function (t) { btn[t[0]].setAttribute('aria-pressed', state[t[0]] ? 'true' : 'false'); });
+    if (state.laser) { sizeCanvas(); loop(); }
+    if (state.ring && havePos) place();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (!(e.ctrlKey && e.altKey) || e.metaKey || e.shiftKey) return;
+    var t = e.target, tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;   // never steal AltGr characters while typing
+    var map = { KeyR: 'ring', KeyL: 'laser', KeyH: 'bar' }, name = map[e.code];
+    if (!name) return;
+    e.preventDefault(); e.stopPropagation(); toggle(name);
+  }, true);
+
+  /* ---------- pointer tracking ---------- */
+  var px = 0, py = 0, havePos = false;
+  function place() { ring.style.transform = 'translate(' + px + 'px,' + py + 'px)'; }
+  window.addEventListener('pointermove', function (e) {
+    px = e.clientX; py = e.clientY; havePos = true;
+    ring.classList.remove('gone');
+    if (state.ring) place();
+    if (state.laser) { trail.push({ x: px, y: py, t: performance.now() }); loop(); }
+  }, { passive: true, capture: true });
+  window.addEventListener('pointerdown', function () { if (state.ring) ring.classList.add('down'); }, true);
+  window.addEventListener('pointerup', function () { ring.classList.remove('down'); }, true);
+  document.addEventListener('mouseleave', function () { ring.classList.add('gone'); havePos && (lastSeen = 0); });
+  window.addEventListener('blur', function () { ring.classList.remove('down'); });
+
+  /* ---------- laser: red dot with a fading trail ---------- */
+  var cx = cv.getContext('2d'), trail = [], running = false, lastSeen = 1, dpr = 1;
+  var LIFE = 450;   // ms a trail segment takes to fade
+  function sizeCanvas() {
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    cv.width = Math.round(window.innerWidth * dpr); cv.height = Math.round(window.innerHeight * dpr);
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', function () { if (state.laser) sizeCanvas(); });
+  function loop() { if (!running) { running = true; requestAnimationFrame(frame); } }
+  function frame(now) {
+    cx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    if (!state.laser) { running = false; trail = []; return; }
+    while (trail.length && now - trail[0].t > LIFE) trail.shift();
+    cx.lineCap = 'round'; cx.lineJoin = 'round';
+    for (var i = 1; i < trail.length; i++) {
+      var a = 1 - (now - trail[i].t) / LIFE; if (a <= 0) continue;
+      cx.strokeStyle = 'rgba(255, 40, 40,' + (a * 0.75).toFixed(3) + ')';
+      cx.lineWidth = 2 + 6 * a;
+      cx.beginPath(); cx.moveTo(trail[i - 1].x, trail[i - 1].y); cx.lineTo(trail[i].x, trail[i].y); cx.stroke();
+    }
+    if (havePos && lastSeen) {
+      var g = cx.createRadialGradient(px, py, 0, px, py, 16);
+      g.addColorStop(0, 'rgba(255, 70, 70, .55)'); g.addColorStop(1, 'rgba(255, 0, 0, 0)');
+      cx.fillStyle = g; cx.beginPath(); cx.arc(px, py, 16, 0, 7); cx.fill();
+      cx.fillStyle = '#ff2a2a'; cx.beginPath(); cx.arc(px, py, 6, 0, 7); cx.fill();
+      cx.fillStyle = 'rgba(255,255,255,.85)'; cx.beginPath(); cx.arc(px - 1.5, py - 1.5, 1.8, 0, 7); cx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  document.addEventListener('mouseenter', function () { lastSeen = 1; });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+</script>
+
 </body>
 </html>
