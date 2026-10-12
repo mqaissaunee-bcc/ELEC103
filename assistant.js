@@ -144,11 +144,39 @@
     }).then(function () { setBusy(false); input.focus(); });
   }
 
+  // Keep the button clear of other fixed buttons in the bottom-right corner,
+  // such as a page's own Notes or Help button. The panel opens above the button.
+  function place() {
+    var bottom = 18;
+    launch.style.bottom = bottom + "px";
+    for (var tries = 0; tries < 4; tries++) {
+      var r = launch.getBoundingClientRect(), hit = null;
+      var pts = [[r.left + 4, r.top + 4], [r.right - 4, r.top + 4], [r.left + 4, r.bottom - 4], [r.right - 4, r.bottom - 4], [(r.left + r.right) / 2, (r.top + r.bottom) / 2]];
+      for (var i = 0; i < pts.length && !hit; i++) {
+        var stack = document.elementsFromPoint(pts[i][0], pts[i][1]);
+        for (var j = 0; j < stack.length && !hit; j++) {
+          var n = stack[j];
+          if (n === launch || launch.contains(n) || panel.contains(n)) continue;
+          for (var a = n; a && a !== document.body && a !== document.documentElement; a = a.parentElement) {
+            if (getComputedStyle(a).position === "fixed") { hit = a; break; }
+          }
+        }
+      }
+      if (!hit) break;
+      var hr = hit.getBoundingClientRect();
+      if (hr.height > window.innerHeight * 0.5) break;   // ignore full-screen layers
+      bottom = Math.round(window.innerHeight - hr.top + 10);
+      launch.style.bottom = bottom + "px";
+    }
+    panel.style.bottom = (bottom + 60) + "px";
+    panel.style.height = "min(560px, calc(100vh - " + (bottom + 92) + "px))";
+  }
+
   function toggle(state) {
     open = state == null ? !open : state;
     panel.hidden = !open;
     launch.setAttribute("aria-expanded", String(open));
-    if (open) { if (!log.childNodes.length) paint(); setTimeout(function () { input.focus(); }, 30); }
+    if (open) { place(); if (!log.childNodes.length) paint(); setTimeout(function () { input.focus(); }, 30); }
     else launch.focus();
   }
 
@@ -171,6 +199,9 @@
     panel.appendChild(head); panel.appendChild(log); panel.appendChild(foot);
     panel.appendChild(el("p", { class: "ca-note" }, CONFIG.note));
     document.body.appendChild(launch); document.body.appendChild(panel);
+    place();
+    setTimeout(place, 1500);   // pages that add their own buttons a moment after loading
+    var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(place, 200); });
 
     launch.addEventListener("click", function () { toggle(); });
     close.addEventListener("click", function () { toggle(false); });
