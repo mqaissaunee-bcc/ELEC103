@@ -34,9 +34,15 @@
     ".ca-bot{align-self:flex-start;background:#fff;border:1px solid #d7e1e8}",
     ".ca-bot p{margin:0 0 8px}.ca-bot p:last-child{margin:0}",
     ".ca-bot ul,.ca-bot ol{margin:0 0 8px;padding-left:20px}",
+    ".ca-bot p.ca-h{font-weight:700;margin:10px 0 4px}",
+    ".ca-bot p.ca-h:first-child{margin-top:0}",
     ".ca-bot code{background:#eef3f6;padding:1px 4px;border-radius:4px;font:13px ui-monospace,Menlo,Consolas,monospace}",
     ".ca-bot pre{background:#13283a;color:#e6eef4;padding:10px;border-radius:8px;overflow-x:auto;margin:0 0 8px}",
     ".ca-bot pre code{background:none;color:inherit;padding:0}",
+    ".ca-math{font-size:1.05em}",
+    ".ca-math.ca-tex{font:13px ui-monospace,Menlo,Consolas,monospace;background:#eef3f6;padding:1px 4px;border-radius:4px}",
+    ".ca-math[data-display='1']{display:block;overflow-x:auto;overflow-y:hidden;margin:6px 0;text-align:center}",
+    ".ca-bot .katex{font-size:1.08em}",
     ".ca-dots span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:#7a8c99;animation:ca-b 1s infinite ease-in-out}",
     ".ca-dots span:nth-child(2){animation-delay:.15s}.ca-dots span:nth-child(3){animation-delay:.3s}",
     "@keyframes ca-b{0%,80%,100%{opacity:.3}40%{opacity:1}}",
@@ -60,20 +66,76 @@
 
   // Light Markdown: code blocks, inline code, bold, lists, paragraphs. All text is escaped first.
   function md(src) {
-    var blocks = [];
+    var blocks = [], maths = [];
     var s = String(src).replace(/```[\w+-]*\n?([\s\S]*?)```/g, function (m, code) { blocks.push(code.replace(/\s+$/, "")); return "\u0000" + (blocks.length - 1) + "\u0000"; });
+    // Math (LaTeX): $$...$$ and \[...\] on their own line, $...$ and \(...\) inline. Set aside before Markdown runs.
+    var codes = [];
+    s = s.replace(/`([^`\n]+)`/g, function (m, c) { codes.push(c); return "\u0002" + (codes.length - 1) + "\u0002"; });
+    function keep(tex, display) { maths.push({ tex: tex.trim(), display: display }); return "\u0001" + (maths.length - 1) + "\u0001"; }
+    s = s.replace(/\$\$([\s\S]+?)\$\$/g, function (m, t) { return keep(t, true); })
+      .replace(/\\\[([\s\S]+?)\\\]/g, function (m, t) { return keep(t, true); })
+      .replace(/\\\(([\s\S]+?)\\\)/g, function (m, t) { return keep(t, false); })
+      .replace(/(^|[^\\$\w])\$(?!\s)([^$\n]*?[^\s\\$])\$(?![\w$])/g, function (m, pre, t) { return pre + keep(t, false); });
     s = esc(s)
-      .replace(/`([^`\n]+)`/g, "<code>$1</code>")
-      .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
-    s = s.split(/\n{2,}/).map(function (para) {
-      var lines = para.trim().split("\n");
-      if (!lines[0]) return "";
-      if (lines.every(function (l) { return /^\s*[-*] /.test(l); })) return "<ul>" + lines.map(function (l) { return "<li>" + l.replace(/^\s*[-*] /, "") + "</li>"; }).join("") + "</ul>";
-      if (lines.every(function (l) { return /^\s*\d+\. /.test(l); })) return "<ol>" + lines.map(function (l) { return "<li>" + l.replace(/^\s*\d+\. /, "") + "</li>"; }).join("") + "</ol>";
-      if (/^\u0000\d+\u0000$/.test(para.trim())) return para.trim();
-      return "<p>" + lines.join("<br>") + "</p>";
-    }).join("");
+      .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/__([^_\n]+)__/g, "<strong>$1</strong>");
+    // Italics: *text* or _text_, but not list markers or snake_case words.
+    function inline(t) {
+      return t.replace(/(^|[^*\w])\*(?!\s)([^*\n]+?)\*(?![*\w])/g, "$1<em>$2</em>")
+        .replace(/(^|[^\w])_(?!\s)([^_\n]+?)_(?!\w)/g, "$1<em>$2</em>");
+    }
+    // Build paragraphs, headings and lists line by line, so a list can follow a sentence.
+    var out = [], para = [], list = null;
+    function endPara() { if (para.length) { out.push("<p>" + para.map(inline).join("<br>") + "</p>"); para = []; } }
+    function endList() { if (list) { out.push("<" + list.tag + ">" + list.items.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</" + list.tag + ">"); list = null; } }
+    s.split("\n").forEach(function (line) {
+      var t = line.trim(), m;
+      if (!t) { endPara(); endList(); return; }
+      if (/^\u0000\d+\u0000$/.test(t) || /^\u0001\d+\u0001$/.test(t)) { endPara(); endList(); out.push(t); return; }
+      if ((m = t.match(/^#{1,6}\s+(.*)$/))) { endPara(); endList(); out.push('<p class="ca-h">' + inline(m[1]) + "</p>"); return; }
+      if ((m = t.match(/^(?:[-*\u2022])\s+(.*)$/))) { endPara(); if (!list || list.tag !== "ul") { endList(); list = { tag: "ul", items: [] }; } list.items.push(m[1]); return; }
+      if ((m = t.match(/^\d+[.)]\s+(.*)$/))) { endPara(); if (!list || list.tag !== "ol") { endList(); list = { tag: "ol", items: [] }; } list.items.push(m[1]); return; }
+      if (list && /^\s{2,}\S/.test(line)) { list.items[list.items.length - 1] += "<br>" + t; return; }
+      endList(); para.push(t);
+    });
+    endPara(); endList();
+    s = out.join("");
+    s = s.replace(/\u0002(\d+)\u0002/g, function (m, i) { return "<code>" + esc(codes[+i]) + "</code>"; });
+    s = s.replace(/\u0001(\d+)\u0001/g, function (m, i) {
+      var x = maths[+i];
+      return '<span class="ca-math ca-tex" data-display="' + (x.display ? 1 : 0) + '" data-tex="' + esc(x.tex).replace(/"/g, "&quot;") + '">' + esc(x.tex) + "</span>";
+    });
     return s.replace(/\u0000(\d+)\u0000/g, function (m, i) { return "<pre><code>" + esc(blocks[+i]) + "</code></pre>"; });
+  }
+
+  // Draw math with KaTeX, loaded from a CDN only the first time an answer contains math.
+  // If it can't load, the LaTeX source stays visible in a code style.
+  var KATEX = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/";
+  var katexState = 0, katexWaiting = [];
+  function withKatex(done) {
+    if (window.katex) return done();
+    katexWaiting.push(done);
+    if (katexState) return;
+    katexState = 1;
+    var css = el("link", { rel: "stylesheet", href: KATEX + "katex.min.css" });
+    var js = el("script", { src: KATEX + "katex.min.js" });
+    function finish() { var w = katexWaiting; katexWaiting = []; w.forEach(function (f) { f(); }); }
+    js.onload = finish; js.onerror = function () { katexState = 3; finish(); };
+    document.head.appendChild(css); document.head.appendChild(js);
+  }
+  function typeset(node) {
+    var spans = node.querySelectorAll(".ca-math.ca-tex");
+    if (!spans.length) return;
+    withKatex(function () {
+      if (!window.katex) return;
+      spans.forEach(function (sp) {
+        try {
+          window.katex.render(sp.getAttribute("data-tex"), sp, { displayMode: sp.getAttribute("data-display") === "1", throwOnError: false, output: "htmlAndMathml" });
+          sp.classList.remove("ca-tex");
+        } catch (e) {}
+      });
+      log.scrollTop = log.scrollHeight;
+    });
   }
 
   // The text of the page the student is reading, sent with each question.
@@ -98,7 +160,7 @@
     var body = el("div");
     if (typing) { body.className = "ca-dots"; body.setAttribute("aria-label", "Assistant is typing"); body.innerHTML = "<span></span><span></span><span></span>"; }
     else if (role === "user") body.textContent = content;
-    else body.innerHTML = md(content);
+    else { body.innerHTML = md(content); typeset(body); }
     wrap.appendChild(body);
     log.appendChild(wrap);
     log.scrollTop = log.scrollHeight;
@@ -126,7 +188,7 @@
       body: JSON.stringify({ messages: history.slice(-12), context: readPage() })
     }).then(function (r) {
       if (r.status === 429) throw new Error("rate");
-      if (r.status === 502) throw new Error("upstream");
+      if (r.status === 502) return r.json().catch(function () { return {}; }).then(function (d) { throw new Error(d && d.error === "setup" ? "setup" : "upstream"); });
       if (!r.ok) throw new Error("http");
       return r.json();
     }).then(function (data) {
@@ -138,6 +200,8 @@
       dots.remove();
       add("assistant", e.message === "rate"
         ? "The assistant is busy right now. Please try again in a minute."
+        : e.message === "setup"
+        ? "The assistant isn't set up correctly right now. Please let your instructor know."
         : e.message === "upstream"
         ? "The AI service didn't answer this time. It may be busy. Please try again in a moment."
         : "Sorry, I couldn't reach the assistant. Check your connection and try again.");
